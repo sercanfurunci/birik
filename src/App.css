@@ -15,6 +15,11 @@
   --gold:        #B45309;
   --brand:       #5B5BD6;
   --brand-dim:   rgba(91, 91, 214, 0.10);
+  --brand-rgb:   91, 91, 214;
+
+  --shadow-sm:   0 1px 2px rgba(20, 18, 35, 0.05);
+  --shadow-md:   0 4px 14px rgba(20, 18, 35, 0.06), 0 1px 3px rgba(20, 18, 35, 0.04);
+  --shadow-lg:   0 18px 40px rgba(20, 18, 35, 0.08), 0 2px 6px rgba(20, 18, 35, 0.04);
 }
 
 .dark {
@@ -31,33 +36,63 @@
   --gold:        #FBBF24;
   --brand:       #7472F8;
   --brand-dim:   rgba(116, 114, 248, 0.12);
+  --brand-rgb:   116, 114, 248;
+
+  --shadow-sm:   0 1px 2px rgba(0, 0, 0, 0.35);
+  --shadow-md:   0 4px 14px rgba(0, 0, 0, 0.40), 0 1px 3px rgba(0, 0, 0, 0.28);
+  --shadow-lg:   0 22px 48px rgba(0, 0, 0, 0.50), 0 2px 8px rgba(0, 0, 0, 0.30);
 }
 
 /* ── Base ─────────────────────────────────────────────────── */
+html, body { min-height: 100%; }
 body {
   background-color: var(--bg);
+  background-image:
+    radial-gradient(ellipse 70% 50% at 8% -5%,  var(--brand-dim) 0%, transparent 55%),
+    radial-gradient(ellipse 55% 45% at 100% 110%, rgba(180, 83, 9, 0.05) 0%, transparent 55%);
+  background-attachment: fixed;
   font-family: 'Outfit', system-ui, sans-serif;
+  font-feature-settings: 'ss01' 1, 'cv11' 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
   transition: background-color 0.25s;
+}
+.dark body {
+  background-image:
+    radial-gradient(ellipse 70% 50% at 8% -5%,  rgba(116, 114, 248, 0.10) 0%, transparent 55%),
+    radial-gradient(ellipse 55% 45% at 100% 110%, rgba(251, 191, 36, 0.04) 0%, transparent 55%);
+}
+
+::selection {
+  background-color: var(--brand-dim);
+  color: var(--text-1);
 }
 
 /* ── Typography helpers ───────────────────────────────────── */
-.fin-serif { font-family: 'DM Serif Display', Georgia, serif; }
+.fin-serif {
+  font-family: 'DM Serif Display', Georgia, serif;
+  font-feature-settings: 'kern' 1, 'liga' 1;
+  letter-spacing: -0.01em;
+}
 .fin-mono  {
   font-family: 'JetBrains Mono', 'Courier New', monospace;
-  font-feature-settings: 'tnum' 1;
+  font-feature-settings: 'tnum' 1, 'zero' 1;
 }
 
 /* ── Card / surface ───────────────────────────────────────── */
 .fin-card {
   background-color: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 14px;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
 .fin-label {
   font-size: 10px;
   font-weight: 600;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--text-3);
 }
@@ -85,6 +120,7 @@ body {
 }
 .tx-card-row.tx-income  { border-left-color: var(--green); }
 .tx-card-row.tx-expense { border-left-color: var(--red); }
+.tx-card-row:hover { background-color: var(--surface-2); }
 
 /* ── Type pill toggle ─────────────────────────────────────── */
 .type-toggle {
@@ -134,12 +170,13 @@ body {
   font-size: 13.5px;
   font-family: 'Outfit', system-ui, sans-serif;
   outline: none;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  transition: border-color 0.15s, box-shadow 0.15s, background-color 0.15s;
 }
 .fin-input::placeholder { color: var(--text-3); }
+.fin-input:hover { border-color: var(--border-2); }
 .fin-input:focus {
   border-color: var(--brand);
-  box-shadow: 0 0 0 3px var(--brand-dim);
+  box-shadow: 0 0 0 3.5px var(--brand-dim);
 }
 
 .fin-select {
@@ -155,29 +192,47 @@ body {
   font-family: 'Outfit', system-ui, sans-serif;
   outline: none;
   cursor: pointer;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  transition: border-color 0.15s, box-shadow 0.15s, background-color 0.15s;
 }
+.fin-select:hover { border-color: var(--border-2); }
 .fin-select:focus {
   border-color: var(--brand);
-  box-shadow: 0 0 0 3px var(--brand-dim);
+  box-shadow: 0 0 0 3.5px var(--brand-dim);
 }
 
 /* ── Button ───────────────────────────────────────────────── */
 .fin-btn-primary {
   background-color: var(--brand);
+  background-image: linear-gradient(180deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0) 60%);
   color: #fff;
   font-weight: 600;
   font-size: 13.5px;
+  letter-spacing: 0.005em;
   border-radius: 10px;
   padding: 10px 20px;
   border: none;
   cursor: pointer;
-  transition: opacity 0.15s, transform 0.1s;
+  transition: transform 0.1s ease, box-shadow 0.18s ease, filter 0.15s ease;
   white-space: nowrap;
   font-family: 'Outfit', system-ui, sans-serif;
+  box-shadow:
+    0 1px 2px rgba(var(--brand-rgb), 0.30),
+    inset 0 1px 0 rgba(255,255,255,0.15);
 }
-.fin-btn-primary:hover  { opacity: 0.88; }
-.fin-btn-primary:active { transform: scale(0.97); }
+.fin-btn-primary:hover {
+  filter: brightness(1.05);
+  box-shadow:
+    0 4px 14px rgba(var(--brand-rgb), 0.36),
+    inset 0 1px 0 rgba(255,255,255,0.18);
+}
+.fin-btn-primary:active { transform: translateY(0.5px) scale(0.985); }
+.fin-btn-primary:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 3.5px var(--brand-dim),
+    0 1px 2px rgba(var(--brand-rgb), 0.30),
+    inset 0 1px 0 rgba(255,255,255,0.15);
+}
 
 /* ── Icon button ──────────────────────────────────────────── */
 .fin-icon-btn {
@@ -190,12 +245,19 @@ body {
   background-color: var(--surface);
   color: var(--text-2);
   cursor: pointer;
-  transition: background-color 0.13s, color 0.13s;
+  transition: background-color 0.13s, color 0.13s, border-color 0.13s, transform 0.1s;
   flex-shrink: 0;
 }
 .fin-icon-btn:hover {
   background-color: var(--surface-2);
   color: var(--text-1);
+  border-color: var(--border-2);
+}
+.fin-icon-btn:active { transform: scale(0.94); }
+.fin-icon-btn:focus-visible {
+  outline: none;
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px var(--brand-dim);
 }
 
 /* ── Category pill ────────────────────────────────────────── */
@@ -229,21 +291,63 @@ body {
 .anim-4 { animation: fadeUp 0.45s 0.21s cubic-bezier(0.16,1,0.3,1) both; }
 .anim-5 { animation: fadeUp 0.45s 0.28s cubic-bezier(0.16,1,0.3,1) both; }
 
+@media (prefers-reduced-motion: reduce) {
+  .anim-1, .anim-2, .anim-3, .anim-4, .anim-5 {
+    animation: none;
+  }
+  * {
+    transition-duration: 0.001s !important;
+  }
+}
+
 /* ── Login page decorative background ────────────────────── */
 .login-bg {
+  position: relative;
   background-color: var(--bg);
   background-image:
-    radial-gradient(ellipse 60% 40% at 20% 20%, var(--brand-dim) 0%, transparent 60%),
-    radial-gradient(ellipse 40% 60% at 80% 80%, rgba(251,191,36,0.05) 0%, transparent 60%);
+    radial-gradient(ellipse 60% 40% at 18% 18%, var(--brand-dim) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 60% at 82% 82%, rgba(251, 191, 36, 0.06) 0%, transparent 60%);
+  background-attachment: fixed;
+}
+.dark .login-bg {
+  background-image:
+    radial-gradient(ellipse 60% 40% at 18% 18%, rgba(116, 114, 248, 0.14) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 60% at 82% 82%, rgba(251, 191, 36, 0.04) 0%, transparent 60%);
 }
 
 /* ── Bottom nav ───────────────────────────────────────────── */
-nav.sm\\:hidden button {
+nav.sm\:hidden { backdrop-filter: saturate(140%) blur(8px); }
+nav.sm\:hidden button {
   position: relative;
+  min-width: 0;
+}
+nav.sm\:hidden span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+/* Tighten mobile nav for 5 tabs on narrow phones */
+@media (max-width: 380px) {
+  nav.sm\:hidden { padding-left: 6px; padding-right: 6px; }
+  nav.sm\:hidden span { font-size: 9px !important; letter-spacing: -0.01em; }
+}
+
+/* ── Mobile header polish ─────────────────────────────────── */
+@media (max-width: 480px) {
+  .fin-icon-btn { width: 34px; height: 34px; }
 }
 
 /* ── Scrollbar ────────────────────────────────────────────── */
-::-webkit-scrollbar             { width: 5px; }
+::-webkit-scrollbar             { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track       { background: transparent; }
 ::-webkit-scrollbar-thumb       { background: var(--border-2); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--text-3); }
+
+/* ── Focus-visible default for keyboard users ─────────────── */
+:where(button, a, [role="button"]):focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
