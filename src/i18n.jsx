@@ -17,6 +17,9 @@ const translations = {
     // Profile
     usernameRequired: "Username cannot be empty",
 
+    // Privacy
+    privacyPolicy: "Privacy Policy",
+
     // Auth
     signInTitle: "Sign in to your account",
     email: "Email",
@@ -289,6 +292,9 @@ const translations = {
 
     // Profile
     usernameRequired: "Kullanıcı adı boş olamaz",
+
+    // Privacy
+    privacyPolicy: "Gizlilik Politikası",
 
     // Auth
     signInTitle: "Hesabınıza giriş yapın",

@@ -10,6 +10,7 @@ import ForgotPasswordPage from "./ForgotPasswordPage";
 import ResetPasswordPage from "./ResetPasswordPage";
 import ProfileModal from "./ProfileModal";
 import LandingPage from "./LandingPage";
+import PrivacyPage from "./PrivacyPage";
 import { CurrencyProvider } from "./currency.jsx";
 import { useLang } from "./i18n.jsx";
 import Subscriptions from "./Subscriptions";
@@ -99,9 +100,11 @@ function App() {
     const params = new URLSearchParams(window.location.search);
     return params.get("reset_token") || null;
   });
-  const [authPage, setAuthPage] = useState(() =>
-    new URLSearchParams(window.location.search).get("reset_token") ? "reset-password" : "landing"
-  );
+  const [authPage, setAuthPage] = useState(() => {
+    if (window.location.pathname === "/privacy") return "privacy";
+    if (new URLSearchParams(window.location.search).get("reset_token")) return "reset-password";
+    return "landing";
+  });
   const [activeTab, setActiveTab] = useState("dashboard");
   const [showProfile, setShowProfile] = useState(false);
   const [isDark, setIsDark] = useState(() => {
@@ -219,6 +222,20 @@ function App() {
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: "var(--bg)" }}>
         <div className="w-8 h-8 rounded-full border-2 border-t-transparent animate-spin" style={{ borderColor: "var(--brand)", borderTopColor: "transparent" }} />
       </div>
+    );
+  }
+
+  // ── Privacy policy (public, no auth required) ──
+  if (authPage === "privacy") {
+    return (
+      <PrivacyPage
+        isDark={isDark}
+        toggleDark={() => setIsDark((d) => !d)}
+        onBack={() => {
+          window.history.replaceState(null, "", "/");
+          setAuthPage("landing");
+        }}
+      />
     );
   }
 
