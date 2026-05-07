@@ -137,6 +137,34 @@ const translations = {
     biggestExpense: "Biggest Expense",
     last30Days: "Last 30 Days",
     byCategory: "By Category",
+    spendingTrends: "Spending Trends",
+    thisMonth: "This Month",
+    lastMonth: "Last Month",
+    vsLastMonth: "vs last month",
+    topMovers: "Top Category Changes",
+    noTrendData: "Need at least one full month of data",
+
+    // Budgets
+    budgets: "Budgets",
+    budgetsTab: "Budgets",
+    budgetEmpty: "No budgets yet. Set monthly limits to track your spending.",
+    budgetAdd: "Set Budget",
+    budgetEdit: "Edit Budget",
+    budgetMonthlyLimit: "Monthly Limit",
+    budgetSpent: "Spent",
+    budgetRemaining: "Remaining",
+    budgetOverBy: "Over by",
+    budgetOnTrack: "On track",
+    budgetWarning: "Close to limit",
+    budgetExceeded: "Over budget",
+    budgetTotal: "Total Budget",
+    budgetTotalSpent: "Total Spent",
+    budgetDeleteTitle: "Remove Budget",
+    budgetSelectCategory: "Category",
+
+    // Export
+    exportCsv: "Export CSV",
+    exportEmpty: "Nothing to export",
 
     // Statement import
     importStatement: "Import Statement",
@@ -363,6 +391,34 @@ const translations = {
     biggestExpense: "En Büyük Gider",
     last30Days: "Son 30 Gün",
     byCategory: "Kategoriye Göre",
+    spendingTrends: "Harcama Trendi",
+    thisMonth: "Bu Ay",
+    lastMonth: "Geçen Ay",
+    vsLastMonth: "geçen aya göre",
+    topMovers: "Öne Çıkan Değişimler",
+    noTrendData: "En az bir tam aylık veri gerekli",
+
+    // Budgets
+    budgets: "Bütçeler",
+    budgetsTab: "Bütçe",
+    budgetEmpty: "Henüz bütçe yok. Harcamanızı takip etmek için aylık limit belirleyin.",
+    budgetAdd: "Bütçe Belirle",
+    budgetEdit: "Bütçeyi Düzenle",
+    budgetMonthlyLimit: "Aylık Limit",
+    budgetSpent: "Harcanan",
+    budgetRemaining: "Kalan",
+    budgetOverBy: "Aşım",
+    budgetOnTrack: "Yolunda",
+    budgetWarning: "Limite yakın",
+    budgetExceeded: "Bütçe aşıldı",
+    budgetTotal: "Toplam Bütçe",
+    budgetTotalSpent: "Toplam Harcama",
+    budgetDeleteTitle: "Bütçeyi Kaldır",
+    budgetSelectCategory: "Kategori",
+
+    // Export
+    exportCsv: "CSV İndir",
+    exportEmpty: "Dışa aktarılacak işlem yok",
 
     // Statement import
     importStatement: "Ekstre İçe Aktar",

@@ -92,6 +92,43 @@ function Analytics({ transactions }) {
     ? Math.max(...expenses.map((tx) => parseFloat(tx.amount)))
     : 0;
 
+  // Month-over-month spending trends
+  const now = new Date();
+  const ymKey = (offset) => {
+    const d = new Date(now.getFullYear(), now.getMonth() + offset, 1);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+  };
+  const thisYM = ymKey(0);
+  const lastYM = ymKey(-1);
+  const sumByCatForMonth = (ym) => {
+    const acc = {};
+    for (const tx of expenses) {
+      if (txDate(tx.date).slice(0, 7) !== ym) continue;
+      acc[tx.category] = (acc[tx.category] || 0) + parseFloat(tx.amount);
+    }
+    return acc;
+  };
+  const thisCat = sumByCatForMonth(thisYM);
+  const lastCat = sumByCatForMonth(lastYM);
+  const thisTotal = Object.values(thisCat).reduce((s, v) => s + v, 0);
+  const lastTotal = Object.values(lastCat).reduce((s, v) => s + v, 0);
+  const totalChange = lastTotal > 0 ? ((thisTotal - lastTotal) / lastTotal) * 100 : null;
+
+  const allCats = new Set([...Object.keys(thisCat), ...Object.keys(lastCat)]);
+  const movers = [...allCats]
+    .map((cat) => {
+      const cur = thisCat[cat] || 0;
+      const prev = lastCat[cat] || 0;
+      const diff = cur - prev;
+      const pct = prev > 0 ? (diff / prev) * 100 : (cur > 0 ? 100 : 0);
+      return { cat, cur, prev, diff, pct };
+    })
+    .filter((m) => m.cur > 0 || m.prev > 0)
+    .sort((a, b) => Math.abs(b.diff) - Math.abs(a.diff))
+    .slice(0, 3);
+
+  const hasTrendData = lastTotal > 0 || thisTotal > 0;
+
   // Last 30 days bar chart data
   const last30 = Array.from({ length: 30 }, (_, i) => {
     const d = new Date();
@@ -147,6 +184,86 @@ function Analytics({ transactions }) {
           sub={expenses.find((tx) => parseFloat(tx.amount) === biggestExpense)?.description}
         />
       </div>
+
+      {/* Spending Trends */}
+      {hasTrendData && (
+        <div className="fin-card rounded-2xl p-5">
+          <p className="fin-label mb-4">{t("spendingTrends")}</p>
+
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            <div>
+              <p className="text-xs mb-1" style={{ color: "var(--text-3)" }}>{t("thisMonth")}</p>
+              <p className="fin-mono text-xl font-bold" style={{ color: "var(--text-1)", letterSpacing: "-0.02em" }}>
+                {symbol}{fmt(thisTotal)}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs mb-1" style={{ color: "var(--text-3)" }}>{t("lastMonth")}</p>
+              <p className="fin-mono text-xl font-bold" style={{ color: "var(--text-3)", letterSpacing: "-0.02em" }}>
+                {symbol}{fmt(lastTotal)}
+              </p>
+            </div>
+          </div>
+
+          {totalChange !== null && (
+            <div className="flex items-center gap-2 mb-4 pb-4" style={{ borderBottom: movers.length > 0 ? "1px solid var(--border)" : "none" }}>
+              <div
+                className="px-2.5 py-1 rounded-md flex items-center gap-1 text-xs font-semibold"
+                style={{
+                  backgroundColor: totalChange > 0 ? "rgba(248,113,113,0.12)" : "rgba(16,185,129,0.12)",
+                  color: totalChange > 0 ? "var(--red)" : "var(--green)",
+                }}
+              >
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                  {totalChange > 0
+                    ? <polyline points="6 15 12 9 18 15" />
+                    : <polyline points="6 9 12 15 18 9" />}
+                </svg>
+                {Math.abs(totalChange).toFixed(1)}%
+              </div>
+              <span className="text-xs" style={{ color: "var(--text-3)" }}>{t("vsLastMonth")}</span>
+            </div>
+          )}
+
+          {movers.length > 0 && (
+            <div>
+              <p className="fin-label mb-3">{t("topMovers")}</p>
+              <div className="space-y-2.5">
+                {movers.map(({ cat, cur, diff, pct }) => {
+                  const up = diff > 0;
+                  return (
+                    <div key={cat} className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div
+                          className="w-2 h-2 rounded-full"
+                          style={{ backgroundColor: catColors[cat] || catColors.other }}
+                        />
+                        <span className="text-sm capitalize" style={{ color: "var(--text-2)" }}>
+                          {t(cat)}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="fin-mono text-sm font-semibold" style={{ color: "var(--text-1)" }}>
+                          {symbol}{fmt(cur)}
+                        </span>
+                        <span
+                          className="text-xs font-semibold flex items-center gap-0.5"
+                          style={{ color: up ? "var(--red)" : "var(--green)", minWidth: 56, justifyContent: "flex-end" }}
+                        >
+                          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                            {up ? <polyline points="6 15 12 9 18 15" /> : <polyline points="6 9 12 15 18 9" />}
+                          </svg>
+                          {Math.abs(pct).toFixed(0)}%
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Bar chart: last 30 days */}
       <div className="fin-card rounded-2xl p-5">

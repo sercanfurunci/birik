@@ -167,6 +167,18 @@ pool.query(`
   )
 `).catch(err => console.error("subscriptions table init error:", err));
 
+pool.query(`
+  CREATE TABLE IF NOT EXISTS budgets (
+    id         SERIAL PRIMARY KEY,
+    user_id    INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    category   TEXT NOT NULL,
+    amount     NUMERIC NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW(),
+    UNIQUE(user_id, category)
+  )
+`).catch(err => console.error("budgets table init error:", err));
+
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: { user: process.env.MAIL_USER, pass: process.env.MAIL_PASS },
@@ -1274,6 +1286,61 @@ app.post("/transactions/import/bulk", authMiddleware, async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Failed to import transactions" });
+  }
+});
+
+// ─── Budgets ──────────────────────────────────────────────────────────────────
+
+app.get("/budgets", authMiddleware, async (req, res) => {
+  try {
+    const result = await pool.query(
+      "SELECT id, category, amount FROM budgets WHERE user_id=$1 ORDER BY category",
+      [req.user.id]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Fetch error" });
+  }
+});
+
+app.put("/budgets", authMiddleware, async (req, res) => {
+  const category = trimStr(req.body.category, 50);
+  const amount   = isValidAmount(req.body.amount);
+
+  if (!category || !VALID_CATEGORIES.has(category)) return res.status(400).json({ error: "Invalid category" });
+  if (amount === null) return res.status(400).json({ error: "Amount must be a positive number under 1 billion" });
+
+  try {
+    const result = await pool.query(
+      `INSERT INTO budgets (user_id, category, amount)
+       VALUES ($1, $2, $3)
+       ON CONFLICT (user_id, category) DO UPDATE
+         SET amount = EXCLUDED.amount, updated_at = NOW()
+       RETURNING id, category, amount`,
+      [req.user.id, category, amount]
+    );
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Save error" });
+  }
+});
+
+app.delete("/budgets/:id", authMiddleware, async (req, res) => {
+  const id = isValidId(req.params.id);
+  if (!id) return res.status(400).json({ error: "Invalid budget ID" });
+
+  try {
+    const result = await pool.query(
+      "DELETE FROM budgets WHERE id=$1 AND user_id=$2 RETURNING *",
+      [id, req.user.id]
+    );
+    if (result.rows.length === 0) return res.status(404).json({ error: "Budget not found" });
+    res.json({ message: "Deleted successfully" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Delete error" });
   }
 });
 

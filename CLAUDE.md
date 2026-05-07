@@ -85,7 +85,20 @@ CREATE TABLE subscriptions (
   notes TEXT,
   created_at TIMESTAMP DEFAULT NOW()
 );
+
+-- Budgets (one row per user/category)
+CREATE TABLE budgets (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+  category TEXT NOT NULL,        -- same category set as transactions
+  amount NUMERIC NOT NULL,       -- monthly limit in user's currency
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW(),
+  UNIQUE(user_id, category)
+);
 ```
+
+Tables `subscriptions` and `budgets` auto-create on backend start via `CREATE TABLE IF NOT EXISTS`.
 
 If adding new columns: `ALTER TABLE users ADD COLUMN IF NOT EXISTS ...`
 
@@ -103,8 +116,11 @@ App                     # auth state, transactions state, theme, token, currentU
     ├── Dashboard           # donut chart + recent activity (uses Summary)
     │   └── Summary         # balance hero card + income/expense totals
     ├── TransactionForm     # add income/expense form (pill type toggle)
-    ├── TransactionList     # filterable list, inline edit, delete modal
-    ├── Analytics           # 30-day bar chart + stat cards + category breakdown
+    ├── TransactionList     # filterable list, inline edit, delete modal, CSV export
+    ├── Analytics           # 30-day bar chart + stat cards + category breakdown + month-over-month spending trends
+    ├── Budgets             # monthly budget per category with progress bars; computes current-month spending from transactions prop
+    │   ├── BudgetForm      # add/edit modal (category dropdown filtered to unset categories on add)
+    │   └── DeleteConfirm   # delete confirmation modal
     ├── Subscriptions       # subscription tracker: list, add/edit/delete, monthly total, brand icons
     │   ├── SubForm         # add/edit modal
     │   ├── SubDetail       # detail/stats modal
@@ -157,6 +173,9 @@ Tailwind CSS v4 + custom classes in `src/App.css`:
 | POST | `/subscriptions` | JWT | Create subscription |
 | PUT | `/subscriptions/:id` | JWT | Update subscription |
 | DELETE | `/subscriptions/:id` | JWT | Delete subscription |
+| GET | `/budgets` | JWT | List user's budgets |
+| PUT | `/budgets` | JWT | Upsert budget by category — body `{ category, amount }` |
+| DELETE | `/budgets/:id` | JWT | Delete budget |
 | GET | `/admin/users` | x-admin-secret | List all users |
 
 ### AI Statement Import
@@ -171,3 +190,23 @@ Tailwind CSS v4 + custom classes in `src/App.css`:
 - `SERVICE_DOMAIN` map in `Subscriptions.jsx` matches service names to domains; longest match wins
 - Falls back to emoji if domain unknown or image fails to load
 - Monthly total normalises weekly/yearly amounts: weekly × 52 / 12, yearly / 12
+
+### Budgets
+
+- One budget per user per category (enforced by `UNIQUE(user_id, category)`)
+- Spending computed client-side: filter `transactions` where `type === 'expense'` and `date.slice(0,7) === current YYYY-MM`
+- Progress bar color: green (< 80%), yellow (80–100%), red (> 100%)
+- `salary` category is excluded from the category dropdown (income-only category)
+
+### Spending Trends (Analytics)
+
+- Compares current calendar month vs previous calendar month using `transactions` already loaded in `App`
+- "Top movers" = top 3 categories by absolute change in spent amount (this month − last month)
+- Hidden when no expenses exist in either month
+
+### CSV Export (TransactionList)
+
+- Client-side only — no backend involvement
+- Exports the currently filtered list (respects type + category filters)
+- UTF-8 BOM prepended for Excel; standard CSV escaping for quotes/commas/newlines
+- Filename: `transactions-YYYY-MM-DD.csv`

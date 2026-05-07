@@ -88,6 +88,36 @@ function TrashIcon() {
   );
 }
 
+function csvEscape(val) {
+  const s = String(val ?? "");
+  if (/[",\n\r]/.test(s)) return `"${s.replace(/"/g, '""')}"`;
+  return s;
+}
+
+function downloadCsv(transactions, t) {
+  if (!transactions.length) return;
+  const headers = [t("date"), t("description"), t("category"), "Type", t("amount")];
+  const rows = transactions.map((tx) => [
+    (tx.date || "").split("T")[0],
+    tx.description || "",
+    t(tx.category) || tx.category,
+    tx.type,
+    parseFloat(tx.amount).toFixed(2),
+  ]);
+  const csv = [headers, ...rows].map((r) => r.map(csvEscape).join(",")).join("\n");
+  const bom = "\uFEFF"; // Excel-friendly UTF-8 BOM
+  const blob = new Blob([bom + csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  const stamp = new Date().toISOString().slice(0, 10);
+  link.href = url;
+  link.download = `transactions-${stamp}.csv`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
 function TransactionList({ transactions, onDelete, onEdit }) {
   const { t } = useLang();
   const { symbol } = useCurrency();
@@ -131,7 +161,7 @@ function TransactionList({ transactions, onDelete, onEdit }) {
           style={{ borderColor: "var(--border)" }}
         >
           <h2 className="fin-label">{t("transactions")}</h2>
-          <div className="flex gap-2 sm:ml-auto">
+          <div className="flex gap-2 sm:ml-auto flex-wrap">
             <select
               value={filterType}
               onChange={(e) => setFilterType(e.target.value)}
@@ -153,6 +183,24 @@ function TransactionList({ transactions, onDelete, onEdit }) {
                 <option key={cat} value={cat}>{t(cat)}</option>
               ))}
             </select>
+            <button
+              onClick={() => downloadCsv(filtered, t)}
+              disabled={filtered.length === 0}
+              title={filtered.length === 0 ? t("exportEmpty") : t("exportCsv")}
+              className="text-xs py-1.5 px-3 rounded-lg flex items-center gap-1.5 cursor-pointer transition-opacity hover:opacity-80 disabled:opacity-40 disabled:cursor-not-allowed"
+              style={{
+                backgroundColor: "var(--surface-2)",
+                border: "1px solid var(--border)",
+                color: "var(--text-2)",
+              }}
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+              </svg>
+              {t("exportCsv")}
+            </button>
           </div>
         </div>
 

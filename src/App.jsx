@@ -13,6 +13,7 @@ import LandingPage from "./LandingPage";
 import { CurrencyProvider } from "./currency.jsx";
 import { useLang } from "./i18n.jsx";
 import Subscriptions from "./Subscriptions";
+import Budgets from "./Budgets";
 
 const API = import.meta.env.VITE_API_URL;
 
@@ -57,11 +58,22 @@ function IconSubscriptions({ active }) {
     </svg>
   );
 }
+function IconBudgets({ active }) {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      strokeWidth={active ? "2.2" : "1.8"} strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10" />
+      <circle cx="12" cy="12" r="6" />
+      <circle cx="12" cy="12" r="2" />
+    </svg>
+  );
+}
 
 const TABS = [
   { id: "dashboard",     label: "Overview",       Icon: IconDashboard },
   { id: "transactions",  label: "Transactions",   Icon: IconTransactions },
-  { id: "analytics",    label: "Analytics",      Icon: IconAnalytics },
+  { id: "analytics",     label: "Analytics",      Icon: IconAnalytics },
+  { id: "budgets",       label: "Budgets",        Icon: IconBudgets },
   { id: "subscriptions", label: "Subscriptions",  Icon: IconSubscriptions },
 ];
 
@@ -350,6 +362,8 @@ function App() {
         )}
 
         {activeTab === "analytics" && <Analytics transactions={transactions} />}
+
+        {activeTab === "budgets" && <Budgets transactions={transactions} />}
 
         {activeTab === "subscriptions" && <Subscriptions onExpenseAdded={refreshTransactions} />}
       </div>
