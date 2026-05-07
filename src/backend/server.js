@@ -36,6 +36,7 @@ const { Pool }   = require("pg");
 const bcrypt     = require("bcrypt");
 const jwt        = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
+const { Resend } = require("resend");
 const rateLimit  = require("express-rate-limit");
 const crypto     = require("crypto");
 const swaggerUi  = require("swagger-ui-express");
@@ -195,6 +196,21 @@ const transporter = nodemailer.createTransport({
   auth: { user: process.env.MAIL_USER, pass: process.env.MAIL_PASS },
 });
 
+// Resend (HTTPS-based) is used in production because Railway blocks outbound
+// SMTP. Falls back to nodemailer/Gmail for local development.
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
+async function sendEmail({ to, subject, html, from }) {
+  const fromAddress = from || process.env.MAIL_FROM || "Moneto <onboarding@resend.dev>";
+  if (resend) {
+    const { data, error } = await resend.emails.send({
+      from: fromAddress, to, subject, html,
+    });
+    if (error) throw new Error(`Resend: ${error.message || JSON.stringify(error)}`);
+    return data;
+  }
+  return transporter.sendMail({ from: fromAddress, to, subject, html });
+}
+
 // ─── Input validation helpers ────────────────────────────────────────────────
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -353,8 +369,7 @@ app.post("/auth/register", async (req, res) => {
     );
 
     const verifyUrl = `${process.env.BACKEND_URL || "http://localhost:3000"}/auth/verify?token=${verifyToken}`;
-    await transporter.sendMail({
-      from: `"Moneto" <${process.env.MAIL_USER}>`,
+    await sendEmail({
       to: email,
       subject: "Verify your email",
       html: `
@@ -538,8 +553,7 @@ app.post("/auth/forgot-password", async (req, res) => {
     );
 
     const resetUrl = `${FRONTEND_URL}/?reset_token=${resetToken}`;
-    await transporter.sendMail({
-      from: `"Moneto" <${process.env.MAIL_USER}>`,
+    await sendEmail({
       to: email,
       subject: "Reset your password",
       html: `
@@ -733,8 +747,7 @@ app.post("/auth/link-email", authMiddleware, async (req, res) => {
     );
 
     const verifyUrl = `${process.env.BACKEND_URL || "http://localhost:3000"}/auth/link-email/verify?token=${verifyToken}`;
-    await transporter.sendMail({
-      from: `"Moneto" <${process.env.MAIL_USER}>`,
+    await sendEmail({
       to: email,
       subject: "Link your email to Moneto",
       html: `
