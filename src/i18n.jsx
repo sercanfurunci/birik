@@ -2,7 +2,7 @@ import { createContext, useContext, useState } from "react";
 
 const translations = {
   en: {
-    appName: "Finance Tracker",
+    appName: "Moneto",
     appSubtitle: "Keep tabs on your income and expenses",
     signOut: "Sign out",
     dateLocale: "en-US",
@@ -265,7 +265,7 @@ const translations = {
   },
 
   tr: {
-    appName: "Finans Takip",
+    appName: "Moneto",
     appSubtitle: "Gelir ve giderlerinizi takip edin",
     signOut: "Çıkış yap",
     dateLocale: "tr-TR",

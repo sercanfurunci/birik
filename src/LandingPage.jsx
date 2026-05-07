@@ -115,13 +115,10 @@ function LandingPage({ onGetStarted, onSignIn, isDark, toggleDark }) {
       <header style={{ borderBottom: "1px solid var(--border)" }}>
         <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white shrink-0"
-              style={{ backgroundColor: "var(--brand)" }}>
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="12" y1="1" x2="12" y2="23"/>
-                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-              </svg>
-            </div>
+            <svg className="moneto-logo shrink-0" width="28" height="28" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ borderRadius: 7 }}>
+              <rect width="128" height="128" rx="28" fill="#111111"/>
+              <path d="M32 88V40L64 72L96 40V88" stroke="white" strokeWidth="10" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
             <span className="fin-serif text-base" style={{ color: "var(--text-1)" }}>{t("appName")}</span>
           </div>
           <div className="flex items-center gap-2">
@@ -264,13 +261,10 @@ function LandingPage({ onGetStarted, onSignIn, isDark, toggleDark }) {
       <footer style={{ borderTop: "1px solid var(--border)" }}>
         <div className="max-w-4xl mx-auto px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <div className="w-5 h-5 rounded-md flex items-center justify-center text-white"
-              style={{ backgroundColor: "var(--brand)" }}>
-              <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="12" y1="1" x2="12" y2="23"/>
-                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-              </svg>
-            </div>
+            <svg width="20" height="20" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ borderRadius: 5 }}>
+              <rect width="128" height="128" rx="28" fill="#111111"/>
+              <path d="M32 88V40L64 72L96 40V88" stroke="white" strokeWidth="10" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
             <span className="fin-serif text-sm" style={{ color: "var(--text-2)" }}>{t("appName")}</span>
           </div>
           <p className="text-xs" style={{ color: "var(--text-3)" }}>

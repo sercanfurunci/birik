@@ -271,15 +271,10 @@ function App() {
         <header className="mb-6 anim-1">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3 min-w-0">
-              <div
-                className="w-9 h-9 rounded-xl flex items-center justify-center text-white shrink-0"
-                style={{ background: "linear-gradient(135deg, var(--brand) 0%, #9B8FF8 100%)" }}
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="12" y1="1" x2="12" y2="23" />
-                  <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-                </svg>
-              </div>
+              <svg className="moneto-logo shrink-0" width="36" height="36" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ borderRadius: 10 }}>
+                <rect width="128" height="128" rx="28" fill="#111111"/>
+                <path d="M32 88V40L64 72L96 40V88" stroke="white" strokeWidth="10" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
               <div className="min-w-0">
                 <h1 className="fin-serif text-xl sm:text-2xl leading-tight truncate" style={{ color: "var(--text-1)" }}>
                   {t("appName")}

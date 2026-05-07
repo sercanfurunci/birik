@@ -168,14 +168,10 @@ function RegisterPage({ onSwitch, onBack, isDark, toggleDark }) {
 
   const BrandMark = () => (
     <div className="flex flex-col items-center mb-8">
-      <div
-        className="w-12 h-12 rounded-2xl flex items-center justify-center text-white mb-4"
-        style={{ backgroundColor: "var(--brand)" }}
-      >
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <line x1="12" y1="1" x2="12" y2="23" /><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-        </svg>
-      </div>
+      <svg className="moneto-logo mb-4" width="48" height="48" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ borderRadius: 14 }}>
+        <rect width="128" height="128" rx="28" fill="#111111"/>
+        <path d="M32 88V40L64 72L96 40V88" stroke="white" strokeWidth="10" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
       <h1 className="fin-serif text-2xl" style={{ color: "var(--text-1)" }}>{t("appName")}</h1>
       <p className="text-sm mt-1" style={{ color: "var(--text-3)" }}>{t("appSubtitle")}</p>
     </div>

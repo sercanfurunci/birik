@@ -351,14 +351,14 @@ app.post("/auth/register", async (req, res) => {
 
     const verifyUrl = `${process.env.BACKEND_URL || "http://localhost:3000"}/auth/verify?token=${verifyToken}`;
     await transporter.sendMail({
-      from: `"Finance Tracker" <${process.env.MAIL_USER}>`,
+      from: `"Moneto" <${process.env.MAIL_USER}>`,
       to: email,
       subject: "Verify your email",
       html: `
         <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px;background:#f8fafc;border-radius:16px;">
           <div style="text-align:center;margin-bottom:24px;">
             <div style="display:inline-block;background:#7c3aed;color:#fff;font-size:22px;font-weight:bold;width:48px;height:48px;line-height:48px;border-radius:12px;">$</div>
-            <h2 style="margin:12px 0 4px;color:#1e293b;">Finance Tracker</h2>
+            <h2 style="margin:12px 0 4px;color:#1e293b;">Moneto</h2>
             <p style="color:#64748b;margin:0;font-size:14px;">Email Verification</p>
           </div>
           <div style="background:#fff;border-radius:12px;padding:24px;border:1px solid #e2e8f0;">
@@ -407,7 +407,7 @@ function verifyHtmlPage(message, success) {
   <body style="font-family:sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;background:#0f172a;">
     <div style="text-align:center;background:#1e293b;border:1px solid #334155;border-radius:16px;padding:40px 48px;max-width:400px;">
       <div style="width:56px;height:56px;border-radius:50%;background:${color}22;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:24px;color:${color};">${icon}</div>
-      <div style="font-size:24px;font-weight:bold;color:#fff;margin-bottom:8px;">Finance Tracker</div>
+      <div style="font-size:24px;font-weight:bold;color:#fff;margin-bottom:8px;">Moneto</div>
       <p style="color:#94a3b8;margin:0 0 24px;">${message}</p>
       <a href="${FRONTEND_URL}" style="display:inline-block;background:#7c3aed;color:#fff;text-decoration:none;padding:10px 28px;border-radius:10px;font-weight:600;">Go to App</a>
     </div>
@@ -536,14 +536,14 @@ app.post("/auth/forgot-password", async (req, res) => {
 
     const resetUrl = `${FRONTEND_URL}/?reset_token=${resetToken}`;
     await transporter.sendMail({
-      from: `"Finance Tracker" <${process.env.MAIL_USER}>`,
+      from: `"Moneto" <${process.env.MAIL_USER}>`,
       to: email,
       subject: "Reset your password",
       html: `
         <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px;background:#f8fafc;border-radius:16px;">
           <div style="text-align:center;margin-bottom:24px;">
             <div style="display:inline-block;background:#7c3aed;color:#fff;font-size:22px;font-weight:bold;width:48px;height:48px;line-height:48px;border-radius:12px;">$</div>
-            <h2 style="margin:12px 0 4px;color:#1e293b;">Finance Tracker</h2>
+            <h2 style="margin:12px 0 4px;color:#1e293b;">Moneto</h2>
             <p style="color:#64748b;margin:0;font-size:14px;">Password Reset</p>
           </div>
           <div style="background:#fff;border-radius:12px;padding:24px;border:1px solid #e2e8f0;">
@@ -731,14 +731,14 @@ app.post("/auth/link-email", authMiddleware, async (req, res) => {
 
     const verifyUrl = `${process.env.BACKEND_URL || "http://localhost:3000"}/auth/link-email/verify?token=${verifyToken}`;
     await transporter.sendMail({
-      from: `"Finance Tracker" <${process.env.MAIL_USER}>`,
+      from: `"Moneto" <${process.env.MAIL_USER}>`,
       to: email,
-      subject: "Link your email to Finance Tracker",
+      subject: "Link your email to Moneto",
       html: `
         <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px;background:#f8fafc;border-radius:16px;">
           <div style="text-align:center;margin-bottom:24px;">
             <div style="display:inline-block;background:#7c3aed;color:#fff;font-size:22px;font-weight:bold;width:48px;height:48px;line-height:48px;border-radius:12px;">$</div>
-            <h2 style="margin:12px 0 4px;color:#1e293b;">Finance Tracker</h2>
+            <h2 style="margin:12px 0 4px;color:#1e293b;">Moneto</h2>
           </div>
           <div style="background:#fff;border-radius:12px;padding:24px;border:1px solid #e2e8f0;">
             <p style="color:#334155;margin:0 0 20px;">Click below to link this email to your account. This link expires in <strong>24 hours</strong>.</p>
