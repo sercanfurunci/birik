@@ -70,11 +70,11 @@ function IconBudgets({ active }) {
 }
 
 const TABS = [
-  { id: "dashboard",     label: "Overview",       Icon: IconDashboard },
-  { id: "transactions",  label: "Transactions",   Icon: IconTransactions },
-  { id: "analytics",     label: "Analytics",      Icon: IconAnalytics },
-  { id: "budgets",       label: "Budgets",        Icon: IconBudgets },
-  { id: "subscriptions", label: "Subscriptions",  Icon: IconSubscriptions },
+  { id: "dashboard",     labelKey: "navOverview",       Icon: IconDashboard },
+  { id: "transactions",  labelKey: "navTransactions",   Icon: IconTransactions },
+  { id: "analytics",     labelKey: "navAnalytics",      Icon: IconAnalytics },
+  { id: "budgets",       labelKey: "navBudgets",        Icon: IconBudgets },
+  { id: "subscriptions", labelKey: "navSubscriptions",  Icon: IconSubscriptions },
 ];
 
 function authFetch(url, opts = {}) {
@@ -325,7 +325,7 @@ function App() {
 
         {/* ── Desktop tab bar ── */}
         <div className="hidden sm:flex gap-1 mb-6 p-1 rounded-xl anim-2" style={{ backgroundColor: "var(--surface)", border: "1px solid var(--border)" }}>
-          {TABS.map(({ id, label, Icon: TabIcon }) => {
+          {TABS.map(({ id, labelKey, Icon: TabIcon }) => {
             const isActive = activeTab === id;
             return (
               <button
@@ -340,7 +340,7 @@ function App() {
                 }}
               >
                 <TabIcon active={isActive} />
-                {label}
+                {t(labelKey)}
               </button>
             );
           })}
@@ -380,7 +380,7 @@ function App() {
           paddingBottom: "max(8px, env(safe-area-inset-bottom))",
         }}
       >
-        {TABS.map(({ id, label, Icon: NavIcon }) => {
+        {TABS.map(({ id, labelKey, Icon: NavIcon }) => {
           const isActive = activeTab === id;
           return (
             <button
@@ -390,7 +390,7 @@ function App() {
               style={{ color: isActive ? "var(--brand)" : "var(--text-3)" }}
             >
               <NavIcon active={isActive} />
-              <span className="text-[10px] font-medium">{label}</span>
+              <span className="text-[10px] font-medium">{t(labelKey)}</span>
               {isActive && (
                 <div
                   className="absolute bottom-0 w-6 h-0.5 rounded-full"

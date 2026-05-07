@@ -7,6 +7,13 @@ const translations = {
     signOut: "Sign out",
     dateLocale: "en-US",
 
+    // Nav tabs
+    navOverview: "Overview",
+    navTransactions: "Transactions",
+    navAnalytics: "Analytics",
+    navBudgets: "Budgets",
+    navSubscriptions: "Subscriptions",
+
     // Auth
     signInTitle: "Sign in to your account",
     email: "Email",
@@ -269,6 +276,13 @@ const translations = {
     appSubtitle: "Gelir ve giderlerinizi takip edin",
     signOut: "Çıkış yap",
     dateLocale: "tr-TR",
+
+    // Nav tabs
+    navOverview: "Özet",
+    navTransactions: "İşlemler",
+    navAnalytics: "Analiz",
+    navBudgets: "Bütçeler",
+    navSubscriptions: "Abonelikler",
 
     // Auth
     signInTitle: "Hesabınıza giriş yapın",
