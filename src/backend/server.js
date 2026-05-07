@@ -188,7 +188,9 @@ pool.query(`
 `).catch(err => console.error("budgets table init error:", err));
 
 const transporter = nodemailer.createTransport({
-  service: "gmail",
+  host: "smtp.gmail.com",
+  port: 587,
+  secure: false,
   auth: { user: process.env.MAIL_USER, pass: process.env.MAIL_PASS },
 });
 
