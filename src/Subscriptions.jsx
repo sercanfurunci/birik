@@ -8,11 +8,11 @@ async function getRate(from, to) {
   if (from === to) return 1;
   const key = `${from}_${to}`;
   const cached = _rateCache[key];
-  if (cached && Date.now() - cached.ts < 3_600_000) return cached.rate;
+  if (cached && Date.now() - cached.ts < 86_400_000) return cached.rate;
   try {
-    const res = await fetch(`https://api.frankfurter.dev/v1/latest?from=${from}&to=${to}`);
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/rates?from=${from}&to=${to}`);
     const data = await res.json();
-    const rate = data.rates?.[to];
+    const rate = data.rate;
     if (rate) _rateCache[key] = { rate, ts: Date.now() };
     return rate || null;
   } catch {

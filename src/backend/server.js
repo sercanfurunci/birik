@@ -273,6 +273,27 @@ const authMiddleware = async (req, res, next) => {
 
 app.get("/", (req, res) => res.send("Backend running 🚀"));
 
+// ─── Exchange rates (daily server-side cache) ────────────────────────────────
+const _ratesCache = {};
+app.get("/rates", async (req, res) => {
+  const { from, to } = req.query;
+  if (!from || !to) return res.status(400).json({ error: "from and to required" });
+  if (from === to) return res.json({ rate: 1 });
+  const key = `${from}|${to}`;
+  const cached = _ratesCache[key];
+  if (cached && Date.now() - cached.ts < 86_400_000) return res.json({ rate: cached.rate });
+  try {
+    const r = await fetch(`https://api.frankfurter.dev/v1/latest?from=${from}&to=${to}`);
+    const data = await r.json();
+    const rate = data.rates?.[to];
+    if (!rate) return res.status(502).json({ error: "rate not found" });
+    _ratesCache[key] = { rate, ts: Date.now() };
+    res.json({ rate });
+  } catch {
+    res.status(502).json({ error: "failed to fetch rate" });
+  }
+});
+
 // ─── Admin ───────────────────────────────────────────────────────────────────
 
 app.get("/admin/users", async (req, res) => {
