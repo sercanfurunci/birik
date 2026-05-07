@@ -361,11 +361,12 @@ app.post("/auth/register", async (req, res) => {
     const password_hash = await bcrypt.hash(password, 10);
     const verifyToken   = crypto.randomBytes(32).toString("hex");
     const verifyExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    const defaultUsername = email.split("@")[0].slice(0, 50);
 
     await pool.query(
-      `INSERT INTO users (email, password, is_verified, verify_token, verify_expires)
-       VALUES ($1, $2, FALSE, $3, $4)`,
-      [email, password_hash, verifyToken, verifyExpires]
+      `INSERT INTO users (email, password, is_verified, verify_token, verify_expires, username)
+       VALUES ($1, $2, FALSE, $3, $4, $5)`,
+      [email, password_hash, verifyToken, verifyExpires, defaultUsername]
     );
 
     const verifyUrl = `${process.env.BACKEND_URL || "http://localhost:3000"}/auth/verify?token=${verifyToken}`;
@@ -634,7 +635,13 @@ app.get("/auth/me", authMiddleware, async (req, res) => {
       [req.user.id]
     );
     if (result.rows.length === 0) return res.status(404).json({ error: "User not found" });
-    res.json(result.rows[0]);
+    const user = result.rows[0];
+    if (!user.username && user.email) {
+      const fallback = user.email.split("@")[0].slice(0, 50);
+      await pool.query("UPDATE users SET username = $1 WHERE id = $2", [fallback, user.id]);
+      user.username = fallback;
+    }
+    res.json(user);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "DB error" });
@@ -642,11 +649,19 @@ app.get("/auth/me", authMiddleware, async (req, res) => {
 });
 
 app.put("/auth/profile", authMiddleware, async (req, res) => {
-  const username = req.body.username ? trimStr(req.body.username, 50) : null;
+  let username = null;
+  if (req.body.username !== undefined && req.body.username !== null) {
+    if (typeof req.body.username !== "string")
+      return res.status(400).json({ error: "Invalid username" });
+    const trimmed = req.body.username.trim();
+    if (trimmed.length === 0)
+      return res.status(400).json({ error: "Username cannot be empty" });
+    if (trimmed.length > 50)
+      return res.status(400).json({ error: "Username too long (max 50 characters)" });
+    username = trimmed;
+  }
   const currency = req.body.currency ? trimStr(req.body.currency, 10) : null;
 
-  if (req.body.username !== undefined && username === null)
-    return res.status(400).json({ error: "Username too long (max 50 characters)" });
   if (currency && !VALID_CURRENCIES.has(currency))
     return res.status(400).json({ error: "Invalid currency code" });
 

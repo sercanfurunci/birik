@@ -50,11 +50,13 @@ function ProfileModal({ user, onClose, onSave }) {
 
   const handleSave = async () => {
     setError("");
+    const trimmedUsername = username.trim();
+    if (!trimmedUsername) { setError(t("usernameRequired")); return; }
     setLoading(true);
     try {
       const res = await apiFetch(`${import.meta.env.VITE_API_URL}/auth/profile`, {
         method: "PUT",
-        body: JSON.stringify({ username: username.trim() || null, currency }),
+        body: JSON.stringify({ username: trimmedUsername, currency }),
       });
       const data = await res.json();
       if (!res.ok) { setError(data.error || "Update failed"); return; }

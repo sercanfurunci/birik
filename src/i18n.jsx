@@ -14,6 +14,9 @@ const translations = {
     navBudgets: "Budgets",
     navSubscriptions: "Subscriptions",
 
+    // Profile
+    usernameRequired: "Username cannot be empty",
+
     // Auth
     signInTitle: "Sign in to your account",
     email: "Email",
@@ -283,6 +286,9 @@ const translations = {
     navAnalytics: "Analiz",
     navBudgets: "Bütçeler",
     navSubscriptions: "Abonelikler",
+
+    // Profile
+    usernameRequired: "Kullanıcı adı boş olamaz",
 
     // Auth
     signInTitle: "Hesabınıza giriş yapın",
