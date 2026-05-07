@@ -17,7 +17,7 @@ const fmt = (n) =>
   parseFloat(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 function Dashboard({ transactions }) {
-  const { t } = useLang();
+  const { t, formatDate } = useLang();
   const { symbol } = useCurrency();
 
   const expenses = transactions.filter((tx) => tx.type === "expense");
@@ -151,7 +151,7 @@ function Dashboard({ transactions }) {
                   {tx.description}
                 </p>
                 <p className="text-xs mt-0.5" style={{ color: "var(--text-3)" }}>
-                  {new Date(tx.date).toLocaleDateString()} · {t(tx.category)}
+                  {formatDate(tx.date)} · {t(tx.category)}
                 </p>
               </div>
               <span

@@ -119,17 +119,50 @@ function downloadCsv(transactions, t) {
 }
 
 function TransactionList({ transactions, onDelete, onEdit }) {
-  const { t } = useLang();
+  const { t, formatDate } = useLang();
   const { symbol } = useCurrency();
   const [filterType, setFilterType] = useState("all");
   const [filterCategory, setFilterCategory] = useState("all");
+  const [search, setSearch] = useState("");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
+  const [sortKey, setSortKey] = useState("date_desc");
   const [editingId, setEditingId] = useState(null);
   const [editValues, setEditValues] = useState({});
   const [deleteTarget, setDeleteTarget] = useState(null);
 
-  let filtered = transactions;
+  const sorted = [...transactions].sort((a, b) => {
+    if (sortKey === "amount_desc" || sortKey === "amount_asc") {
+      const diff = parseFloat(a.amount) - parseFloat(b.amount);
+      if (diff !== 0) return sortKey === "amount_desc" ? -diff : diff;
+      // tie-break by date desc
+      return new Date(b.date) - new Date(a.date);
+    }
+    const dateDiff = new Date(b.date) - new Date(a.date);
+    const primary = sortKey === "date_asc" ? -dateDiff : dateDiff;
+    if (primary !== 0) return primary;
+    return (b.id || 0) - (a.id || 0);
+  });
+
+  const searchLower = search.trim().toLowerCase();
+  let filtered = sorted;
   if (filterType !== "all") filtered = filtered.filter((tx) => tx.type === filterType);
   if (filterCategory !== "all") filtered = filtered.filter((tx) => tx.category === filterCategory);
+  if (searchLower) filtered = filtered.filter((tx) => (tx.description || "").toLowerCase().includes(searchLower));
+  if (dateFrom) filtered = filtered.filter((tx) => (tx.date || "").slice(0, 10) >= dateFrom);
+  if (dateTo)   filtered = filtered.filter((tx) => (tx.date || "").slice(0, 10) <= dateTo);
+
+  const hasActiveFilter =
+    filterType !== "all" || filterCategory !== "all" || searchLower ||
+    dateFrom || dateTo || sortKey !== "date_desc";
+  const clearAll = () => {
+    setFilterType("all");
+    setFilterCategory("all");
+    setSearch("");
+    setDateFrom("");
+    setDateTo("");
+    setSortKey("date_desc");
+  };
 
   const startEdit = (tx) => {
     setEditingId(tx.id);
@@ -156,12 +189,52 @@ function TransactionList({ transactions, onDelete, onEdit }) {
 
       <div className="fin-card rounded-2xl overflow-hidden anim-4">
         {/* Header */}
-        <div
-          className="flex flex-col sm:flex-row sm:items-center gap-3 px-5 py-4 border-b"
-          style={{ borderColor: "var(--border)" }}
-        >
-          <h2 className="fin-label">{t("transactions")}</h2>
-          <div className="flex gap-2 sm:ml-auto flex-wrap">
+        <div className="px-5 py-4 border-b" style={{ borderColor: "var(--border)" }}>
+          <div className="flex items-center gap-3 mb-3">
+            <h2 className="fin-label">{t("transactions")}</h2>
+            <button
+              onClick={() => downloadCsv(filtered, t)}
+              disabled={filtered.length === 0}
+              title={filtered.length === 0 ? t("exportEmpty") : t("exportCsv")}
+              className="ml-auto text-xs py-1.5 px-3 rounded-lg flex items-center gap-1.5 cursor-pointer transition-opacity hover:opacity-80 disabled:opacity-40 disabled:cursor-not-allowed"
+              style={{
+                backgroundColor: "var(--surface-2)",
+                border: "1px solid var(--border)",
+                color: "var(--text-2)",
+              }}
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+              </svg>
+              {t("exportCsv")}
+            </button>
+          </div>
+
+          {/* Search input */}
+          <div className="relative mb-2">
+            <svg
+              width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+              className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
+              style={{ color: "var(--text-3)" }}
+            >
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder={t("searchPlaceholder")}
+              className="fin-input w-full"
+              style={{ paddingLeft: "34px" }}
+            />
+          </div>
+
+          {/* Filter row */}
+          <div className="flex gap-2 flex-wrap items-center">
             <select
               value={filterType}
               onChange={(e) => setFilterType(e.target.value)}
@@ -183,24 +256,47 @@ function TransactionList({ transactions, onDelete, onEdit }) {
                 <option key={cat} value={cat}>{t(cat)}</option>
               ))}
             </select>
-            <button
-              onClick={() => downloadCsv(filtered, t)}
-              disabled={filtered.length === 0}
-              title={filtered.length === 0 ? t("exportEmpty") : t("exportCsv")}
-              className="text-xs py-1.5 px-3 rounded-lg flex items-center gap-1.5 cursor-pointer transition-opacity hover:opacity-80 disabled:opacity-40 disabled:cursor-not-allowed"
-              style={{
-                backgroundColor: "var(--surface-2)",
-                border: "1px solid var(--border)",
-                color: "var(--text-2)",
-              }}
+            <input
+              type="date"
+              value={dateFrom}
+              onChange={(e) => setDateFrom(e.target.value)}
+              title={t("dateFrom")}
+              className="fin-input text-xs py-1.5 px-2"
+              style={{ width: "auto", colorScheme: "light dark" }}
+            />
+            <input
+              type="date"
+              value={dateTo}
+              onChange={(e) => setDateTo(e.target.value)}
+              title={t("dateTo")}
+              className="fin-input text-xs py-1.5 px-2"
+              style={{ width: "auto", colorScheme: "light dark" }}
+            />
+            <select
+              value={sortKey}
+              onChange={(e) => setSortKey(e.target.value)}
+              title={t("sortBy")}
+              className={filterSelectClass}
+              style={{ width: "auto" }}
             >
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                <polyline points="7 10 12 15 17 10" />
-                <line x1="12" y1="15" x2="12" y2="3" />
-              </svg>
-              {t("exportCsv")}
-            </button>
+              <option value="date_desc">{t("sortDateDesc")}</option>
+              <option value="date_asc">{t("sortDateAsc")}</option>
+              <option value="amount_desc">{t("sortAmountDesc")}</option>
+              <option value="amount_asc">{t("sortAmountAsc")}</option>
+            </select>
+            {hasActiveFilter && (
+              <button
+                onClick={clearAll}
+                className="text-xs py-1.5 px-3 rounded-lg cursor-pointer transition-opacity hover:opacity-80"
+                style={{
+                  backgroundColor: "transparent",
+                  border: "1px solid var(--border)",
+                  color: "var(--text-3)",
+                }}
+              >
+                {t("clearFilters")}
+              </button>
+            )}
           </div>
         </div>
 
@@ -291,7 +387,7 @@ function TransactionList({ transactions, onDelete, onEdit }) {
                       </p>
                       <div className="flex items-center gap-2 mt-1 flex-wrap">
                         <span className="fin-mono text-[10px]" style={{ color: "var(--text-3)" }}>
-                          {new Date(tx.date).toLocaleDateString()}
+                          {formatDate(tx.date)}
                         </span>
                         <CategoryPill cat={tx.category} label={t(tx.category)} />
                       </div>
@@ -353,7 +449,7 @@ function TransactionList({ transactions, onDelete, onEdit }) {
                       return (
                         <tr key={tx.id} style={{ ...borderStyle, backgroundColor: "var(--surface-2)" }}>
                           <td className="px-5 py-3 fin-mono text-xs" style={{ color: "var(--text-3)", whiteSpace: "nowrap" }}>
-                            {new Date(tx.date).toLocaleDateString()}
+                            {formatDate(tx.date)}
                           </td>
                           <td className="px-3 py-2.5">
                             <input
@@ -428,7 +524,7 @@ function TransactionList({ transactions, onDelete, onEdit }) {
                         style={borderStyle}
                       >
                         <td className="px-5 py-4 fin-mono text-xs whitespace-nowrap" style={{ color: "var(--text-3)" }}>
-                          {new Date(tx.date).toLocaleDateString()}
+                          {formatDate(tx.date)}
                         </td>
                         <td className="px-5 py-4 text-sm font-medium" style={{ color: "var(--text-1)" }}>
                           {tx.description}

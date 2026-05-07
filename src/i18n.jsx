@@ -109,6 +109,15 @@ const translations = {
     noTransactions: "No transactions found",
     plusIncome: "+ Income",
     minusExpense: "− Expense",
+    searchPlaceholder: "Search description…",
+    dateFrom: "From",
+    dateTo: "To",
+    clearFilters: "Clear",
+    sortBy: "Sort",
+    sortDateDesc: "Newest first",
+    sortDateAsc: "Oldest first",
+    sortAmountDesc: "Amount: high → low",
+    sortAmountAsc: "Amount: low → high",
 
     // Delete modal
     deleteTransaction: "Delete Transaction",
@@ -363,6 +372,15 @@ const translations = {
     noTransactions: "İşlem bulunamadı",
     plusIncome: "+ Gelir",
     minusExpense: "− Gider",
+    searchPlaceholder: "Açıklama ara…",
+    dateFrom: "Başlangıç",
+    dateTo: "Bitiş",
+    clearFilters: "Temizle",
+    sortBy: "Sıralama",
+    sortDateDesc: "En yeni önce",
+    sortDateAsc: "En eski önce",
+    sortAmountDesc: "Tutar: yüksek → düşük",
+    sortAmountAsc: "Tutar: düşük → yüksek",
 
     // Delete modal
     deleteTransaction: "İşlemi Sil",
@@ -520,6 +538,16 @@ export function LangProvider({ children }) {
     return typeof val === "function" ? val(params) : val;
   };
 
+  const formatDate = (date) => {
+    if (!date) return "";
+    const d = new Date(date);
+    if (isNaN(d.getTime())) return "";
+    const dd = String(d.getDate()).padStart(2, "0");
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const yyyy = d.getFullYear();
+    return lang === "tr" ? `${dd}/${mm}/${yyyy}` : `${mm}/${dd}/${yyyy}`;
+  };
+
   const toggleLang = () => {
     const next = lang === "en" ? "tr" : "en";
     localStorage.setItem("lang", next);
@@ -527,7 +555,7 @@ export function LangProvider({ children }) {
   };
 
   return (
-    <LangContext.Provider value={{ lang, t, toggleLang }}>
+    <LangContext.Provider value={{ lang, t, toggleLang, formatDate }}>
       {children}
     </LangContext.Provider>
   );

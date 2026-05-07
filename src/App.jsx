@@ -182,7 +182,7 @@ function App() {
         body: JSON.stringify(transaction),
       });
       const data = await res.json();
-      setTransactions((prev) => [...prev, data]);
+      setTransactions((prev) => [data, ...prev]);
     } catch (err) {
       console.log("POST error:", err);
     }
