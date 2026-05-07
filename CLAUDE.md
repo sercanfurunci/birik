@@ -17,29 +17,37 @@ node src/backend/server.js   # Run backend locally on port 3000
 
 ## Architecture
 
-Full-stack personal finance app. React 19 + Vite frontend, Express + PostgreSQL (Neon) backend, deployed on Vercel (frontend) + Render (backend).
+Full-stack personal finance app called **Moneto**. React 19 + Vite frontend, Express + PostgreSQL (Neon) backend.
 
 ### Deployment
 
-- **Frontend**: Vercel — auto-deploys from GitHub `main`
-- **Backend**: Render — auto-deploys from GitHub `main`, runs `src/backend/server.js`
-- **Database**: Neon (PostgreSQL) — connection via `DATABASE_URL` or individual `DB_*` env vars
+- **Frontend**: Vercel — auto-deploys from GitHub `main`. Custom domain: `furunci.tech`
+- **Backend**: Railway (Hobby plan, always-on, no cold starts) — auto-deploys from GitHub `main`
+  - Custom Build Command: `cd src/backend && npm ci`
+  - Custom Start Command: `node src/backend/server.js`
+- **Database**: Neon (PostgreSQL) — connection via individual `DB_*` env vars
+- **Email**: Resend HTTPS API (Railway blocks outbound SMTP — Gmail/Nodemailer won't work). Sending domain `furunci.tech` verified via DNS records in Resend dashboard.
 
 ### Frontend environment variables
 
 ```
-VITE_API_URL=https://expense-track-starter.onrender.com   # backend base URL
+VITE_API_URL=https://expense-track-starter-production.up.railway.app   # Railway backend
 ```
 
-### Backend environment variables (Render)
+### Backend environment variables (Railway)
 
 ```
-JWT_SECRET, ADMIN_SECRET      # auth secrets
-MAIL_USER, MAIL_PASS           # Gmail SMTP for verification/reset emails
-BACKEND_URL                    # public URL of this backend (for email links)
-FRONTEND_URL                   # Vercel frontend URL (for CORS + email links)
+JWT_SECRET, ADMIN_SECRET            # auth secrets
+RESEND_API_KEY                       # Resend HTTPS email API
+MAIL_FROM=noreply@furunci.tech       # plain email, no display-name/<> (Railway misparses angle brackets)
+BACKEND_URL                          # public URL of this backend (for email links)
+FRONTEND_URL=https://furunci.tech    # primary frontend URL (used for CORS + email links)
+ALLOWED_ORIGINS                      # optional comma-separated extra CORS origins
+ANTHROPIC_API_KEY                    # for AI statement import (claude-haiku-4-5)
 DB_HOST, DB_USER, DB_NAME, DB_PASSWORD, DB_PORT   # Neon PostgreSQL
 ```
+
+`MAIL_USER` / `MAIL_PASS` (Gmail SMTP) still exist as code-level fallback in `transporter`, but are not used in production — Railway blocks ports 465/587.
 
 ### Database schema
 
@@ -135,7 +143,10 @@ App                     # auth state, transactions state, theme, token, currentU
 - **No global state library** — state flows via props; `CurrencyProvider` and `LangProvider` are the only contexts
 - **CSS design tokens** — all colors via CSS variables (`--bg`, `--surface`, `--brand`, `--green`, `--red`, etc.) on `:root` / `.dark`; dark mode toggled by `.dark` class on `<html>`
 - **Currency** — stored per user in DB, fetched on every app load via `GET /auth/me` so changes sync across devices without re-login
+- **Exchange rates** — fetched via backend `GET /rates?from=X&to=Y` (24-hour in-memory cache `_ratesCache`) so all devices see identical conversions on the same day. Frankfurter API is the upstream source.
 - **Date normalization** — Neon returns ISO timestamps; use `date.split("T")[0]` before comparing to `YYYY-MM-DD` strings
+- **Trust proxy** — backend calls `app.set("trust proxy", 1)` so Railway's `X-Forwarded-For` is honored (required for `express-rate-limit`)
+- **Currency glyph rendering** — body/`fin-mono` font stacks include `-apple-system`, `Segoe UI`, `Roboto`, `ui-monospace`, `SF Mono` so older Android/iOS devices have a glyph for ₺ even before web fonts load
 
 ### i18n
 
@@ -144,13 +155,18 @@ App                     # auth state, transactions state, theme, token, currentU
 ### Styling
 
 Tailwind CSS v4 + custom classes in `src/App.css`:
-- `.fin-card` — surface card with border
+- `.fin-card` — surface card with border, subtle shadow + hover lift
 - `.fin-label` — uppercase tracking label
-- `.fin-serif` — DM Serif Display
-- `.fin-mono` — JetBrains Mono (numbers/amounts)
+- `.fin-serif` — DM Serif Display (with Georgia / Times New Roman fallbacks)
+- `.fin-mono` — JetBrains Mono (with `ui-monospace`, SF Mono, Menlo, Consolas fallbacks for ₺ glyph support)
 - `.fin-btn-primary`, `.fin-icon-btn`, `.fin-input`, `.fin-select`
 - `.anim-1` through `.anim-5` — staggered fade-up entrance animations
 - `.tx-row` / `.tx-card-row` — transaction row with colored left accent bar
+- `.moneto-logo` — animated M-logo with `drawM` SVG draw-on-load + `logoPulse` hover
+
+Body background uses two radial gradients (brand-tinted top-left + warm gold bottom-right) over `--bg` for atmospheric depth. Shadow tokens: `--shadow-sm`, `--shadow-md`, `--shadow-lg` (separately tuned for light/dark).
+
+Google Fonts are preconnected and preloaded in `index.html` to minimize first-render flicker on slow connections.
 
 ### Backend API
 
@@ -176,7 +192,12 @@ Tailwind CSS v4 + custom classes in `src/App.css`:
 | GET | `/budgets` | JWT | List user's budgets |
 | PUT | `/budgets` | JWT | Upsert budget by category — body `{ category, amount }` |
 | DELETE | `/budgets/:id` | JWT | Delete budget |
+| GET | `/rates` | — | Exchange rate lookup `?from=X&to=Y` — 24h server-side cache via Frankfurter API |
 | GET | `/admin/users` | x-admin-secret | List all users |
+
+### Email (Resend)
+
+`sendEmail({ to, subject, html, from })` helper in `server.js` wraps the Resend SDK (`@resend/node`). All transactional email (verification, password reset, link emails) goes through it. If `RESEND_API_KEY` is unset, falls back to Nodemailer SMTP — but this fails on Railway because outbound SMTP is blocked. Always use Resend in production.
 
 ### AI Statement Import
 
@@ -210,3 +231,17 @@ Tailwind CSS v4 + custom classes in `src/App.css`:
 - Exports the currently filtered list (respects type + category filters)
 - UTF-8 BOM prepended for Excel; standard CSV escaping for quotes/commas/newlines
 - Filename: `transactions-YYYY-MM-DD.csv`
+
+### TransactionList Filters
+
+Beyond type + category filter pills, the list supports:
+- **Search** — case-insensitive match on description
+- **Date range** — `from` / `to` date inputs
+- **Sort** — by date (newest/oldest) or amount (high/low)
+- **Locale-aware dates** — formatted via `Intl.DateTimeFormat` using current `lang` (`en` / `tr`)
+
+### Branding
+
+- Name: **Moneto** (formerly "Finance Tracker"). Strings come from `i18n.jsx` `appName` key.
+- Logo: animated M-mark at `public/moneto.svg` (also inlined in `App.jsx`, `LandingPage.jsx`, `LoginPage.jsx`, `RegisterPage.jsx`). The `.moneto-logo` class drives stroke-draw on load + pulse-glow on hover.
+- Favicon: `/moneto.svg`
