@@ -681,6 +681,40 @@ app.put("/auth/profile", authMiddleware, async (req, res) => {
   }
 });
 
+app.delete("/auth/account", authMiddleware, async (req, res) => {
+  const password = trimStr(req.body.password, 128);
+  if (!password) return res.status(400).json({ error: "Password required to delete account" });
+
+  const client = await pool.connect();
+  try {
+    const userRes = await client.query(
+      "SELECT id, password FROM users WHERE id = $1",
+      [req.user.id]
+    );
+    if (userRes.rows.length === 0) return res.status(404).json({ error: "User not found" });
+
+    const user = userRes.rows[0];
+    if (!user.password || !await bcrypt.compare(password, user.password))
+      return res.status(401).json({ error: "Incorrect password" });
+
+    await client.query("BEGIN");
+    await client.query("DELETE FROM transactions   WHERE user_id = $1", [user.id]);
+    await client.query("DELETE FROM subscriptions  WHERE user_id = $1", [user.id]);
+    await client.query("DELETE FROM budgets        WHERE user_id = $1", [user.id]);
+    await client.query("DELETE FROM users          WHERE id = $1",      [user.id]);
+    await client.query("COMMIT");
+
+    res.clearCookie("token", { ...COOKIE_OPTS, maxAge: 0 });
+    res.json({ message: "Account deleted" });
+  } catch (err) {
+    try { await client.query("ROLLBACK"); } catch {}
+    console.error("Account deletion error:", err);
+    res.status(500).json({ error: "Failed to delete account" });
+  } finally {
+    client.release();
+  }
+});
+
 app.get("/auth/check-phone", authMiddleware, async (req, res) => {
   const phone = isValidPhone(req.query.phone);
   if (!phone) return res.status(400).json({ error: "Valid phone number required (E.164 format)" });
