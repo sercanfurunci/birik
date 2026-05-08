@@ -90,6 +90,8 @@ CREATE TABLE subscriptions (
   category TEXT DEFAULT 'other', -- 'ai' | 'entertainment' | 'music' | 'finance' | 'productivity' | 'health' | 'news' | 'other'
   started_at DATE NOT NULL,
   is_active BOOLEAN DEFAULT TRUE,
+  auto_charge BOOLEAN NOT NULL DEFAULT FALSE,  -- when TRUE, materializeDueSubscriptions logs each billing as an expense
+  last_charged_date DATE,                       -- last date materialized as a transaction
   notes TEXT,
   created_at TIMESTAMP DEFAULT NOW()
 );
@@ -233,6 +235,8 @@ Google Fonts are preconnected and preloaded in `index.html` to minimize first-re
 - `SERVICE_DOMAIN` map in `Subscriptions.jsx` matches service names to domains; longest match wins
 - Falls back to emoji if domain unknown or image fails to load
 - Monthly total normalises weekly/yearly amounts: weekly × 52 / 12, yearly / 12
+- **Auto-charge:** Per-row `auto_charge` boolean. When ON, `materializeDueSubscriptions(userId)` (called inside `GET /transactions` alongside `materializeDueRecurring`) walks each subscription where `auto_charge = TRUE AND is_active = TRUE AND next_billing_date <= today`, INSERTs an expense transaction (category mapped via backend `SUB_TO_TX_CAT`), advances `next_billing_date` per `billing_cycle`, and stamps `last_charged_date`. 60-iteration safety cap. Off = tracking-only; user must press "Add as expense" manually.
+- **Overlap with Recurring:** Branded services live in Subscriptions (with auto_charge ON for hands-off logging). Recurring is for non-branded periodic items (rent, salary, gym). The Recurring form warns if the description matches an existing subscription name to prevent double-counting.
 
 ### Budgets
 

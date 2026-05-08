@@ -236,7 +236,7 @@ const translations = {
     recurringResume: "Resume",
     recurringDeleteConfirm: "Delete this recurring rule? Already-created transactions will be kept.",
     recurringDuplicateWarn: ({ name }) => `"${name}" already exists in Subscriptions. Adding it here will double-count it every period. Continue anyway?`,
-    subsTrackingOnly: "Subscriptions are tracked only — they don't auto-create transactions. Use \"Add as expense\" on a card, or set up a Recurring rule for automatic logging.",
+    subsTrackingOnly: "Subscriptions are tracking-only by default. Turn on \"Auto-charge\" when creating one to have each billing date logged automatically.",
 
     // Profile modal
     profileTitle: "Profile",
@@ -296,6 +296,9 @@ const translations = {
     subTotalSpent: "Total Spent",
     subStatusActive: "active",
     subStatusInactive: "inactive",
+    subAutoCharge: "Auto-charge as expense",
+    subAutoChargeDesc: "When on, each billing date is automatically logged as an expense. Off = tracking only.",
+    subAutoChargeBadge: "Auto",
     subAddAsExpense: "Add as Expense",
     subExpenseAdded: "Added",
     subDeleteTitle: "Delete Subscription",
@@ -547,7 +550,7 @@ const translations = {
     recurringResume: "Devam ettir",
     recurringDeleteConfirm: "Bu tekrarlayan kural silinsin mi? Daha önce eklenmiş işlemler kalacaktır.",
     recurringDuplicateWarn: ({ name }) => `"${name}" zaten Üyelikler'de var. Burada da eklersen her dönem iki kez sayılır. Yine de devam edelim mi?`,
-    subsTrackingOnly: "Üyelikler sadece takip için listelenir — otomatik işlem oluşturmaz. Kartta \"Gider olarak ekle\" butonunu kullan veya otomatik kayıt için Tekrarlayan kuralı oluştur.",
+    subsTrackingOnly: "Üyelikler varsayılan olarak sadece takip içindir. Oluştururken \"Otomatik gider\" seçeneğini açarsan her fatura tarihinde otomatik kayıt düşülür.",
 
     // Profile modal
     profileTitle: "Profil",
@@ -607,6 +610,9 @@ const translations = {
     subTotalSpent: "Toplam Harcama",
     subStatusActive: "aktif",
     subStatusInactive: "pasif",
+    subAutoCharge: "Otomatik gider olarak işle",
+    subAutoChargeDesc: "Açıkken her fatura tarihinde otomatik olarak gider kaydedilir. Kapalı = sadece takip.",
+    subAutoChargeBadge: "Oto",
     subAddAsExpense: "Gider Olarak Ekle",
     subExpenseAdded: "Eklendi",
     subDeleteTitle: "Aboneliği Sil",

@@ -209,6 +209,7 @@ const EMPTY_FORM = {
   category: "other",
   started_at: new Date().toISOString().split("T")[0],
   is_active: true,
+  auto_charge: false,
   notes: "",
 };
 
@@ -385,6 +386,7 @@ function SubForm({ initial, onSave, onClose }) {
           category: initial.category,
           started_at: initial.started_at?.split("T")[0] || new Date().toISOString().split("T")[0],
           is_active: initial.is_active,
+          auto_charge: initial.auto_charge ?? false,
           notes: initial.notes || "",
         }
       : { ...EMPTY_FORM }
@@ -514,6 +516,47 @@ function SubForm({ initial, onSave, onClose }) {
             />
           </div>
 
+          <div
+            className="flex items-start gap-3 p-3"
+            style={{
+              backgroundColor: form.auto_charge ? "color-mix(in srgb, var(--brand) 8%, transparent)" : "var(--surface-2)",
+              border: `1px solid ${form.auto_charge ? "color-mix(in srgb, var(--brand) 35%, var(--border))" : "var(--border)"}`,
+              borderRadius: 10,
+              transition: "all 0.15s",
+            }}
+          >
+            <div
+              onClick={() => set("auto_charge", !form.auto_charge)}
+              className="relative transition-colors shrink-0 mt-0.5"
+              style={{
+                backgroundColor: form.auto_charge ? "var(--brand)" : "var(--border-2)",
+                cursor: "pointer",
+                width: "2.5rem",
+                height: "1.375rem",
+                borderRadius: 99,
+              }}
+            >
+              <span
+                className="absolute top-0.5 w-4 h-4 rounded-full transition-all"
+                style={{
+                  left: form.auto_charge ? "calc(100% - 1.125rem)" : "0.125rem",
+                  backgroundColor: "white",
+                }}
+              />
+            </div>
+            <div
+              className="flex-1 min-w-0 cursor-pointer select-none"
+              onClick={() => set("auto_charge", !form.auto_charge)}
+            >
+              <p className="text-sm font-medium" style={{ color: "var(--text-1)" }}>
+                {t("subAutoCharge")}
+              </p>
+              <p className="text-xs mt-0.5 leading-relaxed" style={{ color: "var(--text-3)" }}>
+                {t("subAutoChargeDesc")}
+              </p>
+            </div>
+          </div>
+
           {initial && (
             <label className="flex items-center gap-3 cursor-pointer select-none">
               <div
@@ -573,7 +616,26 @@ function SubRow({ sub, subCurr, needsConv, userCurrency, daysLabel, billingCycle
     >
       <ServiceIcon name={sub.name} category={sub.category} size={40} />
       <div className="flex-1 min-w-0">
-        <p className="font-medium text-sm truncate" style={{ color: "var(--text-1)" }}>{sub.name}</p>
+        <div className="flex items-center gap-1.5">
+          <p className="font-medium text-sm truncate" style={{ color: "var(--text-1)" }}>{sub.name}</p>
+          {sub.auto_charge && (
+            <span
+              title="Auto-charge"
+              className="inline-flex items-center justify-center shrink-0"
+              style={{
+                width: 14,
+                height: 14,
+                borderRadius: 99,
+                backgroundColor: "color-mix(in srgb, var(--brand) 20%, transparent)",
+                color: "var(--brand)",
+              }}
+            >
+              <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+              </svg>
+            </span>
+          )}
+        </div>
         <p className="text-xs" style={{ color: "var(--text-3)" }}>
           {billingCycleLabel} · {daysLabel}
         </p>

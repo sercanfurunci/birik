@@ -176,6 +176,12 @@ pool.query(`
   )
 `).catch(err => console.error("subscriptions table init error:", err));
 
+// Add auto_charge column for existing deployments
+pool.query(`ALTER TABLE subscriptions ADD COLUMN IF NOT EXISTS auto_charge BOOLEAN NOT NULL DEFAULT FALSE`)
+  .catch(err => console.error("subscriptions.auto_charge migration:", err));
+pool.query(`ALTER TABLE subscriptions ADD COLUMN IF NOT EXISTS last_charged_date DATE`)
+  .catch(err => console.error("subscriptions.last_charged_date migration:", err));
+
 pool.query(`
   CREATE TABLE IF NOT EXISTS budgets (
     id         SERIAL PRIMARY KEY,
@@ -868,8 +874,9 @@ app.get("/auth/link-email/verify", async (req, res) => {
 
 app.get("/transactions", authMiddleware, async (req, res) => {
   try {
-    // Lazy materialize any recurring transactions that have come due
-    try { await materializeDueRecurring(req.user.id); } catch (e) { console.error("materialize error:", e); }
+    // Lazy materialize any recurring transactions / auto-charge subscriptions that have come due
+    try { await materializeDueRecurring(req.user.id); }     catch (e) { console.error("materialize recurring error:", e); }
+    try { await materializeDueSubscriptions(req.user.id); } catch (e) { console.error("materialize subs error:", e); }
     const result = await pool.query(
       "SELECT * FROM transactions WHERE user_id = $1 ORDER BY date DESC",
       [req.user.id]
@@ -973,6 +980,7 @@ app.post("/subscriptions", authMiddleware, async (req, res) => {
   const category         = trimStr(req.body.category, 50);
   const started_at       = isValidDate(req.body.started_at);
   const notes            = trimStr(req.body.notes, 500) ?? null;
+  const auto_charge      = typeof req.body.auto_charge === "boolean" ? req.body.auto_charge : false;
 
   if (!name)                                    return res.status(400).json({ error: "Name required" });
   if (amount === null)                          return res.status(400).json({ error: "Invalid amount" });
@@ -984,9 +992,9 @@ app.post("/subscriptions", authMiddleware, async (req, res) => {
 
   try {
     const result = await pool.query(
-      `INSERT INTO subscriptions (user_id, name, amount, currency, billing_cycle, next_billing_date, category, started_at, notes)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
-      [req.user.id, name, amount, currency, billing_cycle, next_billing_date, category, started_at, notes]
+      `INSERT INTO subscriptions (user_id, name, amount, currency, billing_cycle, next_billing_date, category, started_at, notes, auto_charge)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *`,
+      [req.user.id, name, amount, currency, billing_cycle, next_billing_date, category, started_at, notes, auto_charge]
     );
     res.json(result.rows[0]);
   } catch (err) {
@@ -1008,6 +1016,7 @@ app.put("/subscriptions/:id", authMiddleware, async (req, res) => {
   const started_at       = isValidDate(req.body.started_at);
   const notes            = req.body.notes !== undefined ? (trimStr(req.body.notes, 500) ?? null) : undefined;
   const is_active        = typeof req.body.is_active === "boolean" ? req.body.is_active : null;
+  const auto_charge      = typeof req.body.auto_charge === "boolean" ? req.body.auto_charge : null;
 
   if (!name)                                    return res.status(400).json({ error: "Name required" });
   if (amount === null)                          return res.status(400).json({ error: "Invalid amount" });
@@ -1021,11 +1030,12 @@ app.put("/subscriptions/:id", authMiddleware, async (req, res) => {
     const result = await pool.query(
       `UPDATE subscriptions
        SET name=$1, amount=$2, currency=$3, billing_cycle=$4, next_billing_date=$5,
-           category=$6, started_at=$7, notes=$8, is_active=$9
-       WHERE id=$10 AND user_id=$11 RETURNING *`,
+           category=$6, started_at=$7, notes=$8, is_active=$9, auto_charge=$10
+       WHERE id=$11 AND user_id=$12 RETURNING *`,
       [name, amount, currency, billing_cycle, next_billing_date, category, started_at,
        notes !== undefined ? notes : null,
        is_active !== null ? is_active : true,
+       auto_charge !== null ? auto_charge : false,
        id, req.user.id]
     );
     if (result.rows.length === 0) return res.status(404).json({ error: "Subscription not found" });
@@ -1079,6 +1089,39 @@ function advanceDate(isoDate, frequency, dayOfPeriod) {
     d.setUTCFullYear(d.getUTCFullYear() + 1);
   }
   return d.toISOString().split("T")[0];
+}
+
+// Map subscription category → transaction category (must mirror SUB_TO_TX_CATEGORY in Subscriptions.jsx)
+const SUB_TO_TX_CAT = {
+  ai: "other", entertainment: "entertainment", music: "entertainment",
+  finance: "other", productivity: "other", health: "other",
+  news: "other", other: "other",
+};
+
+async function materializeDueSubscriptions(userId) {
+  const today = new Date().toISOString().split("T")[0];
+  const due = await pool.query(
+    `SELECT * FROM subscriptions
+     WHERE user_id = $1 AND is_active = TRUE AND auto_charge = TRUE AND next_billing_date <= $2`,
+    [userId, today]
+  );
+  for (const s of due.rows) {
+    let cursor = toISODate(s.next_billing_date);
+    let safety = 0;
+    while (cursor <= today && safety < 60) {
+      await pool.query(
+        `INSERT INTO transactions (description, amount, type, category, date, user_id)
+         VALUES ($1, $2, 'expense', $3, $4, $5)`,
+        [s.name, s.amount, SUB_TO_TX_CAT[s.category] || "other", cursor, userId]
+      );
+      cursor = advanceDate(cursor, s.billing_cycle, null);
+      safety++;
+    }
+    await pool.query(
+      `UPDATE subscriptions SET next_billing_date=$1, last_charged_date=$2 WHERE id=$3`,
+      [cursor, today, s.id]
+    );
+  }
 }
 
 async function materializeDueRecurring(userId) {
