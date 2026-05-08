@@ -281,8 +281,8 @@ function App() {
   // ── Main app ──
   return (
     <CurrencyProvider code={currentUser?.currency || "USD"}>
-    <div className="min-h-screen transition-colors duration-300" style={{ backgroundColor: "var(--bg)" }}>
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-6 sm:pt-10 pb-24 sm:pb-10">
+    <div className="min-h-screen flex flex-col transition-colors duration-300" style={{ backgroundColor: "var(--bg)" }}>
+      <div className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 pt-6 sm:pt-10 pb-24 sm:pb-6">
 
         {/* ── Header ── */}
         <header className="mb-6 anim-1">
@@ -381,16 +381,17 @@ function App() {
 
         {activeTab === "subscriptions" && <Subscriptions onExpenseAdded={refreshTransactions} />}
 
-        {/* ── Footer ── */}
-        <footer className="hidden sm:flex items-center justify-between mt-10 pt-5 text-xs" style={{ borderTop: "1px solid var(--border)", color: "var(--text-3)" }}>
-          <span>© {new Date().getFullYear()} Moneto</span>
-          <div className="flex items-center gap-4">
-            <button onClick={() => setAuthPage("privacy")} className="hover:opacity-70 transition-opacity">{t("privacyPolicy")}</button>
-            <span style={{ color: "var(--border-2)" }}>·</span>
-            <span>v1.0</span>
-          </div>
-        </footer>
       </div>
+
+      {/* ── Footer ── */}
+      <footer className="hidden sm:flex items-center justify-between max-w-6xl w-full mx-auto px-4 sm:px-6 py-4 text-xs mt-auto" style={{ borderTop: "1px solid var(--border)", color: "var(--text-3)" }}>
+        <span>© {new Date().getFullYear()} Moneto</span>
+        <div className="flex items-center gap-4">
+          <button onClick={() => setAuthPage("privacy")} className="hover:opacity-70 transition-opacity">{t("privacyPolicy")}</button>
+          <span style={{ color: "var(--border-2)" }}>·</span>
+          <span>v1.0</span>
+        </div>
+      </footer>
 
       {showProfile && (
         <ProfileModal
