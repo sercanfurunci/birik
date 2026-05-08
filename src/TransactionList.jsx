@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { useLang } from "./i18n.jsx";
 import { useCurrency } from "./currency.jsx";
@@ -118,6 +118,8 @@ function downloadCsv(transactions, t) {
   URL.revokeObjectURL(url);
 }
 
+const PAGE_SIZE = 25;
+
 function TransactionList({ transactions, onDelete, onEdit }) {
   const { t, formatDate } = useLang();
   const { symbol } = useCurrency();
@@ -127,6 +129,7 @@ function TransactionList({ transactions, onDelete, onEdit }) {
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
   const [sortKey, setSortKey] = useState("date_desc");
+  const [page, setPage] = useState(0);
   const [editingId, setEditingId] = useState(null);
   const [editValues, setEditValues] = useState({});
   const [deleteTarget, setDeleteTarget] = useState(null);
@@ -162,7 +165,15 @@ function TransactionList({ transactions, onDelete, onEdit }) {
     setDateFrom("");
     setDateTo("");
     setSortKey("date_desc");
+    setPage(0);
   };
+
+  const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
+  const safePage = Math.min(page, Math.max(0, totalPages - 1));
+  const paginated = filtered.slice(safePage * PAGE_SIZE, (safePage + 1) * PAGE_SIZE);
+
+  // Reset to page 0 whenever any filter changes
+  useEffect(() => { setPage(0); }, [filterType, filterCategory, searchLower, dateFrom, dateTo, sortKey]);
 
   const startEdit = (tx) => {
     setEditingId(tx.id);
@@ -317,7 +328,7 @@ function TransactionList({ transactions, onDelete, onEdit }) {
           <>
             {/* ── Mobile card list ── */}
             <div className="sm:hidden">
-              {filtered.map((tx) => {
+              {paginated.map((tx) => {
                 const isEditing = editingId === tx.id;
 
                 if (isEditing) {
@@ -440,9 +451,9 @@ function TransactionList({ transactions, onDelete, onEdit }) {
                   </tr>
                 </thead>
                 <tbody>
-                  {filtered.map((tx, i) => {
+                  {paginated.map((tx, i) => {
                     const isEditing = editingId === tx.id;
-                    const isLast = i === filtered.length - 1;
+                    const isLast = i === paginated.length - 1;
                     const borderStyle = { borderBottom: isLast ? "none" : "1px solid var(--border)" };
 
                     if (isEditing) {
@@ -568,6 +579,63 @@ function TransactionList({ transactions, onDelete, onEdit }) {
                 </tbody>
               </table>
             </div>
+
+            {/* ── Pagination ── */}
+            {totalPages > 1 && (
+              <div
+                className="flex items-center justify-between px-5 py-3 gap-3"
+                style={{ borderTop: "1px solid var(--border)" }}
+              >
+                <span className="text-xs fin-mono" style={{ color: "var(--text-3)" }}>
+                  {safePage * PAGE_SIZE + 1}–{Math.min((safePage + 1) * PAGE_SIZE, filtered.length)}{" "}
+                  / {filtered.length}
+                </span>
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={() => setPage(p => Math.max(0, p - 1))}
+                    disabled={safePage === 0}
+                    className="fin-icon-btn disabled:opacity-30"
+                    aria-label="Previous page"
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="15 18 9 12 15 6" />
+                    </svg>
+                  </button>
+                  {totalPages <= 7
+                    ? Array.from({ length: totalPages }, (_, i) => i).map(i => (
+                        <button
+                          key={i}
+                          onClick={() => setPage(i)}
+                          className="w-7 h-7 rounded-lg text-xs font-medium transition-colors"
+                          style={{
+                            backgroundColor: i === safePage ? "var(--brand)" : "transparent",
+                            color: i === safePage ? "white" : "var(--text-3)",
+                          }}
+                          onMouseEnter={e => { if (i !== safePage) e.currentTarget.style.backgroundColor = "var(--surface-2)"; }}
+                          onMouseLeave={e => { if (i !== safePage) e.currentTarget.style.backgroundColor = "transparent"; }}
+                        >
+                          {i + 1}
+                        </button>
+                      ))
+                    : (
+                        <span className="text-xs px-2" style={{ color: "var(--text-2)" }}>
+                          {safePage + 1} / {totalPages}
+                        </span>
+                      )
+                  }
+                  <button
+                    onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}
+                    disabled={safePage === totalPages - 1}
+                    className="fin-icon-btn disabled:opacity-30"
+                    aria-label="Next page"
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="9 18 15 12 9 6" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            )}
           </>
         )}
       </div>
