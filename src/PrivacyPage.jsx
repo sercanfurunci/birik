@@ -57,7 +57,7 @@ const CONTENT = {
       {
         h: "4. Data Retention",
         body: [
-          "Your data is retained for as long as your account is active. If you delete your account, all transactions, budgets, and subscriptions are permanently removed within 30 days.",
+          "Your data is retained for as long as your account is active. When you delete your account, all transactions, budgets, and subscriptions are removed immediately and permanently.",
           "Server logs (containing IP addresses) are retained for up to 30 days for security analysis.",
         ],
       },
@@ -67,7 +67,7 @@ const CONTENT = {
           "Access: You can view all of your data within the app.",
           "Export: You can export your transactions to CSV at any time.",
           "Correction: You can edit any transaction, budget, or subscription directly in the app.",
-          "Deletion: To permanently delete your account, email us at the address below.",
+          "Deletion: You can permanently delete your account inside the app — open Profile → Danger Zone → Delete Account. Your account, transactions, budgets, and subscriptions are removed immediately. If you prefer, you can also email us at the address below.",
           "If you are in the EU, UK, or California, you also have rights under GDPR/UK GDPR/CCPA to request a copy or erasure of your data.",
         ],
       },
@@ -142,7 +142,7 @@ const CONTENT = {
       {
         h: "4. Veri Saklama",
         body: [
-          "Verileriniz hesabınız aktif olduğu sürece saklanır. Hesabınızı silerseniz tüm işlemleriniz, bütçeleriniz ve abonelikleriniz 30 gün içinde kalıcı olarak kaldırılır.",
+          "Verileriniz hesabınız aktif olduğu sürece saklanır. Hesabınızı sildiğinizde tüm işlemleriniz, bütçeleriniz ve abonelikleriniz anında ve kalıcı olarak kaldırılır.",
           "Sunucu logları (IP adresleri içeren) güvenlik analizi için en fazla 30 gün saklanır.",
         ],
       },
@@ -152,7 +152,7 @@ const CONTENT = {
           "Erişim: Tüm verilerinizi uygulama içinde görüntüleyebilirsiniz.",
           "Dışa aktarma: İşlemlerinizi istediğiniz zaman CSV olarak dışa aktarabilirsiniz.",
           "Düzeltme: İşlem, bütçe veya aboneliği doğrudan uygulama içinde düzenleyebilirsiniz.",
-          "Silme: Hesabınızı kalıcı olarak silmek için aşağıdaki adrese e-posta gönderin.",
+          "Silme: Hesabınızı uygulama içinden kalıcı olarak silebilirsiniz — Profil → Tehlikeli Bölge → Hesabı Sil yolunu izleyin. Hesabınız, işlemleriniz, bütçeleriniz ve abonelikleriniz anında kaldırılır. İsterseniz aşağıdaki e-posta adresine de yazabilirsiniz.",
           "AB, Birleşik Krallık veya California'daysanız GDPR/UK GDPR/CCPA kapsamında verilerinizin bir kopyasını veya silinmesini talep etme haklarınız vardır.",
         ],
       },
