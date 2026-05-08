@@ -162,6 +162,15 @@ const translations = {
     expenseBreakdown: "Expense Breakdown",
     recentActivity: "Recent Activity",
     noTransactionsDash: "Add your first transaction to see insights",
+    statAvgDaily: "Avg Daily Spend",
+    statDaysElapsed: "days elapsed",
+    statDaysLeft: "Days Left",
+    statOfMonth: "of",
+    statTopCat: "Top Category",
+    statSavingsRate: "Savings Rate",
+    statVsLastMonth: "vs Last Month",
+    statSpending: "spending",
+    statThisMonth: "This Month",
 
     // Analytics
     noTransactionsAnalytics: "Add transactions to see analytics",
@@ -476,6 +485,15 @@ const translations = {
     expenseBreakdown: "Gider Dağılımı",
     recentActivity: "Son Hareketler",
     noTransactionsDash: "Analiz görmek için ilk işleminizi ekleyin",
+    statAvgDaily: "Günlük Ort. Harcama",
+    statDaysElapsed: "gün geçti",
+    statDaysLeft: "Kalan Gün",
+    statOfMonth: "/",
+    statTopCat: "En Çok Harcanan",
+    statSavingsRate: "Tasarruf Oranı",
+    statVsLastMonth: "Geçen Aya Göre",
+    statSpending: "harcama",
+    statThisMonth: "Bu Ay",
 
     // Analytics
     noTransactionsAnalytics: "Analiz görmek için işlem ekleyin",

@@ -380,6 +380,16 @@ function App() {
         {activeTab === "budgets" && <Budgets transactions={transactions} />}
 
         {activeTab === "subscriptions" && <Subscriptions onExpenseAdded={refreshTransactions} />}
+
+        {/* ── Footer ── */}
+        <footer className="hidden sm:flex items-center justify-between mt-10 pt-5 text-xs" style={{ borderTop: "1px solid var(--border)", color: "var(--text-3)" }}>
+          <span>© {new Date().getFullYear()} Moneto</span>
+          <div className="flex items-center gap-4">
+            <button onClick={() => setAuthPage("privacy")} className="hover:opacity-70 transition-opacity">{t("privacyPolicy")}</button>
+            <span style={{ color: "var(--border-2)" }}>·</span>
+            <span>v1.0</span>
+          </div>
+        </footer>
       </div>
 
       {showProfile && (

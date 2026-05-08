@@ -49,6 +49,28 @@ function Dashboard({ transactions }) {
     .sort((a, b) => new Date(b.date) - new Date(a.date))
     .slice(0, 5);
 
+  // ── This month stats ──
+  const now = new Date();
+  const thisMonthPrefix = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+  const prevMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  const prevMonthPrefix = `${prevMonthDate.getFullYear()}-${String(prevMonthDate.getMonth() + 1).padStart(2, "0")}`;
+
+  const thisMonthExp = transactions.filter(tx => tx.type === "expense" && (tx.date || "").slice(0, 7) === thisMonthPrefix);
+  const prevMonthExp = transactions.filter(tx => tx.type === "expense" && (tx.date || "").slice(0, 7) === prevMonthPrefix);
+  const thisMonthTotal = thisMonthExp.reduce((s, tx) => s + parseFloat(tx.amount), 0);
+  const prevMonthTotal = prevMonthExp.reduce((s, tx) => s + parseFloat(tx.amount), 0);
+  const dayElapsed = now.getDate();
+  const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+  const daysLeft = daysInMonth - dayElapsed;
+  const avgDaily = dayElapsed > 0 ? thisMonthTotal / dayElapsed : 0;
+  const monthChange = prevMonthTotal > 0 ? ((thisMonthTotal - prevMonthTotal) / prevMonthTotal) * 100 : null;
+  const topCatThisMonth = Object.entries(
+    thisMonthExp.reduce((acc, tx) => { acc[tx.category] = (acc[tx.category] || 0) + parseFloat(tx.amount); return acc; }, {})
+  ).sort((a, b) => b[1] - a[1])[0];
+  const thisMonthIncome = transactions.filter(tx => tx.type === "income" && (tx.date || "").slice(0, 7) === thisMonthPrefix)
+    .reduce((s, tx) => s + parseFloat(tx.amount), 0);
+  const savingsRate = thisMonthIncome > 0 ? Math.max(0, ((thisMonthIncome - thisMonthTotal) / thisMonthIncome) * 100) : null;
+
   return (
     <div className="anim-1">
       {/* ── Full-width summary row ── */}
@@ -165,6 +187,74 @@ function Dashboard({ transactions }) {
           </div>
         )}
       </div>
+
+      {/* ── This month quick stats ── */}
+      {thisMonthExp.length > 0 && (
+        <div className="mt-4 grid grid-cols-2 lg:grid-cols-4 gap-3 anim-5">
+          {/* Avg daily spend */}
+          <div className="fin-card rounded-2xl p-4">
+            <p className="fin-label mb-2">{t("statAvgDaily")}</p>
+            <p className="fin-mono font-semibold text-base" style={{ color: "var(--text-1)" }}>
+              {symbol}{fmt(avgDaily)}
+            </p>
+            <p className="text-xs mt-1" style={{ color: "var(--text-3)" }}>
+              {dayElapsed} {t("statDaysElapsed")}
+            </p>
+          </div>
+
+          {/* Days left in month */}
+          <div className="fin-card rounded-2xl p-4">
+            <p className="fin-label mb-2">{t("statDaysLeft")}</p>
+            <p className="fin-mono font-semibold text-base" style={{ color: "var(--brand)" }}>
+              {daysLeft}
+            </p>
+            <p className="text-xs mt-1" style={{ color: "var(--text-3)" }}>
+              {t("statOfMonth")} {daysInMonth}
+            </p>
+          </div>
+
+          {/* Top category this month */}
+          <div className="fin-card rounded-2xl p-4">
+            <p className="fin-label mb-2">{t("statTopCat")}</p>
+            <p className="text-sm font-semibold capitalize" style={{ color: "var(--text-1)" }}>
+              {topCatThisMonth ? t(topCatThisMonth[0]) : "—"}
+            </p>
+            {topCatThisMonth && (
+              <p className="fin-mono text-xs mt-1" style={{ color: "var(--text-3)" }}>
+                {symbol}{fmt(topCatThisMonth[1])}
+              </p>
+            )}
+          </div>
+
+          {/* vs last month / savings rate */}
+          <div className="fin-card rounded-2xl p-4">
+            {savingsRate !== null ? (
+              <>
+                <p className="fin-label mb-2">{t("statSavingsRate")}</p>
+                <p className="fin-mono font-semibold text-base" style={{ color: savingsRate >= 0 ? "var(--green)" : "var(--red)" }}>
+                  {savingsRate.toFixed(1)}%
+                </p>
+                <p className="text-xs mt-1" style={{ color: "var(--text-3)" }}>{t("statThisMonth")}</p>
+              </>
+            ) : monthChange !== null ? (
+              <>
+                <p className="fin-label mb-2">{t("statVsLastMonth")}</p>
+                <p className="fin-mono font-semibold text-base" style={{ color: monthChange <= 0 ? "var(--green)" : "var(--red)" }}>
+                  {monthChange > 0 ? "+" : ""}{monthChange.toFixed(1)}%
+                </p>
+                <p className="text-xs mt-1" style={{ color: "var(--text-3)" }}>{t("statSpending")}</p>
+              </>
+            ) : (
+              <>
+                <p className="fin-label mb-2">{t("statThisMonth")}</p>
+                <p className="fin-mono font-semibold text-base" style={{ color: "var(--red)" }}>
+                  {symbol}{fmt(thisMonthTotal)}
+                </p>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
