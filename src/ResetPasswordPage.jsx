@@ -66,7 +66,7 @@ function ResetPasswordPage({ resetToken, onBack }) {
           <h1 className="fin-serif text-2xl" style={{ color: "var(--text-1)" }}>{t("appName")}</h1>
         </div>
 
-        <div className="fin-card rounded-2xl p-6 sm:p-8">
+        <div className="fin-card-elev rounded-2xl p-6 sm:p-8">
           <h2 className="font-semibold text-base mb-6" style={{ color: "var(--text-1)" }}>
             {t("resetPasswordTitle")}
           </h2>

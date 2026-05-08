@@ -23,12 +23,16 @@ function Summary({ transactions }) {
     <div className="mb-5 sm:mb-7 anim-1">
       {/* Balance — hero card */}
       <div
-        className="fin-card relative overflow-hidden rounded-2xl p-6 sm:p-8 mb-3"
+        className="fin-card-elev relative overflow-hidden rounded-2xl p-6 sm:p-8 mb-3"
       >
         <p className="fin-label">{t("balance")}</p>
         <p
-          className="fin-serif fin-mono mt-2 text-4xl sm:text-5xl font-bold tracking-tight"
-          style={{ color: isPositive ? "var(--gold)" : "var(--red)", letterSpacing: "-0.02em" }}
+          className="fin-display mt-2"
+          style={{
+            color: isPositive ? "var(--gold)" : "var(--red)",
+            fontSize: "clamp(2.1rem, 8vw, 3.1rem)",
+            lineHeight: 1.05,
+          }}
         >
           {!isPositive && "−"}{symbol}{fmt(Math.abs(balance))}
         </p>
@@ -48,8 +52,8 @@ function Summary({ transactions }) {
         <div className="fin-card relative overflow-hidden rounded-2xl p-4 sm:p-5">
           <p className="fin-label">{t("income")}</p>
           <p
-            className="fin-mono text-xl sm:text-2xl font-bold mt-2 tracking-tight"
-            style={{ color: "var(--green)", letterSpacing: "-0.02em" }}
+            className="fin-display mt-2"
+            style={{ color: "var(--green)", fontSize: "clamp(1.15rem, 5vw, 1.55rem)", lineHeight: 1.1 }}
           >
             +{symbol}{fmt(totalIncome)}
           </p>
@@ -59,8 +63,8 @@ function Summary({ transactions }) {
         <div className="fin-card relative overflow-hidden rounded-2xl p-4 sm:p-5">
           <p className="fin-label">{t("expenses")}</p>
           <p
-            className="fin-mono text-xl sm:text-2xl font-bold mt-2 tracking-tight"
-            style={{ color: "var(--red)", letterSpacing: "-0.02em" }}
+            className="fin-display mt-2"
+            style={{ color: "var(--red)", fontSize: "clamp(1.15rem, 5vw, 1.55rem)", lineHeight: 1.1 }}
           >
             −{symbol}{fmt(totalExpenses)}
           </p>

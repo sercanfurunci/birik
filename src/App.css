@@ -20,6 +20,13 @@
   --shadow-sm:   0 1px 2px rgba(20, 18, 35, 0.05);
   --shadow-md:   0 4px 14px rgba(20, 18, 35, 0.06), 0 1px 3px rgba(20, 18, 35, 0.04);
   --shadow-lg:   0 18px 40px rgba(20, 18, 35, 0.08), 0 2px 6px rgba(20, 18, 35, 0.04);
+
+  /* Fluid spacing (mobile → desktop) */
+  --gutter:      clamp(16px, 4vw, 32px);
+  --radius-sm:   8px;
+  --radius-md:   12px;
+  --radius-lg:   18px;
+  --radius-xl:   24px;
 }
 
 .dark {
@@ -45,6 +52,10 @@
 
 /* ── Base ─────────────────────────────────────────────────── */
 html, body { min-height: 100%; }
+html {
+  /* iOS rubber-band tint match */
+  background-color: var(--bg);
+}
 body {
   background-color: var(--bg);
   background-image:
@@ -57,11 +68,29 @@ body {
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
   transition: background-color 0.25s;
+  /* iOS safe-area aware bottom padding for fixed nav callers */
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-top:    env(safe-area-inset-top, 0px);
 }
 .dark body {
   background-image:
     radial-gradient(ellipse 70% 50% at 8% -5%,  rgba(116, 114, 248, 0.10) 0%, transparent 55%),
     radial-gradient(ellipse 55% 45% at 100% 110%, rgba(251, 191, 36, 0.04) 0%, transparent 55%);
+}
+
+/* Subtle film-grain overlay for depth (desktop only — disabled on mobile for perf) */
+@media (min-width: 768px) {
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.025;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  }
+  .dark body::before { opacity: 0.04; }
 }
 
 ::selection {
@@ -82,11 +111,31 @@ body {
 
 /* ── Card / surface ───────────────────────────────────────── */
 .fin-card {
+  position: relative;
   background-color: var(--surface);
   border: 1px solid var(--border);
   border-radius: 14px;
   box-shadow: var(--shadow-sm);
-  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+  transition: box-shadow 0.22s ease, border-color 0.22s ease, transform 0.22s ease;
+}
+/* Featured / hero card — used for the balance hero, modals etc. */
+.fin-card-elev {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  box-shadow: var(--shadow-md);
+  transition: box-shadow 0.22s ease, border-color 0.22s ease;
+}
+.fin-card-elev::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(255,255,255,0.06) 0%, transparent 30%);
+}
+.dark .fin-card-elev::after {
+  background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, transparent 35%);
 }
 
 .fin-label {
@@ -95,6 +144,22 @@ body {
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--text-3);
+}
+
+/* Display number — hero amounts. Tabular figures, tight tracking. */
+.fin-display {
+  font-family: 'JetBrains Mono', ui-monospace, 'SF Mono', 'Menlo', 'Consolas', 'Courier New', monospace;
+  font-feature-settings: 'tnum' 1, 'zero' 1, 'ss02' 1;
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Hairline divider — visually thinner than 1px on hi-dpi */
+.fin-hairline {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border) 18%, var(--border) 82%, transparent);
+  border: 0;
 }
 
 /* ── Accent gradient bar (bottom of summary cards) ─────────── */
@@ -167,10 +232,14 @@ body {
   color: var(--text-1);
   border-radius: 10px;
   padding: 10px 14px;
-  font-size: 13.5px;
+  /* iOS: 16px prevents auto-zoom on input focus */
+  font-size: 16px;
   font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, system-ui, sans-serif;
   outline: none;
   transition: border-color 0.15s, box-shadow 0.15s, background-color 0.15s;
+}
+@media (min-width: 640px) {
+  .fin-input { font-size: 13.5px; }
 }
 .fin-input::placeholder { color: var(--text-3); }
 .fin-input:hover { border-color: var(--border-2); }
@@ -188,11 +257,14 @@ body {
   color: var(--text-1);
   border-radius: 10px;
   padding: 10px 14px;
-  font-size: 13.5px;
+  font-size: 16px;
   font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, system-ui, sans-serif;
   outline: none;
   cursor: pointer;
   transition: border-color 0.15s, box-shadow 0.15s, background-color 0.15s;
+}
+@media (min-width: 640px) {
+  .fin-select { font-size: 13.5px; }
 }
 .fin-select:hover { border-color: var(--border-2); }
 .fin-select:focus {
@@ -316,10 +388,17 @@ body {
 }
 
 /* ── Bottom nav ───────────────────────────────────────────── */
-nav.sm\:hidden { backdrop-filter: saturate(140%) blur(8px); }
+nav.sm\:hidden {
+  backdrop-filter: saturate(140%) blur(10px);
+  -webkit-backdrop-filter: saturate(140%) blur(10px);
+  /* Honor iPhone home-indicator zone */
+  padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+}
 nav.sm\:hidden button {
   position: relative;
   min-width: 0;
+  /* Larger touch target per Apple HIG */
+  min-height: 44px;
 }
 nav.sm\:hidden span {
   white-space: nowrap;
@@ -336,8 +415,10 @@ nav.sm\:hidden span {
 
 /* ── Mobile header polish ─────────────────────────────────── */
 @media (max-width: 480px) {
-  .fin-icon-btn { width: 34px; height: 34px; }
+  .fin-icon-btn { width: 38px; height: 38px; }
+  .fin-btn-primary { padding: 11px 18px; font-size: 14px; }
 }
+
 
 /* ── Scrollbar ────────────────────────────────────────────── */
 ::-webkit-scrollbar             { width: 6px; height: 6px; }

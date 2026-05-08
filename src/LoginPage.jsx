@@ -103,7 +103,7 @@ function LoginPage({ onSuccess, onSwitch, onForgotPassword, onBack, isDark, togg
         </div>
 
         {/* Card */}
-        <div className="fin-card rounded-2xl p-6 sm:p-8">
+        <div className="fin-card-elev rounded-2xl p-6 sm:p-8">
           <h2 className="font-semibold text-base mb-5" style={{ color: "var(--text-1)" }}>{t("signInTitle")}</h2>
 
           {/* Method toggle */}

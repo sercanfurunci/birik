@@ -227,7 +227,7 @@ function RegisterPage({ onSwitch, onBack, isDark, toggleDark }) {
         <TopControls />
         <div className="w-full max-w-sm anim-1">
           <BrandMark />
-          <div className="fin-card rounded-2xl p-6 sm:p-8">
+          <div className="fin-card-elev rounded-2xl p-6 sm:p-8">
             <div className="flex items-center gap-3 mb-6">
               <button
                 type="button"
