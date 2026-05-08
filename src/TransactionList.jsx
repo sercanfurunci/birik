@@ -94,24 +94,49 @@ function csvEscape(val) {
   return s;
 }
 
-function downloadCsv(transactions, t) {
+function downloadCsv(transactions, t, symbol) {
   if (!transactions.length) return;
-  const headers = [t("date"), t("description"), t("category"), "Type", t("amount")];
-  const rows = transactions.map((tx) => [
-    (tx.date || "").split("T")[0],
-    tx.description || "",
-    t(tx.category) || tx.category,
-    tx.type,
-    parseFloat(tx.amount).toFixed(2),
-  ]);
-  const csv = [headers, ...rows].map((r) => r.map(csvEscape).join(",")).join("\n");
-  const bom = "\uFEFF"; // Excel-friendly UTF-8 BOM
+
+  const stamp = new Date().toISOString().slice(0, 10);
+  const dates = transactions.map((tx) => (tx.date || "").slice(0, 10)).filter(Boolean).sort();
+  const dateRange = dates.length ? `${dates[0]} → ${dates[dates.length - 1]}` : stamp;
+
+  const totalIncome  = transactions.filter(tx => tx.type === "income").reduce((s, tx) => s + parseFloat(tx.amount), 0);
+  const totalExpense = transactions.filter(tx => tx.type === "expense").reduce((s, tx) => s + parseFloat(tx.amount), 0);
+  const net = totalIncome - totalExpense;
+  const fmt2 = (n) => n.toFixed(2);
+
+  const summary = [
+    ["Moneto Export", stamp],
+    ["Date Range", dateRange],
+    ["Currency", symbol],
+    [""],
+    [`Total Income`,  `${symbol}${fmt2(totalIncome)}`],
+    [`Total Expenses`, `${symbol}${fmt2(totalExpense)}`],
+    [`Net Balance`,   `${net >= 0 ? "+" : ""}${symbol}${fmt2(Math.abs(net))}`],
+    [""],
+    [""],
+    [t("date"), t("description"), t("category"), `Income (${symbol})`, `Expense (${symbol})`],
+  ];
+
+  const rows = transactions.map((tx) => {
+    const amt = parseFloat(tx.amount).toFixed(2);
+    return [
+      (tx.date || "").slice(0, 10),
+      tx.description || "",
+      t(tx.category) || tx.category,
+      tx.type === "income"  ? amt : "",
+      tx.type === "expense" ? amt : "",
+    ];
+  });
+
+  const csv = [...summary, ...rows].map((r) => r.map(csvEscape).join(",")).join("\n");
+  const bom = "\uFEFF";
   const blob = new Blob([bom + csv], { type: "text/csv;charset=utf-8;" });
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
-  const stamp = new Date().toISOString().slice(0, 10);
   link.href = url;
-  link.download = `transactions-${stamp}.csv`;
+  link.download = `moneto-${stamp}.csv`;
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
@@ -204,7 +229,7 @@ function TransactionList({ transactions, onDelete, onEdit }) {
           <div className="flex items-center gap-3 mb-3">
             <h2 className="fin-label">{t("transactions")}</h2>
             <button
-              onClick={() => downloadCsv(filtered, t)}
+              onClick={() => downloadCsv(filtered, t, symbol)}
               disabled={filtered.length === 0}
               title={filtered.length === 0 ? t("exportEmpty") : t("exportCsv")}
               className="ml-auto text-xs py-1.5 px-3 rounded-lg flex items-center gap-1.5 cursor-pointer transition-opacity hover:opacity-80 disabled:opacity-40 disabled:cursor-not-allowed"
