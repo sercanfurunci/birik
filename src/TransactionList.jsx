@@ -436,14 +436,20 @@ function TransactionList({ transactions, onDelete, onEdit }) {
 
             {/* ── Desktop table ── */}
             <div className="hidden sm:block overflow-x-auto">
-              <table className="w-full">
+              <table className="w-full" style={{ tableLayout: "fixed" }}>
+                <colgroup>
+                  <col style={{ width: "120px" }} />  {/* date */}
+                  <col />                              {/* description — takes remaining */}
+                  <col style={{ width: "160px" }} />  {/* category */}
+                  <col style={{ width: "130px" }} />  {/* amount */}
+                  <col style={{ width: "72px" }} />   {/* actions */}
+                </colgroup>
                 <thead>
                   <tr style={{ borderBottom: "1px solid var(--border)" }}>
                     {[t("date"), t("description"), t("category"), t("amount"), ""].map((h, i) => (
                       <th
                         key={i}
                         className={`px-5 py-3 fin-label ${i === 3 ? "text-right" : "text-left"}`}
-                        style={{ width: i === 4 ? "72px" : "auto" }}
                       >
                         {h}
                       </th>
@@ -537,8 +543,8 @@ function TransactionList({ transactions, onDelete, onEdit }) {
                         <td className="px-5 py-4 fin-mono text-xs whitespace-nowrap" style={{ color: "var(--text-3)" }}>
                           {formatDate(tx.date)}
                         </td>
-                        <td className="px-5 py-4 text-sm font-medium" style={{ color: "var(--text-1)" }}>
-                          {tx.description}
+                        <td className="px-5 py-4 text-sm font-medium" style={{ color: "var(--text-1)", overflow: "hidden" }}>
+                          <span className="block truncate" title={tx.description}>{tx.description}</span>
                         </td>
                         <td className="px-5 py-4">
                           <CategoryPill cat={tx.category} label={t(tx.category)} />
