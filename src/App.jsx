@@ -282,7 +282,7 @@ function App() {
   return (
     <CurrencyProvider code={currentUser?.currency || "USD"}>
     <div className="min-h-screen transition-colors duration-300" style={{ backgroundColor: "var(--bg)" }}>
-      <div className="max-w-3xl mx-auto px-4 pt-6 sm:pt-10 pb-24 sm:pb-10">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-6 sm:pt-10 pb-24 sm:pb-10">
 
         {/* ── Header ── */}
         <header className="mb-6 anim-1">
@@ -367,8 +367,10 @@ function App() {
         {activeTab === "dashboard" && <Dashboard transactions={transactions} />}
 
         {activeTab === "transactions" && (
-          <div className="anim-1">
-            <TransactionForm onAdd={handleAdd} onRefresh={refreshTransactions} />
+          <div className="anim-1 lg:grid lg:grid-cols-[340px_1fr] lg:gap-6 lg:items-start">
+            <div className="lg:sticky lg:top-6">
+              <TransactionForm onAdd={handleAdd} onRefresh={refreshTransactions} />
+            </div>
             <TransactionList transactions={transactions} onDelete={handleDelete} onEdit={handleEdit} />
           </div>
         )}

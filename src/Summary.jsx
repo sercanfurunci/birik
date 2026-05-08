@@ -30,7 +30,7 @@ function Summary({ transactions }) {
           className="fin-display mt-2"
           style={{
             color: isPositive ? "var(--gold)" : "var(--red)",
-            fontSize: "clamp(2.1rem, 8vw, 3.1rem)",
+            fontSize: "clamp(1.9rem, 4vw, 2.9rem)",
             lineHeight: 1.05,
           }}
         >
@@ -53,7 +53,7 @@ function Summary({ transactions }) {
           <p className="fin-label">{t("income")}</p>
           <p
             className="fin-display mt-2"
-            style={{ color: "var(--green)", fontSize: "clamp(1.15rem, 5vw, 1.55rem)", lineHeight: 1.1 }}
+            style={{ color: "var(--green)", fontSize: "clamp(1.15rem, 2.5vw, 1.55rem)", lineHeight: 1.1 }}
           >
             +{symbol}{fmt(totalIncome)}
           </p>
@@ -64,7 +64,7 @@ function Summary({ transactions }) {
           <p className="fin-label">{t("expenses")}</p>
           <p
             className="fin-display mt-2"
-            style={{ color: "var(--red)", fontSize: "clamp(1.15rem, 5vw, 1.55rem)", lineHeight: 1.1 }}
+            style={{ color: "var(--red)", fontSize: "clamp(1.15rem, 2.5vw, 1.55rem)", lineHeight: 1.1 }}
           >
             −{symbol}{fmt(totalExpenses)}
           </p>
