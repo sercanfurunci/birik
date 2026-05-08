@@ -332,6 +332,32 @@ body {
   box-shadow: 0 0 0 3px var(--brand-dim);
 }
 
+/* ── Header pill button (small action in card headers) ────── */
+.header-pill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 9px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text-2);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+  transition: color 0.13s, border-color 0.13s, background-color 0.13s;
+}
+.header-pill-btn:hover {
+  color: var(--text-1);
+  border-color: var(--border-2);
+}
+.header-pill-btn:active { transform: scale(0.97); }
+@media (max-width: 480px) {
+  .header-pill-btn { padding: 7px 9px; }
+}
+
 /* ── Category pill ────────────────────────────────────────── */
 .cat-pill {
   display: inline-flex;

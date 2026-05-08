@@ -104,9 +104,27 @@ CREATE TABLE budgets (
   updated_at TIMESTAMP DEFAULT NOW(),
   UNIQUE(user_id, category)
 );
+
+-- Recurring transactions (rules that materialize as transactions on schedule)
+CREATE TABLE recurring_transactions (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+  description TEXT,
+  amount NUMERIC NOT NULL,
+  type TEXT NOT NULL,            -- 'income' | 'expense'
+  category TEXT NOT NULL DEFAULT 'other',
+  frequency TEXT NOT NULL,       -- 'weekly' | 'monthly' | 'yearly'
+  day_of_period INTEGER,         -- monthly: 1..31, snapped to month length
+  start_date DATE NOT NULL,
+  end_date DATE,
+  next_run_date DATE NOT NULL,   -- next scheduled materialization
+  last_run_date DATE,            -- last time materializeDueRecurring ran for this rule
+  is_active BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at TIMESTAMP DEFAULT NOW()
+);
 ```
 
-Tables `subscriptions` and `budgets` auto-create on backend start via `CREATE TABLE IF NOT EXISTS`.
+Tables `subscriptions`, `budgets`, and `recurring_transactions` auto-create on backend start via `CREATE TABLE IF NOT EXISTS`.
 
 If adding new columns: `ALTER TABLE users ADD COLUMN IF NOT EXISTS ...`
 
@@ -192,6 +210,10 @@ Google Fonts are preconnected and preloaded in `index.html` to minimize first-re
 | GET | `/budgets` | JWT | List user's budgets |
 | PUT | `/budgets` | JWT | Upsert budget by category — body `{ category, amount }` |
 | DELETE | `/budgets/:id` | JWT | Delete budget |
+| GET | `/recurring` | JWT | List recurring rules |
+| POST | `/recurring` | JWT | Create recurring rule |
+| PUT | `/recurring/:id` | JWT | Update recurring rule (incl. pause/resume via `is_active`) |
+| DELETE | `/recurring/:id` | JWT | Delete recurring rule (already-materialized transactions are kept) |
 | GET | `/rates` | — | Exchange rate lookup `?from=X&to=Y` — 24h server-side cache via Frankfurter API |
 | GET | `/admin/users` | x-admin-secret | List all users |
 
@@ -218,6 +240,15 @@ Google Fonts are preconnected and preloaded in `index.html` to minimize first-re
 - Spending computed client-side: filter `transactions` where `type === 'expense'` and `date.slice(0,7) === current YYYY-MM`
 - Progress bar color: green (< 80%), yellow (80–100%), red (> 100%)
 - `salary` category is excluded from the category dropdown (income-only category)
+
+### Recurring Transactions
+
+- **Lazy materialization:** No cron. Inside `GET /transactions`, `materializeDueRecurring(userId)` walks each active rule whose `next_run_date <= today`, INSERTs a real transaction for each due occurrence, advances `next_run_date` (with monthly day-of-month snapping to month length), and updates `last_run_date`. A 60-occurrence safety cap prevents runaway loops.
+- **Frequency:** `weekly` | `monthly` | `yearly`. Monthly rules carry `day_of_period` (1–31).
+- **End date:** Optional. Materialization stops walking once `cursor > end_date`.
+- **Pause/Resume:** Toggle `is_active` via `PUT /recurring/:id`.
+- **Delete:** Removes the rule only — already-materialized transactions stay in the user's history.
+- **UI entry point:** "Recurring" pill button in the TransactionForm header next to "Import Statement". Opens `Recurring.jsx` modal (list + form).
 
 ### Spending Trends (Analytics)
 

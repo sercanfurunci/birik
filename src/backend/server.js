@@ -188,6 +188,25 @@ pool.query(`
   )
 `).catch(err => console.error("budgets table init error:", err));
 
+pool.query(`
+  CREATE TABLE IF NOT EXISTS recurring_transactions (
+    id              SERIAL PRIMARY KEY,
+    user_id         INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    description     TEXT,
+    amount          NUMERIC NOT NULL,
+    type            TEXT NOT NULL,
+    category        TEXT NOT NULL DEFAULT 'other',
+    frequency       TEXT NOT NULL,
+    day_of_period   INTEGER,
+    start_date      DATE NOT NULL,
+    end_date        DATE,
+    next_run_date   DATE NOT NULL,
+    last_run_date   DATE,
+    is_active       BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at      TIMESTAMP DEFAULT NOW()
+  )
+`).catch(err => console.error("recurring_transactions table init error:", err));
+
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
   port: 587,
@@ -698,10 +717,11 @@ app.delete("/auth/account", authMiddleware, async (req, res) => {
       return res.status(401).json({ error: "Incorrect password" });
 
     await client.query("BEGIN");
-    await client.query("DELETE FROM transactions   WHERE user_id = $1", [user.id]);
-    await client.query("DELETE FROM subscriptions  WHERE user_id = $1", [user.id]);
-    await client.query("DELETE FROM budgets        WHERE user_id = $1", [user.id]);
-    await client.query("DELETE FROM users          WHERE id = $1",      [user.id]);
+    await client.query("DELETE FROM transactions             WHERE user_id = $1", [user.id]);
+    await client.query("DELETE FROM subscriptions            WHERE user_id = $1", [user.id]);
+    await client.query("DELETE FROM budgets                  WHERE user_id = $1", [user.id]);
+    await client.query("DELETE FROM recurring_transactions   WHERE user_id = $1", [user.id]);
+    await client.query("DELETE FROM users                    WHERE id = $1",      [user.id]);
     await client.query("COMMIT");
 
     res.clearCookie("token", { ...COOKIE_OPTS, maxAge: 0 });
@@ -848,6 +868,8 @@ app.get("/auth/link-email/verify", async (req, res) => {
 
 app.get("/transactions", authMiddleware, async (req, res) => {
   try {
+    // Lazy materialize any recurring transactions that have come due
+    try { await materializeDueRecurring(req.user.id); } catch (e) { console.error("materialize error:", e); }
     const result = await pool.query(
       "SELECT * FROM transactions WHERE user_id = $1 ORDER BY date DESC",
       [req.user.id]
@@ -1024,6 +1046,160 @@ app.delete("/subscriptions/:id", authMiddleware, async (req, res) => {
       [id, req.user.id]
     );
     if (result.rows.length === 0) return res.status(404).json({ error: "Subscription not found" });
+    res.json({ message: "Deleted successfully", deleted: result.rows[0] });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Delete error" });
+  }
+});
+
+// ─── Recurring Transactions ───────────────────────────────────────────────────
+
+const VALID_FREQUENCIES = new Set(["weekly", "monthly", "yearly"]);
+
+function toISODate(d) {
+  if (!d) return null;
+  if (d instanceof Date) return d.toISOString().split("T")[0];
+  return String(d).split("T")[0];
+}
+
+function advanceDate(isoDate, frequency, dayOfPeriod) {
+  // isoDate is "YYYY-MM-DD". Returns next "YYYY-MM-DD" string.
+  const [y, m, day] = isoDate.split("-").map(Number);
+  const d = new Date(Date.UTC(y, m - 1, day));
+  if (frequency === "weekly") {
+    d.setUTCDate(d.getUTCDate() + 7);
+  } else if (frequency === "monthly") {
+    d.setUTCMonth(d.getUTCMonth() + 1);
+    if (typeof dayOfPeriod === "number" && dayOfPeriod >= 1 && dayOfPeriod <= 31) {
+      const monthLen = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 0)).getUTCDate();
+      d.setUTCDate(Math.min(dayOfPeriod, monthLen));
+    }
+  } else if (frequency === "yearly") {
+    d.setUTCFullYear(d.getUTCFullYear() + 1);
+  }
+  return d.toISOString().split("T")[0];
+}
+
+async function materializeDueRecurring(userId) {
+  const today = new Date().toISOString().split("T")[0];
+  const due = await pool.query(
+    `SELECT * FROM recurring_transactions
+     WHERE user_id = $1 AND is_active = TRUE AND next_run_date <= $2`,
+    [userId, today]
+  );
+  for (const r of due.rows) {
+    let cursor = toISODate(r.next_run_date);
+    const endISO = r.end_date ? toISODate(r.end_date) : null;
+    let safety = 0;
+    while (cursor <= today && safety < 60) {
+      if (endISO && cursor > endISO) break;
+      await pool.query(
+        `INSERT INTO transactions (description, amount, type, category, date, user_id)
+         VALUES ($1, $2, $3, $4, $5, $6)`,
+        [r.description, r.amount, r.type, r.category, cursor, userId]
+      );
+      cursor = advanceDate(cursor, r.frequency, r.day_of_period);
+      safety++;
+    }
+    await pool.query(
+      `UPDATE recurring_transactions SET next_run_date=$1, last_run_date=$2 WHERE id=$3`,
+      [cursor, today, r.id]
+    );
+  }
+}
+
+app.get("/recurring", authMiddleware, async (req, res) => {
+  try {
+    const result = await pool.query(
+      "SELECT * FROM recurring_transactions WHERE user_id = $1 ORDER BY is_active DESC, next_run_date ASC",
+      [req.user.id]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "DB error" });
+  }
+});
+
+app.post("/recurring", authMiddleware, async (req, res) => {
+  const description   = trimStr(req.body.description, 200) ?? "";
+  const amount        = isValidAmount(req.body.amount);
+  const type          = trimStr(req.body.type, 20);
+  const category      = trimStr(req.body.category, 50);
+  const frequency     = trimStr(req.body.frequency, 20);
+  const start_date    = isValidDate(req.body.start_date);
+  const end_date      = req.body.end_date ? isValidDate(req.body.end_date) : null;
+  const day_of_period = Number.isInteger(req.body.day_of_period) ? req.body.day_of_period : null;
+
+  if (amount === null)                                    return res.status(400).json({ error: "Amount must be a positive number under 1 billion" });
+  if (!type || !VALID_TYPES.has(type))                    return res.status(400).json({ error: "Type must be 'income' or 'expense'" });
+  if (!category || !VALID_CATEGORIES.has(category))       return res.status(400).json({ error: "Invalid category" });
+  if (!frequency || !VALID_FREQUENCIES.has(frequency))    return res.status(400).json({ error: "Invalid frequency" });
+  if (!start_date)                                        return res.status(400).json({ error: "Valid start_date required" });
+  if (req.body.end_date && !end_date)                     return res.status(400).json({ error: "Invalid end_date" });
+
+  try {
+    const result = await pool.query(
+      `INSERT INTO recurring_transactions
+         (user_id, description, amount, type, category, frequency, day_of_period, start_date, end_date, next_run_date)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $8) RETURNING *`,
+      [req.user.id, description, amount, type, category, frequency, day_of_period, start_date, end_date]
+    );
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Insert error" });
+  }
+});
+
+app.put("/recurring/:id", authMiddleware, async (req, res) => {
+  const id = isValidId(req.params.id);
+  if (!id) return res.status(400).json({ error: "Invalid recurring ID" });
+
+  const description   = trimStr(req.body.description, 200) ?? "";
+  const amount        = isValidAmount(req.body.amount);
+  const type          = trimStr(req.body.type, 20);
+  const category      = trimStr(req.body.category, 50);
+  const frequency     = trimStr(req.body.frequency, 20);
+  const start_date    = isValidDate(req.body.start_date);
+  const end_date      = req.body.end_date ? isValidDate(req.body.end_date) : null;
+  const day_of_period = Number.isInteger(req.body.day_of_period) ? req.body.day_of_period : null;
+  const is_active     = typeof req.body.is_active === "boolean" ? req.body.is_active : true;
+
+  if (amount === null)                                    return res.status(400).json({ error: "Amount must be a positive number under 1 billion" });
+  if (!type || !VALID_TYPES.has(type))                    return res.status(400).json({ error: "Type must be 'income' or 'expense'" });
+  if (!category || !VALID_CATEGORIES.has(category))       return res.status(400).json({ error: "Invalid category" });
+  if (!frequency || !VALID_FREQUENCIES.has(frequency))    return res.status(400).json({ error: "Invalid frequency" });
+  if (!start_date)                                        return res.status(400).json({ error: "Valid start_date required" });
+
+  try {
+    const result = await pool.query(
+      `UPDATE recurring_transactions
+       SET description=$1, amount=$2, type=$3, category=$4, frequency=$5,
+           day_of_period=$6, start_date=$7, end_date=$8, is_active=$9
+       WHERE id=$10 AND user_id=$11 RETURNING *`,
+      [description, amount, type, category, frequency, day_of_period,
+       start_date, end_date, is_active, id, req.user.id]
+    );
+    if (result.rows.length === 0) return res.status(404).json({ error: "Recurring not found" });
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Update error" });
+  }
+});
+
+app.delete("/recurring/:id", authMiddleware, async (req, res) => {
+  const id = isValidId(req.params.id);
+  if (!id) return res.status(400).json({ error: "Invalid recurring ID" });
+
+  try {
+    const result = await pool.query(
+      "DELETE FROM recurring_transactions WHERE id=$1 AND user_id=$2 RETURNING *",
+      [id, req.user.id]
+    );
+    if (result.rows.length === 0) return res.status(404).json({ error: "Recurring not found" });
     res.json({ message: "Deleted successfully", deleted: result.rows[0] });
   } catch (err) {
     console.error(err);
