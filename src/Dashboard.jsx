@@ -16,6 +16,19 @@ const catColors = {
 const fmt = (n) =>
   parseFloat(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
+function ChartTooltip({ active, payload, t, symbol }) {
+  if (!active || !payload?.length) return null;
+  const { name, value } = payload[0].payload;
+  return (
+    <div className="fin-card rounded-xl px-3 py-2 text-sm shadow-lg">
+      <p className="font-medium capitalize" style={{ color: "var(--text-1)" }}>{t(name)}</p>
+      <p className="fin-mono font-bold" style={{ color: catColors[name] || catColors.other }}>
+        {symbol}{fmt(value)}
+      </p>
+    </div>
+  );
+}
+
 function Dashboard({ transactions }) {
   const { t, formatDate } = useLang();
   const { symbol } = useCurrency();
@@ -36,29 +49,13 @@ function Dashboard({ transactions }) {
     .sort((a, b) => new Date(b.date) - new Date(a.date))
     .slice(0, 5);
 
-  const CustomTooltip = ({ active, payload }) => {
-    if (!active || !payload?.length) return null;
-    const { name, value } = payload[0].payload;
-    return (
-      <div className="fin-card rounded-xl px-3 py-2 text-sm shadow-lg">
-        <p className="font-medium capitalize" style={{ color: "var(--text-1)" }}>{t(name)}</p>
-        <p className="fin-mono font-bold" style={{ color: catColors[name] || catColors.other }}>
-          {symbol}{fmt(value)}
-        </p>
-      </div>
-    );
-  };
-
   return (
-    <div className="anim-1 lg:grid lg:grid-cols-[5fr_7fr] lg:gap-5 lg:items-start">
+    <div className="anim-1">
+      {/* ── Full-width summary row ── */}
+      <Summary transactions={transactions} />
 
-      {/* ── Left col: Summary ── */}
-      <div className="lg:sticky lg:top-6">
-        <Summary transactions={transactions} />
-      </div>
-
-      {/* ── Right col: chart + recent ── */}
-      <div className="space-y-4">
+      {/* ── Chart + Recent side by side on desktop ── */}
+      <div className="space-y-4 lg:space-y-0 lg:grid lg:grid-cols-[5fr_4fr] lg:gap-5 lg:items-start">
         {/* Category donut */}
         {catData.length > 0 ? (
           <div className="fin-card rounded-2xl p-5">
@@ -81,7 +78,7 @@ function Dashboard({ transactions }) {
                         <Cell key={entry.name} fill={catColors[entry.name] || catColors.other} />
                       ))}
                     </Pie>
-                    <Tooltip content={<CustomTooltip />} />
+                    <Tooltip content={<ChartTooltip t={t} symbol={symbol} />} />
                   </PieChart>
                 </ResponsiveContainer>
               </div>

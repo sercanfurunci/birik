@@ -20,17 +20,15 @@ function Summary({ transactions }) {
   const isPositive = balance >= 0;
 
   return (
-    <div className="mb-5 sm:mb-7 anim-1">
+    <div className="mb-5 sm:mb-6 anim-1 lg:grid lg:grid-cols-[2fr_1fr_1fr] lg:gap-3">
       {/* Balance — hero card */}
-      <div
-        className="fin-card-elev relative overflow-hidden rounded-2xl p-6 sm:p-8 mb-3"
-      >
+      <div className="fin-card-elev relative overflow-hidden rounded-2xl p-6 sm:p-7 mb-3 lg:mb-0">
         <p className="fin-label">{t("balance")}</p>
         <p
           className="fin-display mt-2"
           style={{
             color: isPositive ? "var(--gold)" : "var(--red)",
-            fontSize: "clamp(1.9rem, 4vw, 2.9rem)",
+            fontSize: "clamp(1.75rem, 2.8vw, 2.6rem)",
             lineHeight: 1.05,
           }}
         >
@@ -39,37 +37,31 @@ function Summary({ transactions }) {
         <p className="text-xs mt-2" style={{ color: "var(--text-3)" }}>
           {transactions.length} {transactions.length === 1 ? "transaction" : "transactions"} recorded
         </p>
-
-        {/* Bottom accent bar */}
-        <div
-          className="fin-bar"
-          style={{ background: isPositive ? "var(--gold)" : "var(--red)" }}
-        />
+        <div className="fin-bar" style={{ background: isPositive ? "var(--gold)" : "var(--red)" }} />
       </div>
 
-      {/* Income + Expenses */}
-      <div className="grid grid-cols-2 gap-3">
-        <div className="fin-card relative overflow-hidden rounded-2xl p-4 sm:p-5">
-          <p className="fin-label">{t("income")}</p>
-          <p
-            className="fin-display mt-2"
-            style={{ color: "var(--green)", fontSize: "clamp(1.15rem, 2.5vw, 1.55rem)", lineHeight: 1.1 }}
-          >
-            +{symbol}{fmt(totalIncome)}
-          </p>
-          <div className="fin-bar" style={{ background: "var(--green)" }} />
-        </div>
+      {/* Income */}
+      <div className="fin-card relative overflow-hidden rounded-2xl p-4 sm:p-5 mb-3 lg:mb-0">
+        <p className="fin-label">{t("income")}</p>
+        <p
+          className="fin-display mt-2"
+          style={{ color: "var(--green)", fontSize: "clamp(1.1rem, 1.6vw, 1.45rem)", lineHeight: 1.1 }}
+        >
+          +{symbol}{fmt(totalIncome)}
+        </p>
+        <div className="fin-bar" style={{ background: "var(--green)" }} />
+      </div>
 
-        <div className="fin-card relative overflow-hidden rounded-2xl p-4 sm:p-5">
-          <p className="fin-label">{t("expenses")}</p>
-          <p
-            className="fin-display mt-2"
-            style={{ color: "var(--red)", fontSize: "clamp(1.15rem, 2.5vw, 1.55rem)", lineHeight: 1.1 }}
-          >
-            −{symbol}{fmt(totalExpenses)}
-          </p>
-          <div className="fin-bar" style={{ background: "var(--red)" }} />
-        </div>
+      {/* Expenses */}
+      <div className="fin-card relative overflow-hidden rounded-2xl p-4 sm:p-5">
+        <p className="fin-label">{t("expenses")}</p>
+        <p
+          className="fin-display mt-2"
+          style={{ color: "var(--red)", fontSize: "clamp(1.1rem, 1.6vw, 1.45rem)", lineHeight: 1.1 }}
+        >
+          −{symbol}{fmt(totalExpenses)}
+        </p>
+        <div className="fin-bar" style={{ background: "var(--red)" }} />
       </div>
     </div>
   );
