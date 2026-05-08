@@ -143,7 +143,7 @@ function downloadCsv(transactions, t, symbol) {
   URL.revokeObjectURL(url);
 }
 
-const PAGE_SIZE = 25;
+const PAGE_SIZE = 15;
 
 function TransactionList({ transactions, onDelete, onEdit }) {
   const { t, formatDate } = useLang();
@@ -565,16 +565,16 @@ function TransactionList({ transactions, onDelete, onEdit }) {
                         className={`tx-row group ${tx.type === "income" ? "tx-income" : "tx-expense"}`}
                         style={borderStyle}
                       >
-                        <td className="px-5 py-4 fin-mono text-xs whitespace-nowrap" style={{ color: "var(--text-3)" }}>
+                        <td className="px-5 py-2.5 fin-mono text-xs whitespace-nowrap" style={{ color: "var(--text-3)" }}>
                           {formatDate(tx.date)}
                         </td>
-                        <td className="px-5 py-4 text-sm font-medium" style={{ color: "var(--text-1)", overflow: "hidden" }}>
+                        <td className="px-5 py-2.5 text-sm font-medium" style={{ color: "var(--text-1)", overflow: "hidden" }}>
                           <span className="block truncate" title={tx.description}>{tx.description}</span>
                         </td>
-                        <td className="px-5 py-4">
+                        <td className="px-5 py-2.5">
                           <CategoryPill cat={tx.category} label={t(tx.category)} />
                         </td>
-                        <td className="px-5 py-4 text-right whitespace-nowrap">
+                        <td className="px-5 py-2.5 text-right whitespace-nowrap">
                           <span
                             className="fin-mono text-sm font-bold"
                             style={{ color: tx.type === "income" ? "var(--green)" : "var(--red)" }}
@@ -582,7 +582,7 @@ function TransactionList({ transactions, onDelete, onEdit }) {
                             {tx.type === "income" ? "+" : "−"}{symbol}{fmt(tx.amount)}
                           </span>
                         </td>
-                        <td className="px-4 py-4" style={{ whiteSpace: "nowrap" }}>
+                        <td className="px-4 py-2.5" style={{ whiteSpace: "nowrap" }}>
                           <div className="flex items-center gap-1 justify-end">
                             <button
                               onClick={() => startEdit(tx)}
