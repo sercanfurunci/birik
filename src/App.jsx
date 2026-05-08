@@ -385,6 +385,7 @@ function App() {
           user={currentUser}
           onClose={() => setShowProfile(false)}
           onSave={handleProfileSave}
+          onDeleted={() => { setShowProfile(false); handleLogout(); }}
         />
       )}
 

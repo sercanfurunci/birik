@@ -17,6 +17,17 @@ const translations = {
     // Profile
     usernameRequired: "Username cannot be empty",
 
+    // Danger zone
+    dangerZone: "Danger Zone",
+    deleteAccountBtn: "Delete Account",
+    deleteAccountWarning: "This permanently deletes your account along with all transactions, budgets, and subscriptions. This cannot be undone.",
+    deleteAccountTypeLabel: "Type DELETE to confirm",
+    deleteAccountTypeWrong: "Please type DELETE to confirm",
+    deleteAccountNeedPassword: "Password required",
+    deleteAccountConfirmBtn: "Delete forever",
+    deletingAccount: "Deleting…",
+    deleteAccountFailed: "Failed to delete account",
+
     // Privacy
     privacyPolicy: "Privacy Policy",
 
@@ -292,6 +303,17 @@ const translations = {
 
     // Profile
     usernameRequired: "Kullanıcı adı boş olamaz",
+
+    // Danger zone
+    dangerZone: "Tehlikeli Bölge",
+    deleteAccountBtn: "Hesabı Sil",
+    deleteAccountWarning: "Bu işlem hesabınızı, tüm işlemlerinizi, bütçelerinizi ve aboneliklerinizi kalıcı olarak siler. Geri alınamaz.",
+    deleteAccountTypeLabel: "Onaylamak için DELETE yazın",
+    deleteAccountTypeWrong: "Lütfen onaylamak için DELETE yazın",
+    deleteAccountNeedPassword: "Şifre gerekli",
+    deleteAccountConfirmBtn: "Kalıcı olarak sil",
+    deletingAccount: "Siliniyor…",
+    deleteAccountFailed: "Hesap silinemedi",
 
     // Privacy
     privacyPolicy: "Gizlilik Politikası",

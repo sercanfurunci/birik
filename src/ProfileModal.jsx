@@ -24,12 +24,45 @@ async function checkAvailability(endpoint) {
   return res.ok ? null : (data.error || "Not available");
 }
 
-function ProfileModal({ user, onClose, onSave }) {
+function ProfileModal({ user, onClose, onSave, onDeleted }) {
   const { t } = useLang();
   const [username, setUsername] = useState(user.username || "");
   const [currency, setCurrency] = useState(user.currency || "USD");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  // Delete account flow
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deletePassword, setDeletePassword] = useState("");
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
+
+  const handleDeleteAccount = async () => {
+    setDeleteError("");
+    if (deleteConfirmText.trim().toUpperCase() !== "DELETE") {
+      setDeleteError(t("deleteAccountTypeWrong"));
+      return;
+    }
+    if (!deletePassword) {
+      setDeleteError(t("deleteAccountNeedPassword"));
+      return;
+    }
+    setDeleteLoading(true);
+    try {
+      const res = await apiFetch(`${import.meta.env.VITE_API_URL}/auth/account`, {
+        method: "DELETE",
+        body: JSON.stringify({ password: deletePassword }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) { setDeleteError(data.error || t("deleteAccountFailed")); return; }
+      onDeleted?.();
+    } catch {
+      setDeleteError(t("serverError"));
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
 
   // Link phone states
   const [linkStep, setLinkStep] = useState(null); // null | 'phone-form' | 'phone-otp' | 'email-form' | 'email-sent'
@@ -344,6 +377,96 @@ function ProfileModal({ user, onClose, onSave }) {
           <button onClick={handleSave} disabled={loading} className="flex-1 fin-btn-primary disabled:opacity-50">
             {loading ? t("savingBtn") : t("saveBtn")}
           </button>
+        </div>
+
+        {/* ── Danger zone ── */}
+        <div className="mt-8 pt-5" style={{ borderTop: "1px solid var(--border)" }}>
+          <p className="fin-label mb-2" style={{ color: "var(--red)" }}>{t("dangerZone")}</p>
+          {!deleteOpen ? (
+            <button
+              onClick={() => { setDeleteOpen(true); setDeleteError(""); }}
+              className="w-full py-2.5 rounded-xl text-sm font-medium cursor-pointer transition-all"
+              style={{
+                backgroundColor: "rgba(248,113,113,0.06)",
+                color: "var(--red)",
+                border: "1px solid rgba(248,113,113,0.25)",
+              }}
+            >
+              {t("deleteAccountBtn")}
+            </button>
+          ) : (
+            <div
+              className="rounded-xl p-4 space-y-3"
+              style={{
+                backgroundColor: "rgba(248,113,113,0.04)",
+                border: "1px solid rgba(248,113,113,0.25)",
+              }}
+            >
+              <p className="text-xs leading-relaxed" style={{ color: "var(--text-2)" }}>
+                {t("deleteAccountWarning")}
+              </p>
+
+              <div>
+                <label className="fin-label block mb-1.5">{t("password")}</label>
+                <input
+                  type="password"
+                  value={deletePassword}
+                  onChange={(e) => setDeletePassword(e.target.value)}
+                  className="fin-input"
+                  placeholder="••••••••"
+                  autoComplete="current-password"
+                />
+              </div>
+
+              <div>
+                <label className="fin-label block mb-1.5">{t("deleteAccountTypeLabel")}</label>
+                <input
+                  type="text"
+                  value={deleteConfirmText}
+                  onChange={(e) => setDeleteConfirmText(e.target.value)}
+                  className="fin-input fin-mono"
+                  placeholder="DELETE"
+                  autoCapitalize="characters"
+                />
+              </div>
+
+              {deleteError && (
+                <div
+                  className="text-xs rounded-lg px-3 py-2"
+                  style={{ color: "var(--red)", backgroundColor: "rgba(248,113,113,0.08)", border: "1px solid rgba(248,113,113,0.2)" }}
+                >
+                  {deleteError}
+                </div>
+              )}
+
+              <div className="flex gap-2">
+                <button
+                  onClick={() => {
+                    setDeleteOpen(false);
+                    setDeletePassword("");
+                    setDeleteConfirmText("");
+                    setDeleteError("");
+                  }}
+                  className="flex-1 py-2 rounded-xl text-xs font-medium cursor-pointer"
+                  style={{ backgroundColor: "var(--surface-2)", color: "var(--text-2)", border: "1px solid var(--border)" }}
+                >
+                  {t("cancelBtn")}
+                </button>
+                <button
+                  onClick={handleDeleteAccount}
+                  disabled={deleteLoading}
+                  className="flex-1 py-2 rounded-xl text-xs font-semibold cursor-pointer transition-all disabled:opacity-50"
+                  style={{
+                    backgroundColor: "var(--red)",
+                    color: "#fff",
+                    border: "1px solid var(--red)",
+                  }}
+                >
+                  {deleteLoading ? t("deletingAccount") : t("deleteAccountConfirmBtn")}
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
