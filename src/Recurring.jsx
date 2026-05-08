@@ -26,8 +26,56 @@ function fmtAmount(n, symbol) {
   return symbol + parseFloat(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
+// ─── Styled confirm dialog ───────────────────────────────────────────────────
+function ConfirmModal({ message, onConfirm, onCancel }) {
+  return createPortal(
+    <div
+      className="fixed inset-0 z-[70] flex items-center justify-center p-4"
+      style={{ backgroundColor: "rgba(0,0,0,0.55)", backdropFilter: "blur(6px)" }}
+      onClick={e => e.target === e.currentTarget && onCancel()}
+    >
+      <div
+        className="w-full max-w-sm p-5 anim-1"
+        style={{
+          backgroundColor: "var(--surface)",
+          border: "1px solid var(--border)",
+          borderRadius: 14,
+          boxShadow: "var(--shadow-lg)",
+        }}
+      >
+        <p className="text-sm leading-relaxed mb-5" style={{ color: "var(--text-2)" }}>{message}</p>
+        <div className="flex gap-2 justify-end">
+          <button
+            onClick={onCancel}
+            className="px-4 py-2 text-sm rounded-xl font-medium transition-colors"
+            style={{
+              backgroundColor: "var(--surface-2)",
+              color: "var(--text-2)",
+              border: "1px solid var(--border)",
+            }}
+            onMouseEnter={e => (e.currentTarget.style.backgroundColor = "var(--border)")}
+            onMouseLeave={e => (e.currentTarget.style.backgroundColor = "var(--surface-2)")}
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onConfirm}
+            className="px-4 py-2 text-sm rounded-xl font-medium transition-colors"
+            style={{ backgroundColor: "var(--red)", color: "white" }}
+            onMouseEnter={e => (e.currentTarget.style.opacity = "0.85")}
+            onMouseLeave={e => (e.currentTarget.style.opacity = "1")}
+          >
+            OK
+          </button>
+        </div>
+      </div>
+    </div>,
+    document.body
+  );
+}
+
 // ─── List item ──────────────────────────────────────────────────────────────
-function RecurringRow({ rule, symbol, t, formatDate, onEdit, onDelete, onToggle }) {
+function RecurringRow({ rule, symbol, t, formatDate, onEdit, onDeleteRequest, onToggle }) {
   const isActive = rule.is_active;
   const accent = rule.type === "income" ? "var(--green)" : "var(--red)";
   const sign   = rule.type === "income" ? "+" : "−";
@@ -83,9 +131,7 @@ function RecurringRow({ rule, symbol, t, formatDate, onEdit, onDelete, onToggle 
         <button
           className="fin-icon-btn"
           title="Delete"
-          onClick={() => {
-            if (window.confirm(t("recurringDeleteConfirm"))) onDelete(rule);
-          }}
+          onClick={() => onDeleteRequest(rule)}
         >
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="3 6 5 6 21 6"/>
@@ -236,6 +282,8 @@ function Recurring({ onClose, onChanged }) {
   const [editing, setEditing] = useState(null); // null = list; "new" = new form; obj = edit
   const [saving, setSaving] = useState(false);
   const [error, setError]   = useState("");
+  const [deleteTarget, setDeleteTarget] = useState(null); // rule pending delete confirm
+  const [dupPayload, setDupPayload]     = useState(null); // { payload, name } pending dup warn
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -257,19 +305,7 @@ function Recurring({ onClose, onChanged }) {
 
   useEffect(() => { load(); }, [load]);
 
-  const handleSubmit = async (payload) => {
-    // Warn if the description matches an existing Subscription name.
-    // Only check when creating new (not editing) and only for expenses.
-    const isNew = !editing || editing === "new";
-    if (isNew && payload.type === "expense" && payload.description) {
-      const desc = payload.description.trim().toLowerCase();
-      const match = subNames.find((n) => n === desc || n.includes(desc) || desc.includes(n));
-      if (match) {
-        const ok = window.confirm(t("recurringDuplicateWarn")({ name: payload.description.trim() }));
-        if (!ok) return;
-      }
-    }
-
+  const doSubmit = async (payload) => {
     setSaving(true);
     setError("");
     try {
@@ -291,6 +327,19 @@ function Recurring({ onClose, onChanged }) {
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleSubmit = async (payload) => {
+    const isNew = !editing || editing === "new";
+    if (isNew && payload.type === "expense" && payload.description) {
+      const desc = payload.description.trim().toLowerCase();
+      const match = subNames.find((n) => n === desc || n.includes(desc) || desc.includes(n));
+      if (match) {
+        setDupPayload({ payload, name: payload.description.trim() });
+        return;
+      }
+    }
+    await doSubmit(payload);
   };
 
   const handleDelete = async (rule) => {
@@ -324,7 +373,7 @@ function Recurring({ onClose, onChanged }) {
     } catch { /* ignore */ }
   };
 
-  return createPortal(
+  const modal = createPortal(
     <div
       className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4"
       style={{ backgroundColor: "rgba(0,0,0,0.5)", backdropFilter: "blur(4px)" }}
@@ -396,7 +445,7 @@ function Recurring({ onClose, onChanged }) {
                     t={t}
                     formatDate={formatDate}
                     onEdit={(r) => setEditing(r)}
-                    onDelete={handleDelete}
+                    onDeleteRequest={(r) => setDeleteTarget(r)}
                     onToggle={handleToggle}
                   />
                 ))}
@@ -415,6 +464,26 @@ function Recurring({ onClose, onChanged }) {
       </div>
     </div>,
     document.body
+  );
+
+  return (
+    <>
+      {modal}
+      {deleteTarget && (
+        <ConfirmModal
+          message={t("recurringDeleteConfirm")}
+          onConfirm={() => { handleDelete(deleteTarget); setDeleteTarget(null); }}
+          onCancel={() => setDeleteTarget(null)}
+        />
+      )}
+      {dupPayload && (
+        <ConfirmModal
+          message={t("recurringDuplicateWarn")({ name: dupPayload.name })}
+          onConfirm={() => { const p = dupPayload.payload; setDupPayload(null); doSubmit(p); }}
+          onCancel={() => setDupPayload(null)}
+        />
+      )}
+    </>
   );
 }
 
