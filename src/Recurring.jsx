@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { useLang } from "./i18n.jsx";
 import { useCurrency } from "./currency.jsx";
 
@@ -305,7 +306,7 @@ function Recurring({ onClose, onChanged }) {
     } catch { /* ignore */ }
   };
 
-  return (
+  return createPortal(
     <div
       className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4"
       style={{ backgroundColor: "rgba(0,0,0,0.5)", backdropFilter: "blur(4px)" }}
@@ -394,7 +395,8 @@ function Recurring({ onClose, onChanged }) {
           </>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
