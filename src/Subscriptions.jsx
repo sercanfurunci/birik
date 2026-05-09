@@ -795,20 +795,23 @@ export default function Subscriptions({ onExpenseAdded }) {
   return (
     <>
     <div>
-      {/* Monthly total card */}
-      <div className="fin-card p-5 mb-4">
-        <p className="fin-label mb-1" style={{ color: "var(--text-3)" }}>
-          {t("subMonthlyTotal")}
-        </p>
-        <div className="flex items-end justify-between gap-3">
-          <p className="fin-serif text-4xl leading-none" style={{ color: "var(--text-1)" }}>
-            {currency.symbol}
-            {monthlyTotal.toLocaleString(dateLocale, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-          </p>
-          <p className="text-xs fin-mono pb-0.5" style={{ color: "var(--text-3)" }}>
-            {activeSubs.length} {t("subActive")}
+      {/* Header row */}
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <p className="fin-label" style={{ color: "var(--text-3)" }}>{t("subMonthlyTotal")}</p>
+          <p className="fin-serif text-3xl leading-tight mt-0.5" style={{ color: "var(--text-1)" }}>
+            {currency.symbol}{monthlyTotal.toLocaleString(dateLocale, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </p>
         </div>
+        <button
+          onClick={() => { setEditTarget(null); setShowForm(true); }}
+          className="fin-btn-primary flex items-center gap-2"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+            <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
+          {t("subAdd")}
+        </button>
       </div>
 
       {/* Tracking-only info note */}
@@ -912,18 +915,6 @@ export default function Subscriptions({ onExpenseAdded }) {
         </div>
       )}
     </div>
-
-    {/* FAB — outside anim-1 so CSS transform doesn't break fixed positioning */}
-    <button
-      onClick={() => { setEditTarget(null); setShowForm(true); }}
-      className="fixed bottom-20 sm:bottom-6 right-4 sm:right-6 w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-transform active:scale-95 cursor-pointer z-30"
-      style={{ backgroundColor: "var(--text-1)", color: "var(--bg)" }}
-    >
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-        <line x1="12" y1="5" x2="12" y2="19" />
-        <line x1="5" y1="12" x2="19" y2="12" />
-      </svg>
-    </button>
 
     {showForm && (
       <SubForm
