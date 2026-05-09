@@ -99,7 +99,7 @@ function Dashboard({ transactions, onNavigate }) {
             <p className="fin-label mb-4">{t("expenseBreakdown")}</p>
             <div className="flex flex-col sm:flex-row items-center gap-6">
               <div style={{ width: 180, height: 180, flexShrink: 0, minWidth: 0 }}>
-                <ResponsiveContainer width="100%" height="100%">
+                <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                   <PieChart>
                     <Pie
                       data={catData}
