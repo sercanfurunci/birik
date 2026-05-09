@@ -124,6 +124,8 @@ function TransactionForm({ onAdd, onRefresh }) {
                 type="number"
                 placeholder={t("amountPlaceholder")}
                 value={amount}
+                min="0.01"
+                step="0.01"
                 onChange={(e) => setAmount(e.target.value)}
                 className="fin-input fin-mono w-full"
               />

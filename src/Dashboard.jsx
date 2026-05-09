@@ -90,6 +90,19 @@ function Dashboard({ transactions, onNavigate }) {
   const allTimeIncome = transactions.filter(tx => tx.type === "income").reduce((s, tx) => s + parseFloat(tx.amount), 0);
   const savingsRate = allTimeIncome > 0 ? ((allTimeIncome - totalExpenses) / allTimeIncome) * 100 : null;
 
+  if (transactions.length === 0) {
+    return (
+      <div className="anim-1">
+        <Summary transactions={transactions} />
+        <div className="fin-card rounded-2xl py-16 text-center mt-4">
+          <p className="text-3xl mb-3">📊</p>
+          <p className="font-semibold text-sm mb-1" style={{ color: "var(--text-1)" }}>{t("noTransactionsDash")}</p>
+          <p className="text-xs" style={{ color: "var(--text-3)" }}>{t("addFirstTransaction")}</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="anim-1">
       {/* ── Full-width summary row ── */}
@@ -209,7 +222,7 @@ function Dashboard({ transactions, onNavigate }) {
 
       {/* ── This month quick stats ── */}
       {thisMonthExp.length > 0 && (
-        <div className="mt-4 grid grid-cols-2 lg:grid-cols-5 gap-3 anim-5">
+        <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 anim-5">
           {/* Avg daily spend */}
           <div className="fin-card rounded-2xl p-4">
             <p className="fin-label mb-2">{t("statAvgDaily")}</p>

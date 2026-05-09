@@ -14,6 +14,7 @@ const translations = {
     navBudgets: "Budgets",
     navGoals: "Goals",
     navSubscriptions: "Subscriptions",
+    navProfile: "Profile & Currency",
 
     // Profile
     usernameRequired: "Username cannot be empty",
@@ -166,7 +167,8 @@ const translations = {
     // Dashboard
     expenseBreakdown: "Expense Breakdown",
     recentActivity: "Recent Activity",
-    noTransactionsDash: "Add your first transaction to see insights",
+    noTransactionsDash: "No transactions yet",
+    addFirstTransaction: "Add your first income or expense to see insights.",
     statAvgDaily: "Avg Daily Spend",
     statDaysElapsed: "days elapsed",
     statDaysLeft: "Days Left",
@@ -373,6 +375,7 @@ const translations = {
     navBudgets: "Bütçeler",
     navGoals: "Hedefler",
     navSubscriptions: "Abonelikler",
+    navProfile: "Profil & Para Birimi",
 
     // Profile
     usernameRequired: "Kullanıcı adı boş olamaz",
@@ -525,7 +528,8 @@ const translations = {
     // Dashboard
     expenseBreakdown: "Gider Dağılımı",
     recentActivity: "Son Hareketler",
-    noTransactionsDash: "Analiz görmek için ilk işleminizi ekleyin",
+    noTransactionsDash: "Henüz işlem yok",
+    addFirstTransaction: "Analizi görmek için ilk gelir veya giderinizi ekleyin.",
     statAvgDaily: "Günlük Ort. Harcama",
     statDaysElapsed: "gün geçti",
     statDaysLeft: "Kalan Gün",

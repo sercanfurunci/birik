@@ -27,7 +27,7 @@ const fmt = (n) =>
 
 function StatCard({ label, value, sub }) {
   return (
-    <div className="fin-card rounded-xl p-4">
+    <div className="fin-card rounded-2xl p-4">
       <p className="fin-label">{label}</p>
       <p
         className="fin-mono text-xl font-bold mt-2"
@@ -296,7 +296,7 @@ function Analytics({ transactions }) {
           </ResponsiveContainer>
         </div>
         <div className="flex gap-5 mt-3 justify-center">
-          {[[" var(--green)", t("income")], ["var(--red)", t("expenses")]].map(([color, label]) => (
+          {[["var(--green)", t("income")], ["var(--red)", t("expenses")]].map(([color, label]) => (
             <div key={label} className="flex items-center gap-1.5">
               <div className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: color, opacity: 0.75 }} />
               <span className="text-xs" style={{ color: "var(--text-2)" }}>{label}</span>

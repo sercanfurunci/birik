@@ -301,7 +301,7 @@ function Budgets({ transactions }) {
         const remaining = limit - spent;
         const over = spent > limit;
         const warning = pct >= 80 && !over;
-        const barColor = over ? "var(--red)" : warning ? "#EAB308" : "var(--green)";
+        const barColor = over ? "var(--red)" : warning ? "var(--gold)" : "var(--green)";
         const status = over ? t("budgetExceeded") : warning ? t("budgetWarning") : t("budgetOnTrack");
 
         return (
