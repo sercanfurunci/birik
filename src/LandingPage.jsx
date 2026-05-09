@@ -288,6 +288,10 @@ function LandingPage({ onGetStarted, onSignIn, isDark, toggleDark }) {
             <span className="fin-serif text-sm" style={{ color: "var(--text-2)" }}>{t("appName")}</span>
           </div>
           <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4">
+            <a href="/terms" className="text-xs font-medium hover:underline cursor-pointer" style={{ color: "var(--text-2)" }}>
+              {t("termsOfService")}
+            </a>
+            <span style={{ color: "var(--border-2)" }}>·</span>
             <a href="/privacy" className="text-xs font-medium hover:underline cursor-pointer" style={{ color: "var(--text-2)" }}>
               {t("privacyPolicy")}
             </a>
