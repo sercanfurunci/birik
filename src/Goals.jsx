@@ -51,13 +51,13 @@ function GoalForm({ initial, onSave, onCancel }) {
 
   return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4"
+      className="modal-backdrop fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4"
       style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
       onClick={e => e.target === e.currentTarget && onCancel()}
     >
       <div
-        className="w-full max-w-md p-6 max-h-[90vh] overflow-y-auto"
-        style={{ backgroundColor: "var(--surface)", border: "1px solid var(--border)", borderRadius: 10 }}
+        className="modal-panel w-full max-w-md p-6 max-h-[90vh] overflow-y-auto"
+        style={{ backgroundColor: "var(--surface)", border: "1px solid var(--border)", borderRadius: 16 }}
       >
         <div className="flex items-center justify-between mb-5">
           <h2 className="font-semibold text-base" style={{ color: "var(--text-1)" }}>
@@ -167,9 +167,9 @@ function GoalForm({ initial, onSave, onCancel }) {
 function DeleteConfirm({ goal, onConfirm, onCancel }) {
   const { t } = useLang();
   return createPortal(
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="modal-backdrop fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onCancel} />
-      <div className="fin-card relative rounded-2xl shadow-2xl w-full max-w-sm p-6 anim-1">
+      <div className="modal-panel fin-card relative rounded-2xl shadow-2xl w-full max-w-sm p-6">
         <div
           className="w-11 h-11 rounded-full flex items-center justify-center mx-auto mb-4"
           style={{ backgroundColor: "rgba(248,113,113,0.12)" }}
@@ -292,7 +292,7 @@ function GoalCard({ goal, currency, lang, onEdit, onDelete }) {
   );
 }
 
-export default function Goals() {
+export default function Goals({ showToast }) {
   const { t, lang } = useLang();
   const currency = useCurrency();
   const [goals, setGoals] = useState([]);
@@ -322,6 +322,7 @@ export default function Goals() {
       await load();
       setShowForm(false);
       setEditTarget(null);
+      showToast?.(t("toastGoalSaved"));
       return true;
     } catch (e) { return false; }
   };
@@ -331,6 +332,7 @@ export default function Goals() {
     await authFetch(`${API}/goals/${deleteTarget.id}`, { method: "DELETE" });
     setGoals(prev => prev.filter(g => g.id !== deleteTarget.id));
     setDeleteTarget(null);
+    showToast?.(t("toastGoalDeleted"));
   };
 
   const totalTarget = goals.reduce((s, g) => s + parseFloat(g.target_amount), 0);
@@ -359,10 +361,23 @@ export default function Goals() {
       </div>
 
       {loading ? (
-        <div className="flex items-center justify-center py-16" style={{ color: "var(--text-3)" }}>
-          <svg className="animate-spin" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <circle cx="12" cy="12" r="10" strokeOpacity=".25" /><path d="M12 2a10 10 0 0 1 10 10" strokeLinecap="round" />
-          </svg>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {[1,2,3].map(i => (
+            <div key={i} className="fin-card p-5 flex flex-col gap-3">
+              <div className="flex items-center gap-3">
+                <div className="skeleton w-8 h-8 rounded-lg shrink-0" />
+                <div className="flex-1 space-y-2">
+                  <div className="skeleton h-3.5 w-3/4" />
+                  <div className="skeleton h-2.5 w-1/2" />
+                </div>
+              </div>
+              <div className="skeleton h-2 rounded-full w-full" />
+              <div className="flex justify-between">
+                <div className="skeleton h-2.5 w-16" />
+                <div className="skeleton h-2.5 w-10" />
+              </div>
+            </div>
+          ))}
         </div>
       ) : goals.length === 0 ? (
         <div className="fin-card flex flex-col items-center justify-center py-16 text-center gap-3">

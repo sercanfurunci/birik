@@ -28,10 +28,11 @@ function CategoryPill({ cat, label }) {
 }
 
 function DeleteModal({ transaction, onConfirm, onCancel }) {
+  const { t } = useLang();
   return createPortal(
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="modal-backdrop fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onCancel} />
-      <div className="fin-card relative rounded-2xl shadow-2xl w-full max-w-sm p-6 anim-1">
+      <div className="modal-panel fin-card relative rounded-2xl shadow-2xl w-full max-w-sm p-6">
         <div
           className="w-11 h-11 rounded-full flex items-center justify-center mx-auto mb-4"
           style={{ backgroundColor: "rgba(248,113,113,0.12)" }}
@@ -43,8 +44,8 @@ function DeleteModal({ transaction, onConfirm, onCancel }) {
             <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
           </svg>
         </div>
-        <h3 className="font-semibold text-center text-base mb-1" style={{ color: "var(--text-1)" }}>Delete Transaction</h3>
-        <p className="text-sm text-center mb-1" style={{ color: "var(--text-2)" }}>Are you sure you want to delete</p>
+        <h3 className="font-semibold text-center text-base mb-1" style={{ color: "var(--text-1)" }}>{t("deleteTransaction")}</h3>
+        <p className="text-sm text-center mb-1" style={{ color: "var(--text-2)" }}>{t("deleteConfirmLine1")}</p>
         <p className="text-sm text-center font-medium mb-6" style={{ color: "var(--text-1)" }}>"{transaction.description}"?</p>
         <div className="flex gap-2.5">
           <button
@@ -52,14 +53,14 @@ function DeleteModal({ transaction, onConfirm, onCancel }) {
             className="flex-1 py-2.5 rounded-xl text-sm font-medium cursor-pointer transition-opacity hover:opacity-70"
             style={{ backgroundColor: "var(--surface-2)", border: "1px solid var(--border)", color: "var(--text-2)" }}
           >
-            Cancel
+            {t("cancelBtn")}
           </button>
           <button
             onClick={onConfirm}
             className="flex-1 py-2.5 rounded-xl text-sm font-semibold cursor-pointer transition-opacity hover:opacity-85 text-white"
             style={{ backgroundColor: "var(--red)" }}
           >
-            Delete
+            {t("deleteBtn")}
           </button>
         </div>
       </div>

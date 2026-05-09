@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import "./App.css";
 import Dashboard from "./Dashboard";
 import Analytics from "./Analytics";
@@ -109,6 +109,16 @@ function App() {
   const { t, lang, toggleLang } = useLang();
   const [transactions, setTransactions] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
+  const [toasts, setToasts] = useState([]);
+
+  const showToast = useCallback((msg, type = "success") => {
+    const id = Date.now() + Math.random();
+    setToasts(p => [...p, { id, msg, type, exiting: false }]);
+    setTimeout(() => {
+      setToasts(p => p.map(t => t.id === id ? { ...t, exiting: true } : t));
+      setTimeout(() => setToasts(p => p.filter(t => t.id !== id)), 220);
+    }, 2600);
+  }, []);
   // false = still checking auth on mount; true = check complete
   const [authChecked, setAuthChecked] = useState(false);
   const [resetToken] = useState(() => {
@@ -202,6 +212,7 @@ function App() {
       });
       const data = await res.json();
       setTransactions((prev) => [data, ...prev]);
+      showToast(t("toastTxAdded"));
     } catch (err) {
       console.log("POST error:", err);
     }
@@ -209,10 +220,9 @@ function App() {
 
   const handleDelete = async (id) => {
     try {
-      await authFetch(`${API}/transactions/${id}`, {
-        method: "DELETE",
-      });
+      await authFetch(`${API}/transactions/${id}`, { method: "DELETE" });
       setTransactions((prev) => prev.filter((tx) => tx.id !== id));
+      showToast(t("toastTxDeleted"));
     } catch (err) {
       console.log("DELETE error:", err);
     }
@@ -227,6 +237,7 @@ function App() {
       });
       const data = await res.json();
       setTransactions((prev) => prev.map((tx) => (tx.id === id ? data : tx)));
+      showToast(t("toastTxUpdated"));
     } catch (err) {
       console.log("PUT error:", err);
     }
@@ -408,9 +419,9 @@ function App() {
 
         {activeTab === "analytics" && <Analytics transactions={transactions} />}
 
-        {activeTab === "budgets" && <Budgets transactions={transactions} />}
+        {activeTab === "budgets" && <Budgets transactions={transactions} showToast={showToast} />}
 
-        {activeTab === "goals" && <Goals />}
+        {activeTab === "goals" && <Goals showToast={showToast} />}
 
         {activeTab === "subscriptions" && <Subscriptions onExpenseAdded={refreshTransactions} />}
 
@@ -467,6 +478,29 @@ function App() {
           );
         })}
       </nav>
+
+      {/* ── Toast container ── */}
+      {toasts.length > 0 && (
+        <div className="fixed bottom-20 sm:bottom-6 right-4 z-50 flex flex-col gap-2 items-end pointer-events-none">
+          {toasts.map(toast => (
+            <div
+              key={toast.id}
+              className={`toast-item${toast.exiting ? " exiting" : ""} flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-sm font-medium shadow-lg pointer-events-auto`}
+              style={{
+                backgroundColor: "var(--surface)",
+                border: "1px solid var(--border)",
+                color: "var(--text-1)",
+                boxShadow: "var(--shadow-lg)",
+              }}
+            >
+              <span style={{ color: toast.type === "error" ? "var(--red)" : "var(--green)" }}>
+                {toast.type === "error" ? "✕" : "✓"}
+              </span>
+              {toast.msg}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
     </CurrencyProvider>
   );

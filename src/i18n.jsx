@@ -217,6 +217,15 @@ const translations = {
     budgetDeleteTitle: "Remove Budget",
     budgetSelectCategory: "Category",
 
+    // Toasts
+    toastTxAdded: "Transaction added",
+    toastTxDeleted: "Transaction deleted",
+    toastTxUpdated: "Transaction updated",
+    toastGoalSaved: "Goal saved",
+    toastGoalDeleted: "Goal deleted",
+    toastBudgetSaved: "Budget saved",
+    toastBudgetDeleted: "Budget removed",
+
     // Export
     exportCsv: "Export CSV",
     exportEmpty: "Nothing to export",
@@ -577,6 +586,15 @@ const translations = {
     budgetTotalSpent: "Toplam Harcama",
     budgetDeleteTitle: "Bütçeyi Kaldır",
     budgetSelectCategory: "Kategori",
+
+    // Toasts
+    toastTxAdded: "İşlem eklendi",
+    toastTxDeleted: "İşlem silindi",
+    toastTxUpdated: "İşlem güncellendi",
+    toastGoalSaved: "Hedef kaydedildi",
+    toastGoalDeleted: "Hedef silindi",
+    toastBudgetSaved: "Bütçe kaydedildi",
+    toastBudgetDeleted: "Bütçe kaldırıldı",
 
     // Export
     exportCsv: "CSV İndir",

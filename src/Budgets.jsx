@@ -53,9 +53,9 @@ function BudgetForm({ initial, existingCategories, onSave, onCancel }) {
   };
 
   return createPortal(
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="modal-backdrop fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onCancel} />
-      <form onSubmit={submit} className="fin-card relative rounded-2xl shadow-2xl w-full max-w-sm p-6 anim-1">
+      <form onSubmit={submit} className="modal-panel fin-card relative rounded-2xl shadow-2xl w-full max-w-sm p-6">
         <h3 className="font-semibold text-base mb-4" style={{ color: "var(--text-1)" }}>
           {isEdit ? t("budgetEdit") : t("budgetAdd")}
         </h3>
@@ -116,9 +116,9 @@ function BudgetForm({ initial, existingCategories, onSave, onCancel }) {
 function DeleteConfirm({ budget, onConfirm, onCancel }) {
   const { t } = useLang();
   return createPortal(
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="modal-backdrop fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onCancel} />
-      <div className="fin-card relative rounded-2xl shadow-2xl w-full max-w-sm p-6 anim-1">
+      <div className="modal-panel fin-card relative rounded-2xl shadow-2xl w-full max-w-sm p-6">
         <div
           className="w-11 h-11 rounded-full flex items-center justify-center mx-auto mb-4"
           style={{ backgroundColor: "rgba(248,113,113,0.12)" }}
@@ -154,7 +154,7 @@ function DeleteConfirm({ budget, onConfirm, onCancel }) {
   );
 }
 
-function Budgets({ transactions }) {
+function Budgets({ transactions, showToast }) {
   const { t } = useLang();
   const { symbol } = useCurrency();
   const [budgets, setBudgets] = useState([]);
@@ -199,6 +199,7 @@ function Budgets({ transactions }) {
         await refresh();
         setShowForm(false);
         setEditing(null);
+        showToast?.(t("toastBudgetSaved"));
       }
     } catch (err) { console.log(err); }
   };
@@ -209,6 +210,7 @@ function Budgets({ transactions }) {
       await authFetch(`${API}/budgets/${deleteTarget.id}`, { method: "DELETE" });
       setBudgets((prev) => prev.filter((b) => b.id !== deleteTarget.id));
       setDeleteTarget(null);
+      showToast?.(t("toastBudgetDeleted"));
     } catch (err) { console.log(err); }
   };
 
@@ -219,8 +221,26 @@ function Budgets({ transactions }) {
 
   if (loading) {
     return (
-      <div className="fin-card rounded-2xl py-16 text-center anim-1">
-        <div className="w-6 h-6 rounded-full border-2 border-t-transparent animate-spin mx-auto" style={{ borderColor: "var(--brand)", borderTopColor: "transparent" }} />
+      <div className="space-y-4 anim-1">
+        <div className="grid grid-cols-2 gap-3">
+          <div className="fin-card rounded-xl p-4 flex flex-col gap-3">
+            <div className="skeleton h-3 w-1/2 rounded" />
+            <div className="skeleton h-6 w-3/4 rounded" />
+          </div>
+          <div className="fin-card rounded-xl p-4 flex flex-col gap-3">
+            <div className="skeleton h-3 w-1/2 rounded" />
+            <div className="skeleton h-6 w-3/4 rounded" />
+          </div>
+        </div>
+        {[1, 2, 3].map(i => (
+          <div key={i} className="fin-card rounded-2xl p-5 flex flex-col gap-3">
+            <div className="flex items-center justify-between">
+              <div className="skeleton h-4 w-24 rounded" />
+              <div className="skeleton h-4 w-12 rounded" />
+            </div>
+            <div className="skeleton h-2 rounded-full w-full" />
+          </div>
+        ))}
       </div>
     );
   }
