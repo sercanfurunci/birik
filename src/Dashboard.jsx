@@ -83,9 +83,8 @@ function Dashboard({ transactions, onNavigate }) {
   const topCatThisMonth = Object.entries(
     thisMonthExp.reduce((acc, tx) => { acc[tx.category] = (acc[tx.category] || 0) + parseFloat(tx.amount); return acc; }, {})
   ).sort((a, b) => b[1] - a[1])[0];
-  const thisMonthIncome = transactions.filter(tx => tx.type === "income" && (tx.date || "").slice(0, 7) === thisMonthPrefix)
-    .reduce((s, tx) => s + parseFloat(tx.amount), 0);
-  const savingsRate = thisMonthIncome > 0 ? Math.max(0, ((thisMonthIncome - thisMonthTotal) / thisMonthIncome) * 100) : null;
+  const allTimeIncome = transactions.filter(tx => tx.type === "income").reduce((s, tx) => s + parseFloat(tx.amount), 0);
+  const savingsRate = allTimeIncome > 0 ? ((allTimeIncome - totalExpenses) / allTimeIncome) * 100 : null;
 
   return (
     <div className="anim-1">
@@ -250,7 +249,7 @@ function Dashboard({ transactions, onNavigate }) {
                 <p className="fin-mono font-semibold text-base" style={{ color: savingsRate >= 0 ? "var(--green)" : "var(--red)" }}>
                   {savingsRate.toFixed(1)}%
                 </p>
-                <p className="text-xs mt-1" style={{ color: "var(--text-3)" }}>{t("statThisMonth")}</p>
+                <p className="text-xs mt-1" style={{ color: "var(--text-3)" }}>{t("statAllTime")}</p>
               </>
             ) : monthChange !== null ? (
               <>
