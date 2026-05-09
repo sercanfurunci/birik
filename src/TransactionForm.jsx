@@ -101,7 +101,7 @@ function TransactionForm({ onAdd, onRefresh }) {
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Description */}
             <div className="space-y-1.5">
-              <label className="text-xs opacity-60 uppercase tracking-wider">
+              <label className="fin-label">
                 {t("description")}
               </label>
 
@@ -116,7 +116,7 @@ function TransactionForm({ onAdd, onRefresh }) {
 
             {/* Amount */}
             <div className="space-y-1.5">
-              <label className="text-xs opacity-60 uppercase tracking-wider">
+              <label className="fin-label">
                 {t("amount")}
               </label>
 
@@ -131,7 +131,7 @@ function TransactionForm({ onAdd, onRefresh }) {
 
             {/* Type */}
             <div className="space-y-1.5">
-              <label className="text-xs opacity-60 uppercase tracking-wider">
+              <label className="fin-label">
                 {t("type")}
               </label>
 
@@ -160,7 +160,7 @@ function TransactionForm({ onAdd, onRefresh }) {
 
             {/* Category */}
             <div className="space-y-1.5">
-              <label className="text-xs opacity-60 uppercase tracking-wider">
+              <label className="fin-label">
                 {t("category")}
               </label>
 
