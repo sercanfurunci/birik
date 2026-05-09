@@ -268,7 +268,7 @@ function Analytics({ transactions }) {
       {/* Bar chart: last 30 days */}
       <div className="fin-card rounded-2xl p-5">
         <p className="fin-label mb-4">{t("last30Days")}</p>
-        <div style={{ height: 200 }}>
+        <div style={{ height: 200, minWidth: 0 }}>
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={last30} barGap={1} margin={{ top: 4, right: 0, left: -24, bottom: 0 }}>
               <CartesianGrid
