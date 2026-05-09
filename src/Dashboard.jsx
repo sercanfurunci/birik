@@ -37,77 +37,7 @@ function ChartTooltip({ active, payload, t, symbol }) {
   );
 }
 
-const EXPENSE_CATS = ["food","housing","utilities","transport","entertainment","other"];
-const INCOME_CATS  = ["salary","other"];
-
-function QuickAdd({ onAdd, t, symbol }) {
-  const [type, setType]     = useState("expense");
-  const [amount, setAmount] = useState("");
-  const [cat, setCat]       = useState("food");
-  const [desc, setDesc]     = useState("");
-  const [flash, setFlash]   = useState(false);
-
-  const cats = type === "expense" ? EXPENSE_CATS : INCOME_CATS;
-
-  const handleType = (v) => { setType(v); setCat(v === "expense" ? "food" : "salary"); };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!amount || parseFloat(amount) <= 0) return;
-    await onAdd({ type, amount: parseFloat(amount), category: cat, description: desc, date: new Date().toISOString() });
-    setAmount(""); setDesc("");
-    setFlash(true);
-    setTimeout(() => setFlash(false), 1500);
-  };
-
-  return (
-    <div className="hidden sm:block mt-4 fin-card rounded-2xl p-5 anim-5">
-      <p className="fin-label mb-4">{t("quickAdd")}</p>
-      <form onSubmit={handleSubmit} className="flex flex-wrap items-end gap-3">
-        {/* Type toggle */}
-        <div className="flex rounded-xl p-0.5" style={{ backgroundColor: "var(--surface-2)", border: "1px solid var(--border)" }}>
-          {["expense","income"].map(v => (
-            <button key={v} type="button" onClick={() => handleType(v)}
-              className="px-3 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer"
-              style={{ background: type === v ? "var(--brand)" : "transparent", color: type === v ? "#fff" : "var(--text-3)", border: "none" }}>
-              {t(v === "expense" ? "expenses" : "income")}
-            </button>
-          ))}
-        </div>
-
-        {/* Amount */}
-        <div className="flex items-center gap-1.5 fin-input" style={{ width: 130, padding: "0 12px" }}>
-          <span className="text-xs font-semibold" style={{ color: "var(--text-3)" }}>{symbol}</span>
-          <input
-            type="number" min="0.01" step="0.01" placeholder="0.00"
-            value={amount} onChange={e => setAmount(e.target.value)}
-            className="flex-1 bg-transparent outline-none fin-mono text-sm"
-            style={{ color: "var(--text-1)" }}
-            required
-          />
-        </div>
-
-        {/* Category */}
-        <select value={cat} onChange={e => setCat(e.target.value)} className="fin-select text-sm" style={{ minWidth: 120 }}>
-          {cats.map(c => <option key={c} value={c}>{t(c)}</option>)}
-        </select>
-
-        {/* Description */}
-        <input
-          type="text" placeholder={t("quickAddPlaceholder")} value={desc}
-          onChange={e => setDesc(e.target.value)}
-          className="fin-input text-sm flex-1" style={{ minWidth: 140 }}
-        />
-
-        <button type="submit" className="fin-btn-primary text-sm" style={{ padding: "9px 20px", whiteSpace: "nowrap" }}>
-          {flash ? `✓ ${t("quickAdded")}` : `+ ${t("quickAdd")}`}
-        </button>
-      </form>
-    </div>
-  );
-}
-
-function Dashboard({ transactions, onNavigate, onAdd }) {
+function Dashboard({ transactions, onNavigate }) {
   const { t, formatDate } = useLang();
   const { symbol } = useCurrency();
   const [goals, setGoals] = useState([]);
@@ -361,9 +291,6 @@ function Dashboard({ transactions, onNavigate, onAdd }) {
           </div>
         </div>
       )}
-
-      {/* ── Quick add (desktop only) ── */}
-      {onAdd && <QuickAdd onAdd={onAdd} t={t} symbol={symbol} />}
 
       {/* ── Savings goals widget ── */}
       {goals.length > 0 && (
