@@ -148,7 +148,9 @@ const swaggerOptions = {
   apis: ["./server.js"],
 };
 const swaggerSpec = swaggerJsdoc(swaggerOptions);
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+if (!isProd) {
+  app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+}
 
 const pool = new Pool({
   user:     process.env.DB_USER,
@@ -156,7 +158,7 @@ const pool = new Pool({
   database: process.env.DB_NAME,
   password: process.env.DB_PASSWORD,
   port:     Number(process.env.DB_PORT),
-  ssl: { rejectUnauthorized: false },
+  ssl: isProd ? { rejectUnauthorized: true } : { rejectUnauthorized: false },
 });
 
 pool.query(`
@@ -1608,12 +1610,24 @@ app.post("/transactions/import/bulk", authMiddleware, async (req, res) => {
   if (!Array.isArray(transactions) || transactions.length === 0) {
     return res.status(400).json({ error: "No transactions provided" });
   }
+  if (transactions.length > 500) {
+    return res.status(400).json({ error: "Too many transactions in one import (max 500)" });
+  }
   try {
     for (const tx of transactions) {
+      const description = trimStr(tx.description, 500) ?? "";
+      const amount      = Math.abs(Number(tx.amount)) || 0;
+      const type        = trimStr(tx.type, 20);
+      const category    = trimStr(tx.category, 50);
+      const date        = isValidDate(tx.date) ?? new Date().toISOString().split("T")[0];
+
+      if (!type || !VALID_TYPES.has(type))               continue;
+      if (!category || !VALID_CATEGORIES.has(category))  continue;
+
       await pool.query(
         `INSERT INTO transactions (description, amount, type, category, date, user_id)
          VALUES ($1, $2, $3, $4, $5, $6)`,
-        [tx.description, Math.abs(Number(tx.amount)) || 0, tx.type, tx.category, tx.date, req.user.id]
+        [description, amount, type, category, date, req.user.id]
       );
     }
     res.json({ imported: transactions.length });
