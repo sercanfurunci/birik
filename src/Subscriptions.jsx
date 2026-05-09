@@ -803,9 +803,10 @@ export default function Subscriptions({ onExpenseAdded }) {
             {currency.symbol}{monthlyTotal.toLocaleString(dateLocale, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </p>
         </div>
+        {/* Desktop add button */}
         <button
           onClick={() => { setEditTarget(null); setShowForm(true); }}
-          className="fin-btn-primary flex items-center gap-2"
+          className="hidden sm:flex fin-btn-primary items-center gap-2"
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
             <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
@@ -915,6 +916,17 @@ export default function Subscriptions({ onExpenseAdded }) {
         </div>
       )}
     </div>
+
+    {/* Mobile FAB */}
+    <button
+      onClick={() => { setEditTarget(null); setShowForm(true); }}
+      className="sm:hidden fixed bottom-20 right-4 w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-transform active:scale-95 cursor-pointer z-30"
+      style={{ backgroundColor: "var(--brand)", color: "white" }}
+    >
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+        <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+      </svg>
+    </button>
 
     {showForm && (
       <SubForm
