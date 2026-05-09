@@ -395,7 +395,7 @@ function App() {
         </div>
 
         {/* ── Page content ── */}
-        {activeTab === "dashboard" && <Dashboard transactions={transactions} onNavigate={setActiveTab} />}
+        {activeTab === "dashboard" && <Dashboard transactions={transactions} onNavigate={setActiveTab} onAdd={handleAdd} />}
 
         {activeTab === "transactions" && (
           <div className="anim-1 lg:grid lg:grid-cols-[340px_1fr] lg:gap-6 lg:items-start">
