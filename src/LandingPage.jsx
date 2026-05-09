@@ -173,7 +173,7 @@ function LandingPage({ onGetStarted, onSignIn, isDark, toggleDark }) {
       <header style={{ borderBottom: "1px solid var(--border)" }}>
         <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <svg className="moneto-logo shrink-0" width="28" height="28" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ borderRadius: 7 }}>
+            <svg className="moneto-logo shrink-0" width="34" height="34" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ borderRadius: 9 }}>
               <rect width="128" height="128" rx="28" fill="#111111"/>
               <path d="M32 88V40L64 72L96 40V88" stroke="white" strokeWidth="10" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
@@ -189,7 +189,7 @@ function LandingPage({ onGetStarted, onSignIn, isDark, toggleDark }) {
             <button
               onClick={onSignIn}
               className="fin-icon-btn text-sm font-medium"
-              style={{ width: "auto", paddingLeft: 14, paddingRight: 14 }}
+              style={{ width: "auto", paddingLeft: 14, paddingRight: 14, minWidth: 88 }}
             >
               {t("landingSignIn")}
             </button>
