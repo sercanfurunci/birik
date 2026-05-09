@@ -27,7 +27,7 @@ function TransactionForm({ onAdd, onRefresh }) {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (!description || !amount) return;
+    if (!amount) return;
 
     onAdd({
       description,
