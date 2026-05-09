@@ -185,6 +185,20 @@ pool.query(`ALTER TABLE subscriptions ADD COLUMN IF NOT EXISTS reminder_days INT
   .catch(err => console.error("subscriptions.reminder_days migration:", err));
 
 pool.query(`
+  CREATE TABLE IF NOT EXISTS goals (
+    id             SERIAL PRIMARY KEY,
+    user_id        INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    name           TEXT NOT NULL,
+    emoji          TEXT NOT NULL DEFAULT '🎯',
+    target_amount  NUMERIC NOT NULL,
+    saved_amount   NUMERIC NOT NULL DEFAULT 0,
+    currency       TEXT NOT NULL DEFAULT 'USD',
+    target_date    DATE,
+    created_at     TIMESTAMP DEFAULT NOW()
+  )
+`).catch(err => console.error("goals table init error:", err));
+
+pool.query(`
   CREATE TABLE IF NOT EXISTS budgets (
     id         SERIAL PRIMARY KEY,
     user_id    INTEGER REFERENCES users(id) ON DELETE CASCADE,
@@ -1657,6 +1671,92 @@ app.delete("/budgets/:id", authMiddleware, async (req, res) => {
       [id, req.user.id]
     );
     if (result.rows.length === 0) return res.status(404).json({ error: "Budget not found" });
+    res.json({ message: "Deleted successfully" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Delete error" });
+  }
+});
+
+// ── Goals ────────────────────────────────────────────────────────────────────
+app.get("/goals", authMiddleware, async (req, res) => {
+  try {
+    const result = await pool.query(
+      "SELECT * FROM goals WHERE user_id=$1 ORDER BY created_at ASC",
+      [req.user.id]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Fetch error" });
+  }
+});
+
+app.post("/goals", authMiddleware, async (req, res) => {
+  const name          = trimStr(req.body.name, 100);
+  const emoji         = trimStr(req.body.emoji, 10) || "🎯";
+  const target_amount = isValidAmount(req.body.target_amount);
+  const saved_amount  = isValidAmount(req.body.saved_amount ?? 0) ?? 0;
+  const target_date   = isValidDate(req.body.target_date) ?? null;
+
+  if (!name)               return res.status(400).json({ error: "Name required" });
+  if (target_amount === null || target_amount <= 0) return res.status(400).json({ error: "Invalid target amount" });
+  if (saved_amount < 0)    return res.status(400).json({ error: "Saved amount cannot be negative" });
+
+  try {
+    const result = await pool.query(
+      `INSERT INTO goals (user_id, name, emoji, target_amount, saved_amount, currency, target_date)
+       VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
+      [req.user.id, name, emoji, target_amount, saved_amount, req.user.currency || "USD", target_date]
+    );
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Insert error" });
+  }
+});
+
+app.put("/goals/:id", authMiddleware, async (req, res) => {
+  const id = isValidId(req.params.id);
+  if (!id) return res.status(400).json({ error: "Invalid goal ID" });
+
+  const name          = trimStr(req.body.name, 100);
+  const emoji         = trimStr(req.body.emoji, 10) || "🎯";
+  const target_amount = isValidAmount(req.body.target_amount);
+  const saved_amount  = isValidAmount(req.body.saved_amount ?? 0) ?? 0;
+  const target_date   = req.body.target_date !== undefined ? (isValidDate(req.body.target_date) ?? null) : undefined;
+
+  if (!name)               return res.status(400).json({ error: "Name required" });
+  if (target_amount === null || target_amount <= 0) return res.status(400).json({ error: "Invalid target amount" });
+  if (saved_amount < 0)    return res.status(400).json({ error: "Saved amount cannot be negative" });
+
+  try {
+    const result = await pool.query(
+      `UPDATE goals
+       SET name=$1, emoji=$2, target_amount=$3, saved_amount=$4, target_date=$5
+       WHERE id=$6 AND user_id=$7 RETURNING *`,
+      [name, emoji, target_amount, saved_amount,
+       target_date !== undefined ? target_date : null,
+       id, req.user.id]
+    );
+    if (result.rows.length === 0) return res.status(404).json({ error: "Goal not found" });
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Update error" });
+  }
+});
+
+app.delete("/goals/:id", authMiddleware, async (req, res) => {
+  const id = isValidId(req.params.id);
+  if (!id) return res.status(400).json({ error: "Invalid goal ID" });
+
+  try {
+    const result = await pool.query(
+      "DELETE FROM goals WHERE id=$1 AND user_id=$2 RETURNING *",
+      [id, req.user.id]
+    );
+    if (result.rows.length === 0) return res.status(404).json({ error: "Goal not found" });
     res.json({ message: "Deleted successfully" });
   } catch (err) {
     console.error(err);

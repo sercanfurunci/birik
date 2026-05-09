@@ -15,6 +15,7 @@ import { CurrencyProvider } from "./currency.jsx";
 import { useLang } from "./i18n.jsx";
 import Subscriptions from "./Subscriptions";
 import Budgets from "./Budgets";
+import Goals from "./Goals";
 
 const API = import.meta.env.VITE_API_URL;
 
@@ -69,12 +70,25 @@ function IconBudgets({ active }) {
     </svg>
   );
 }
+function IconGoals({ active }) {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      strokeWidth={active ? "2.2" : "1.8"} strokeLinecap="round" strokeLinejoin="round">
+      <path d="M18 8h1a4 4 0 0 1 0 8h-1" />
+      <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z" />
+      <line x1="6" y1="1" x2="6" y2="4" />
+      <line x1="10" y1="1" x2="10" y2="4" />
+      <line x1="14" y1="1" x2="14" y2="4" />
+    </svg>
+  );
+}
 
 const TABS = [
   { id: "dashboard",     labelKey: "navOverview",       Icon: IconDashboard },
   { id: "transactions",  labelKey: "navTransactions",   Icon: IconTransactions },
   { id: "analytics",     labelKey: "navAnalytics",      Icon: IconAnalytics },
   { id: "budgets",       labelKey: "navBudgets",        Icon: IconBudgets },
+  { id: "goals",         labelKey: "navGoals",          Icon: IconGoals },
   { id: "subscriptions", labelKey: "navSubscriptions",  Icon: IconSubscriptions },
 ];
 
@@ -379,6 +393,8 @@ function App() {
 
         {activeTab === "budgets" && <Budgets transactions={transactions} />}
 
+        {activeTab === "goals" && <Goals />}
+
         {activeTab === "subscriptions" && <Subscriptions onExpenseAdded={refreshTransactions} />}
 
       </div>
@@ -404,7 +420,7 @@ function App() {
 
       {/* ── Mobile bottom nav ── */}
       <nav
-        className="sm:hidden fixed bottom-0 left-0 right-0 z-40 flex items-center px-6 py-2"
+        className="sm:hidden fixed bottom-0 left-0 right-0 z-40 flex items-center px-1 py-2"
         style={{
           backgroundColor: "var(--surface)",
           borderTop: "1px solid var(--border)",
