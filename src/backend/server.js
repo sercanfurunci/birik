@@ -181,6 +181,8 @@ pool.query(`ALTER TABLE subscriptions ADD COLUMN IF NOT EXISTS auto_charge BOOLE
   .catch(err => console.error("subscriptions.auto_charge migration:", err));
 pool.query(`ALTER TABLE subscriptions ADD COLUMN IF NOT EXISTS last_charged_date DATE`)
   .catch(err => console.error("subscriptions.last_charged_date migration:", err));
+pool.query(`ALTER TABLE subscriptions ADD COLUMN IF NOT EXISTS reminder_days INTEGER`)
+  .catch(err => console.error("subscriptions.reminder_days migration:", err));
 
 pool.query(`
   CREATE TABLE IF NOT EXISTS budgets (
@@ -981,6 +983,7 @@ app.post("/subscriptions", authMiddleware, async (req, res) => {
   const started_at       = isValidDate(req.body.started_at);
   const notes            = trimStr(req.body.notes, 500) ?? null;
   const auto_charge      = typeof req.body.auto_charge === "boolean" ? req.body.auto_charge : false;
+  const reminder_days    = [3, 7, 14].includes(Number(req.body.reminder_days)) ? Number(req.body.reminder_days) : null;
 
   if (!name)                                    return res.status(400).json({ error: "Name required" });
   if (amount === null)                          return res.status(400).json({ error: "Invalid amount" });
@@ -992,9 +995,9 @@ app.post("/subscriptions", authMiddleware, async (req, res) => {
 
   try {
     const result = await pool.query(
-      `INSERT INTO subscriptions (user_id, name, amount, currency, billing_cycle, next_billing_date, category, started_at, notes, auto_charge)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *`,
-      [req.user.id, name, amount, currency, billing_cycle, next_billing_date, category, started_at, notes, auto_charge]
+      `INSERT INTO subscriptions (user_id, name, amount, currency, billing_cycle, next_billing_date, category, started_at, notes, auto_charge, reminder_days)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *`,
+      [req.user.id, name, amount, currency, billing_cycle, next_billing_date, category, started_at, notes, auto_charge, reminder_days]
     );
     res.json(result.rows[0]);
   } catch (err) {
@@ -1017,6 +1020,9 @@ app.put("/subscriptions/:id", authMiddleware, async (req, res) => {
   const notes            = req.body.notes !== undefined ? (trimStr(req.body.notes, 500) ?? null) : undefined;
   const is_active        = typeof req.body.is_active === "boolean" ? req.body.is_active : null;
   const auto_charge      = typeof req.body.auto_charge === "boolean" ? req.body.auto_charge : null;
+  const reminder_days    = req.body.reminder_days !== undefined
+    ? ([3, 7, 14].includes(Number(req.body.reminder_days)) ? Number(req.body.reminder_days) : null)
+    : undefined;
 
   if (!name)                                    return res.status(400).json({ error: "Name required" });
   if (amount === null)                          return res.status(400).json({ error: "Invalid amount" });
@@ -1030,12 +1036,13 @@ app.put("/subscriptions/:id", authMiddleware, async (req, res) => {
     const result = await pool.query(
       `UPDATE subscriptions
        SET name=$1, amount=$2, currency=$3, billing_cycle=$4, next_billing_date=$5,
-           category=$6, started_at=$7, notes=$8, is_active=$9, auto_charge=$10
-       WHERE id=$11 AND user_id=$12 RETURNING *`,
+           category=$6, started_at=$7, notes=$8, is_active=$9, auto_charge=$10, reminder_days=$11
+       WHERE id=$12 AND user_id=$13 RETURNING *`,
       [name, amount, currency, billing_cycle, next_billing_date, category, started_at,
        notes !== undefined ? notes : null,
        is_active !== null ? is_active : true,
        auto_charge !== null ? auto_charge : false,
+       reminder_days !== undefined ? reminder_days : null,
        id, req.user.id]
     );
     if (result.rows.length === 0) return res.status(404).json({ error: "Subscription not found" });
@@ -1656,5 +1663,63 @@ app.delete("/budgets/:id", authMiddleware, async (req, res) => {
     res.status(500).json({ error: "Delete error" });
   }
 });
+
+// ── Bill reminder emails ──────────────────────────────────────────────────────
+async function sendSubscriptionReminders() {
+  try {
+    const today = new Date().toISOString().split("T")[0];
+    const result = await pool.query(
+      `SELECT s.id, s.name, s.amount, s.currency, s.next_billing_date, s.reminder_days,
+              u.email, u.username
+       FROM subscriptions s
+       JOIN users u ON u.id = s.user_id
+       WHERE s.is_active = TRUE
+         AND s.reminder_days IS NOT NULL
+         AND (s.next_billing_date - s.reminder_days * INTERVAL '1 day')::date = $1`,
+      [today]
+    );
+
+    for (const row of result.rows) {
+      const dueDate = new Date(row.next_billing_date).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+      const name = row.username || row.email.split("@")[0];
+      await sendEmail({
+        to: row.email,
+        subject: `Reminder: ${row.name} bills in ${row.reminder_days} day${row.reminder_days === 1 ? "" : "s"}`,
+        html: `
+          <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:24px">
+            <h2 style="margin:0 0 8px;font-size:20px">Hi ${name},</h2>
+            <p style="color:#555;margin:0 0 20px">
+              Just a heads-up — your <strong>${row.name}</strong> subscription is due in
+              <strong>${row.reminder_days} day${row.reminder_days === 1 ? "" : "s"}</strong>.
+            </p>
+            <div style="background:#f5f5f5;border-radius:8px;padding:16px;margin-bottom:20px">
+              <p style="margin:0 0 4px;font-size:13px;color:#888">NEXT BILLING DATE</p>
+              <p style="margin:0;font-size:18px;font-weight:600">${dueDate}</p>
+              <p style="margin:6px 0 0;font-size:16px;color:#333">${row.currency} ${parseFloat(row.amount).toFixed(2)}</p>
+            </div>
+            <p style="font-size:12px;color:#aaa;margin:0">Sent by Moneto · Manage reminders in your Subscriptions tab</p>
+          </div>`,
+      });
+    }
+
+    if (result.rows.length > 0) {
+      console.log(`[reminders] Sent ${result.rows.length} subscription reminder(s) for ${today}`);
+    }
+  } catch (err) {
+    console.error("[reminders] Error sending subscription reminders:", err);
+  }
+}
+
+// Run reminder check once at startup, then every 24 hours
+let _lastReminderDate = "";
+async function maybeRunReminders() {
+  const today = new Date().toISOString().split("T")[0];
+  if (today !== _lastReminderDate) {
+    _lastReminderDate = today;
+    await sendSubscriptionReminders();
+  }
+}
+maybeRunReminders();
+setInterval(maybeRunReminders, 60 * 60 * 1000); // check every hour
 
 app.listen(3000, () => console.log("Server running on http://localhost:3000"));

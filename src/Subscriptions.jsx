@@ -211,6 +211,7 @@ const EMPTY_FORM = {
   is_active: true,
   auto_charge: false,
   notes: "",
+  reminder_days: null,
 };
 
 // ── Delete confirmation modal ──────────────────────────────────────────────────
@@ -388,6 +389,7 @@ function SubForm({ initial, onSave, onClose }) {
           is_active: initial.is_active,
           auto_charge: initial.auto_charge ?? false,
           notes: initial.notes || "",
+          reminder_days: initial.reminder_days ?? null,
         }
       : { ...EMPTY_FORM }
   );
@@ -516,6 +518,20 @@ function SubForm({ initial, onSave, onClose }) {
             />
           </div>
 
+          <div>
+            <label className="fin-label mb-1 block">{t("subReminder")}</label>
+            <select
+              className="fin-select w-full"
+              value={form.reminder_days ?? ""}
+              onChange={e => set("reminder_days", e.target.value === "" ? null : Number(e.target.value))}
+            >
+              <option value="">{t("subReminderNone")}</option>
+              <option value="3">{t("subReminder3")}</option>
+              <option value="7">{t("subReminder7")}</option>
+              <option value="14">{t("subReminder14")}</option>
+            </select>
+          </div>
+
           <div
             className="flex items-start gap-3 p-3"
             style={{
@@ -632,6 +648,23 @@ function SubRow({ sub, subCurr, needsConv, userCurrency, daysLabel, billingCycle
             >
               <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+              </svg>
+            </span>
+          )}
+          {sub.reminder_days && (
+            <span
+              title={`Reminder ${sub.reminder_days} days before`}
+              className="inline-flex items-center justify-center shrink-0"
+              style={{
+                width: 14,
+                height: 14,
+                borderRadius: 99,
+                backgroundColor: "color-mix(in srgb, var(--green) 20%, transparent)",
+                color: "var(--green)",
+              }}
+            >
+              <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
               </svg>
             </span>
           )}
