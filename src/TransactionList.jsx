@@ -239,8 +239,8 @@ function TransactionList({ transactions, onDelete, onEdit }) {
             </button>
           </div>
 
-          {/* Search input */}
-          <div className="relative mb-2">
+          {/* Search */}
+          <div className="relative mb-3">
             <svg
               width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
               strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
@@ -260,13 +260,12 @@ function TransactionList({ transactions, onDelete, onEdit }) {
             />
           </div>
 
-          {/* Filter row */}
-          <div className="flex gap-2 flex-wrap items-center">
+          {/* Row 1: Type + Category + Sort */}
+          <div className="grid grid-cols-2 sm:flex gap-2 mb-2">
             <select
               value={filterType}
               onChange={(e) => setFilterType(e.target.value)}
               className={filterSelectClass}
-              style={{ width: "auto" }}
             >
               <option value="all">{t("allTypes")}</option>
               <option value="income">{t("incomeOption")}</option>
@@ -276,45 +275,50 @@ function TransactionList({ transactions, onDelete, onEdit }) {
               value={filterCategory}
               onChange={(e) => setFilterCategory(e.target.value)}
               className={filterSelectClass}
-              style={{ width: "auto" }}
             >
               <option value="all">{t("allCategories")}</option>
               {allCats.map((cat) => (
                 <option key={cat} value={cat}>{t(cat)}</option>
               ))}
             </select>
-            <input
-              type="date"
-              value={dateFrom}
-              onChange={(e) => setDateFrom(e.target.value)}
-              title={t("dateFrom")}
-              className="fin-input text-xs py-1.5 px-2"
-              style={{ width: "auto", colorScheme: "light dark" }}
-            />
-            <input
-              type="date"
-              value={dateTo}
-              onChange={(e) => setDateTo(e.target.value)}
-              title={t("dateTo")}
-              className="fin-input text-xs py-1.5 px-2"
-              style={{ width: "auto", colorScheme: "light dark" }}
-            />
             <select
               value={sortKey}
               onChange={(e) => setSortKey(e.target.value)}
-              title={t("sortBy")}
-              className={filterSelectClass}
-              style={{ width: "auto" }}
+              className={`${filterSelectClass} col-span-2 sm:col-span-1 sm:ml-auto`}
             >
               <option value="date_desc">{t("sortDateDesc")}</option>
               <option value="date_asc">{t("sortDateAsc")}</option>
               <option value="amount_desc">{t("sortAmountDesc")}</option>
               <option value="amount_asc">{t("sortAmountAsc")}</option>
             </select>
+          </div>
+
+          {/* Row 2: Date range + Clear */}
+          <div className="flex gap-2 items-end">
+            <div className="flex-1">
+              <p className="fin-label mb-1" style={{ fontSize: 10 }}>{t("dateFrom")}</p>
+              <input
+                type="date"
+                value={dateFrom}
+                onChange={(e) => setDateFrom(e.target.value)}
+                className="fin-input w-full text-xs"
+                style={{ colorScheme: "light dark" }}
+              />
+            </div>
+            <div className="flex-1">
+              <p className="fin-label mb-1" style={{ fontSize: 10 }}>{t("dateTo")}</p>
+              <input
+                type="date"
+                value={dateTo}
+                onChange={(e) => setDateTo(e.target.value)}
+                className="fin-input w-full text-xs"
+                style={{ colorScheme: "light dark" }}
+              />
+            </div>
             {hasActiveFilter && (
               <button
                 onClick={clearAll}
-                className="text-xs py-1.5 px-3 rounded-lg cursor-pointer transition-opacity hover:opacity-80"
+                className="text-xs py-2 px-3 rounded-lg cursor-pointer transition-opacity hover:opacity-80 shrink-0"
                 style={{
                   backgroundColor: "transparent",
                   border: "1px solid var(--border)",
