@@ -293,9 +293,9 @@ function TransactionList({ transactions, onDelete, onEdit }) {
             </select>
           </div>
 
-          {/* Row 2: Date range + Clear */}
-          <div className="flex gap-2 items-end">
-            <div className="flex-1">
+          {/* Row 2: Date range */}
+          <div className="grid grid-cols-2 gap-2">
+            <div>
               <p className="fin-label mb-1" style={{ fontSize: 10 }}>{t("dateFrom")}</p>
               <input
                 type="date"
@@ -305,7 +305,7 @@ function TransactionList({ transactions, onDelete, onEdit }) {
                 style={{ colorScheme: "light dark" }}
               />
             </div>
-            <div className="flex-1">
+            <div>
               <p className="fin-label mb-1" style={{ fontSize: 10 }}>{t("dateTo")}</p>
               <input
                 type="date"
@@ -315,20 +315,20 @@ function TransactionList({ transactions, onDelete, onEdit }) {
                 style={{ colorScheme: "light dark" }}
               />
             </div>
-            {hasActiveFilter && (
-              <button
-                onClick={clearAll}
-                className="text-xs py-2 px-3 rounded-lg cursor-pointer transition-opacity hover:opacity-80 shrink-0"
-                style={{
-                  backgroundColor: "transparent",
-                  border: "1px solid var(--border)",
-                  color: "var(--text-3)",
-                }}
-              >
-                {t("clearFilters")}
-              </button>
-            )}
           </div>
+          {hasActiveFilter && (
+            <button
+              onClick={clearAll}
+              className="text-xs py-2 px-3 rounded-lg cursor-pointer transition-opacity hover:opacity-80 w-full"
+              style={{
+                backgroundColor: "transparent",
+                border: "1px solid var(--border)",
+                color: "var(--text-3)",
+              }}
+            >
+              {t("clearFilters")}
+            </button>
+          )}
         </div>
 
         {/* Empty state */}
