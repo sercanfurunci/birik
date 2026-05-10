@@ -186,6 +186,9 @@ pool.query(`ALTER TABLE subscriptions ADD COLUMN IF NOT EXISTS last_charged_date
 pool.query(`ALTER TABLE subscriptions ADD COLUMN IF NOT EXISTS reminder_days INTEGER`)
   .catch(err => console.error("subscriptions.reminder_days migration:", err));
 
+pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS custom_categories JSONB DEFAULT '[]'`)
+  .catch(err => console.error("users.custom_categories migration:", err));
+
 pool.query(`
   CREATE TABLE IF NOT EXISTS goals (
     id             SERIAL PRIMARY KEY,
@@ -516,6 +519,7 @@ app.post("/auth/login", async (req, res) => {
         phone: user.phone || null,
         username: user.username || null,
         currency: user.currency || "USD",
+        custom_categories: user.custom_categories || [],
       },
     });
   } catch (err) {
@@ -674,7 +678,7 @@ app.post("/auth/reset-password", async (req, res) => {
 app.get("/auth/me", authMiddleware, async (req, res) => {
   try {
     const result = await pool.query(
-      "SELECT id, email, phone, username, currency FROM users WHERE id = $1",
+      "SELECT id, email, phone, username, currency, custom_categories FROM users WHERE id = $1",
       [req.user.id]
     );
     if (result.rows.length === 0) return res.status(404).json({ error: "User not found" });
@@ -708,14 +712,28 @@ app.put("/auth/profile", authMiddleware, async (req, res) => {
   if (currency && !VALID_CURRENCIES.has(currency))
     return res.status(400).json({ error: "Invalid currency code" });
 
+  let customCategories = undefined;
+  if (req.body.custom_categories !== undefined) {
+    if (!Array.isArray(req.body.custom_categories))
+      return res.status(400).json({ error: "Invalid custom_categories" });
+    // Validate each entry: { id: string, color: string }
+    const valid = req.body.custom_categories.every(
+      c => c && typeof c.id === "string" && typeof c.color === "string" &&
+           c.id.length <= 50 && c.color.length <= 20
+    );
+    if (!valid) return res.status(400).json({ error: "Invalid category entry" });
+    customCategories = JSON.stringify(req.body.custom_categories.slice(0, 30));
+  }
+
   try {
     const result = await pool.query(
       `UPDATE users SET
          username = COALESCE($1, username),
-         currency = COALESCE($2, currency)
-       WHERE id = $3
-       RETURNING id, email, username, currency`,
-      [username || null, currency || null, req.user.id]
+         currency = COALESCE($2, currency),
+         custom_categories = COALESCE($3::jsonb, custom_categories)
+       WHERE id = $4
+       RETURNING id, email, username, currency, custom_categories`,
+      [username || null, currency || null, customCategories ?? null, req.user.id]
     );
     res.json(result.rows[0]);
   } catch (err) {

@@ -158,6 +158,7 @@ function App() {
             phone: data.phone || null,
             username: data.username || null,
             currency: data.currency || "USD",
+            custom_categories: data.custom_categories || [],
           });
         }
       })
@@ -190,8 +191,23 @@ function App() {
       currency: updated.currency,
       email:    updated.email  ?? prev.email,
       phone:    updated.phone  ?? prev.phone,
+      custom_categories: updated.custom_categories ?? prev.custom_categories,
     }));
     setShowProfile(false);
+  };
+
+  const handleSaveCategories = async (cats) => {
+    try {
+      const res = await authFetch(`${API}/auth/profile`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ custom_categories: cats }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setCurrentUser(prev => ({ ...prev, custom_categories: data.custom_categories || [] }));
+      }
+    } catch {}
   };
 
   const handleLogout = async () => {
@@ -324,7 +340,7 @@ function App() {
   // ── Main app ──
   return (
     <CurrencyProvider code={currentUser?.currency || "USD"}>
-    <CategoriesProvider>
+    <CategoriesProvider initialCats={currentUser?.custom_categories || []} onSave={handleSaveCategories}>
     <div className="min-h-screen flex flex-col transition-colors duration-300" style={{ backgroundColor: "var(--bg)" }}>
       <div className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 pt-6 sm:pt-10 pb-24 sm:pb-6">
 

@@ -19,34 +19,36 @@ const PALETTE = [
 
 const CatsContext = createContext(null);
 
-export function CategoriesProvider({ children }) {
-  const [customCats, setCustomCats] = useState(() => {
-    try { return JSON.parse(localStorage.getItem("moneto_custom_cats") || "[]"); }
-    catch { return []; }
-  });
+// initialCats: [{id, color}] from currentUser.custom_categories
+// onSave: async (cats) => void — calls PUT /auth/profile
+export function CategoriesProvider({ initialCats = [], onSave, children }) {
+  const [customCats, setCustomCats] = useState(
+    () => (Array.isArray(initialCats) ? initialCats : [])
+  );
 
   const addCat = useCallback((label) => {
     const id = label.trim();
     if (!id) return false;
     const lower = id.toLowerCase();
     if (BASE_CATS.includes(lower)) return false;
+
     setCustomCats(prev => {
       if (prev.find(c => c.id.toLowerCase() === lower)) return prev;
       const color = PALETTE[prev.length % PALETTE.length];
       const next = [...prev, { id, color }];
-      localStorage.setItem("moneto_custom_cats", JSON.stringify(next));
+      onSave?.(next);
       return next;
     });
     return true;
-  }, []);
+  }, [onSave]);
 
   const removeCat = useCallback((id) => {
     setCustomCats(prev => {
       const next = prev.filter(c => c.id !== id);
-      localStorage.setItem("moneto_custom_cats", JSON.stringify(next));
+      onSave?.(next);
       return next;
     });
-  }, []);
+  }, [onSave]);
 
   const getCatColor = useCallback((cat) => {
     if (BASE_CAT_COLORS[cat]) return BASE_CAT_COLORS[cat];
