@@ -503,7 +503,7 @@ function TransactionList({ transactions, onDelete, onEdit }) {
                               onChange={(e) => setEditValues({ ...editValues, category: e.target.value })}
                               className="fin-select"
                             >
-                              {categories.map((cat) => (
+                              {allCats.map((cat) => (
                                 <option key={cat} value={cat}>{t(cat)}</option>
                               ))}
                             </select>

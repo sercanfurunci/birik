@@ -444,8 +444,8 @@ function SubForm({ initial, onSave, onClose }) {
             />
           </div>
 
-          <div className="flex gap-2">
-            <div className="flex-1">
+          <div className="grid grid-cols-[1fr_6.5rem] gap-2">
+            <div>
               <label className="fin-label mb-1 block">{t("amount")}</label>
               <input
                 className="fin-input w-full fin-mono"
@@ -458,7 +458,7 @@ function SubForm({ initial, onSave, onClose }) {
                 required
               />
             </div>
-            <div className="w-28">
+            <div>
               <label className="fin-label mb-1 block">{t("currencyLabel")}</label>
               <select className="fin-select w-full" value={form.currency} onChange={e => set("currency", e.target.value)}>
                 {CURRENCIES.map(c => <option key={c.code} value={c.code}>{c.code}</option>)}
@@ -484,8 +484,8 @@ function SubForm({ initial, onSave, onClose }) {
             </select>
           </div>
 
-          <div className="flex gap-2">
-            <div className="flex-1">
+          <div className="grid grid-cols-2 gap-2">
+            <div>
               <label className="fin-label mb-1 block">{t("subStartedAt")}</label>
               <input
                 className="fin-input w-full"
@@ -495,7 +495,7 @@ function SubForm({ initial, onSave, onClose }) {
                 required
               />
             </div>
-            <div className="flex-1">
+            <div>
               <label className="fin-label mb-1 block">{t("subNextBilling")}</label>
               <input
                 className="fin-input w-full"
