@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback } from "react";
+import { createContext, useContext, useState, useCallback, useEffect, useRef } from "react";
 
 export const BASE_CATS = ["food", "housing", "utilities", "transport", "entertainment", "salary", "other"];
 
@@ -25,6 +25,15 @@ export function CategoriesProvider({ initialCats = [], onSave, children }) {
   const [customCats, setCustomCats] = useState(
     () => (Array.isArray(initialCats) ? initialCats : [])
   );
+
+  // Sync when initialCats loads from backend (e.g. after page refresh)
+  const seeded = useRef(false);
+  useEffect(() => {
+    if (!seeded.current && Array.isArray(initialCats) && initialCats.length > 0) {
+      seeded.current = true;
+      setCustomCats(initialCats);
+    }
+  }, [initialCats]);
 
   const addCat = useCallback((label) => {
     const id = label.trim();

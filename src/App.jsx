@@ -206,8 +206,13 @@ function App() {
       if (res.ok) {
         const data = await res.json();
         setCurrentUser(prev => ({ ...prev, custom_categories: data.custom_categories || [] }));
+      } else {
+        const err = await res.json().catch(() => ({}));
+        console.error("custom_categories save failed:", res.status, err);
       }
-    } catch {}
+    } catch (e) {
+      console.error("custom_categories save error:", e);
+    }
   };
 
   const handleLogout = async () => {
