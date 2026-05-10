@@ -1,45 +1,26 @@
+import { useState, useMemo } from "react";
 import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  ResponsiveContainer,
-  Tooltip,
-  CartesianGrid,
+  BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, CartesianGrid,
 } from "recharts";
 import { useLang } from "./i18n.jsx";
 import { useCurrency } from "./currency.jsx";
-
-const catColors = {
-  food:          "#F97316",
-  housing:       "#3B82F6",
-  utilities:     "#EAB308",
-  transport:     "#06B6D4",
-  entertainment: "#EC4899",
-  salary:        "#10B981",
-  other:         "#94A3B8",
-};
+import { useCategories } from "./categories.jsx";
 
 const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
 const fmt = (n) =>
   parseFloat(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
+const txDate = (date) => (date ? date.split("T")[0] : "");
+
 function StatCard({ label, value, sub }) {
   return (
     <div className="fin-card rounded-2xl p-4">
       <p className="fin-label">{label}</p>
-      <p
-        className="fin-mono text-xl font-bold mt-2"
-        style={{ color: "var(--text-1)", letterSpacing: "-0.02em" }}
-      >
+      <p className="fin-mono text-xl font-bold mt-2" style={{ color: "var(--text-1)", letterSpacing: "-0.02em" }}>
         {value}
       </p>
-      {sub && (
-        <p className="text-xs mt-1 truncate" style={{ color: "var(--text-3)" }}>
-          {sub}
-        </p>
-      )}
+      {sub && <p className="text-xs mt-1 truncate" style={{ color: "var(--text-3)" }}>{sub}</p>}
     </div>
   );
 }
@@ -62,37 +43,126 @@ function CustomBarTooltip({ active, payload, label, symbol, t }) {
   );
 }
 
+// Build bar chart data based on selected range
+function buildChartData(transactions, range) {
+  const expenses = transactions.filter(tx => tx.type === "expense");
+  const income = transactions.filter(tx => tx.type === "income");
+  const now = new Date();
+
+  if (range === "all") {
+    // Monthly grouping
+    const months = {};
+    transactions.forEach(tx => {
+      const m = txDate(tx.date).slice(0, 7);
+      if (!months[m]) months[m] = { date: m, expenses: 0, income: 0 };
+      if (tx.type === "expense") months[m].expenses += parseFloat(tx.amount);
+      else months[m].income += parseFloat(tx.amount);
+    });
+    const sorted = Object.values(months).sort((a, b) => a.date.localeCompare(b.date));
+    return sorted.map(d => ({
+      ...d,
+      date: new Date(d.date + "-01").toLocaleDateString("en-US", { month: "short", year: "2-digit" }),
+    }));
+  }
+
+  let startDate = new Date(now);
+  let days;
+
+  if (range === "thisMonth") {
+    startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+    days = now.getDate();
+  } else if (range === "lastMonth") {
+    startDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    days = new Date(now.getFullYear(), now.getMonth(), 0).getDate();
+  } else if (range === "90d") {
+    startDate = new Date(now);
+    startDate.setDate(startDate.getDate() - 89);
+    days = 90;
+  } else {
+    startDate = new Date(now);
+    startDate.setDate(startDate.getDate() - 29);
+    days = 30;
+  }
+
+  startDate.setHours(0, 0, 0, 0);
+  const interval = days > 60 ? 13 : days > 30 ? 9 : 6;
+
+  return { data: Array.from({ length: days }, (_, i) => {
+    const d = new Date(startDate);
+    d.setDate(d.getDate() + i);
+    const key = d.toISOString().split("T")[0];
+    return {
+      date: d.toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+      expenses: expenses.filter(tx => txDate(tx.date) === key).reduce((s, tx) => s + parseFloat(tx.amount), 0),
+      income: income.filter(tx => txDate(tx.date) === key).reduce((s, tx) => s + parseFloat(tx.amount), 0),
+    };
+  }), interval };
+}
+
+// Filter transactions by selected range
+function filterByRange(transactions, range) {
+  const now = new Date();
+  let from, to;
+
+  if (range === "all") return transactions;
+
+  if (range === "30d") {
+    from = new Date(now); from.setDate(from.getDate() - 29); from.setHours(0, 0, 0, 0);
+    to = new Date(now); to.setHours(23, 59, 59, 999);
+  } else if (range === "90d") {
+    from = new Date(now); from.setDate(from.getDate() - 89); from.setHours(0, 0, 0, 0);
+    to = new Date(now); to.setHours(23, 59, 59, 999);
+  } else if (range === "thisMonth") {
+    from = new Date(now.getFullYear(), now.getMonth(), 1);
+    to = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+  } else if (range === "lastMonth") {
+    from = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    to = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59);
+  }
+
+  return transactions.filter(tx => {
+    const d = new Date(txDate(tx.date));
+    return (!from || d >= from) && (!to || d <= to);
+  });
+}
+
+const RANGE_LABELS = {
+  "30d":       { en: "30 Days",    tr: "30 Gün" },
+  "90d":       { en: "90 Days",    tr: "90 Gün" },
+  "thisMonth": { en: "This Month", tr: "Bu Ay" },
+  "lastMonth": { en: "Last Month", tr: "Geç. Ay" },
+  "all":       { en: "All Time",   tr: "Tümü" },
+};
+
 function Analytics({ transactions }) {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const { symbol } = useCurrency();
+  const { getCatColor } = useCategories();
+  const [range, setRange] = useState("30d");
+
+  const filtered = useMemo(() => filterByRange(transactions, range), [transactions, range]);
 
   if (transactions.length === 0) {
     return (
       <div className="fin-card rounded-2xl py-16 text-center anim-1">
-        <p className="text-sm" style={{ color: "var(--text-3)" }}>
-          {t("noTransactionsAnalytics")}
-        </p>
+        <p className="text-sm" style={{ color: "var(--text-3)" }}>{t("noTransactionsAnalytics")}</p>
       </div>
     );
   }
 
-  const txDate = (date) => (date ? date.split("T")[0] : "");
-
-  const expenses = transactions.filter((tx) => tx.type === "expense");
-  const income = transactions.filter((tx) => tx.type === "income");
+  const expenses = filtered.filter(tx => tx.type === "expense");
+  const income = filtered.filter(tx => tx.type === "income");
   const totalExpenses = expenses.reduce((s, tx) => s + parseFloat(tx.amount), 0);
   const avgExpense = expenses.length > 0 ? totalExpenses / expenses.length : 0;
 
   const dayCount = [0, 0, 0, 0, 0, 0, 0];
-  transactions.forEach((tx) => { dayCount[new Date(txDate(tx.date)).getDay()]++; });
+  filtered.forEach(tx => { dayCount[new Date(txDate(tx.date)).getDay()]++; });
   const busiestDayIdx = dayCount.indexOf(Math.max(...dayCount));
   const busiestDay = DAYS[busiestDayIdx];
 
-  const biggestExpense = expenses.length > 0
-    ? Math.max(...expenses.map((tx) => parseFloat(tx.amount)))
-    : 0;
+  const biggestExpense = expenses.length > 0 ? Math.max(...expenses.map(tx => parseFloat(tx.amount))) : 0;
 
-  // Month-over-month spending trends
+  // Month-over-month (always uses all transactions for context)
   const now = new Date();
   const ymKey = (offset) => {
     const d = new Date(now.getFullYear(), now.getMonth() + offset, 1);
@@ -102,7 +172,7 @@ function Analytics({ transactions }) {
   const lastYM = ymKey(-1);
   const sumByCatForMonth = (ym) => {
     const acc = {};
-    for (const tx of expenses) {
+    for (const tx of transactions.filter(tx => tx.type === "expense")) {
       if (txDate(tx.date).slice(0, 7) !== ym) continue;
       acc[tx.category] = (acc[tx.category] || 0) + parseFloat(tx.amount);
     }
@@ -114,55 +184,63 @@ function Analytics({ transactions }) {
   const lastTotal = Object.values(lastCat).reduce((s, v) => s + v, 0);
   const totalChange = lastTotal > 0 ? ((thisTotal - lastTotal) / lastTotal) * 100 : null;
 
-  const allCats = new Set([...Object.keys(thisCat), ...Object.keys(lastCat)]);
-  const movers = [...allCats]
-    .map((cat) => {
+  const allMoverCats = new Set([...Object.keys(thisCat), ...Object.keys(lastCat)]);
+  const movers = [...allMoverCats]
+    .map(cat => {
       const cur = thisCat[cat] || 0;
       const prev = lastCat[cat] || 0;
       const diff = cur - prev;
       const pct = prev > 0 ? (diff / prev) * 100 : (cur > 0 ? 100 : 0);
       return { cat, cur, prev, diff, pct };
     })
-    .filter((m) => m.cur > 0 || m.prev > 0)
+    .filter(m => m.cur > 0 || m.prev > 0)
     .sort((a, b) => Math.abs(b.diff) - Math.abs(a.diff))
     .slice(0, 3);
 
   const hasTrendData = lastTotal > 0 || thisTotal > 0;
 
-  // Last 30 days bar chart data
-  const last30 = Array.from({ length: 30 }, (_, i) => {
-    const d = new Date();
-    d.setDate(d.getDate() - (29 - i));
-    const key = d.toISOString().split("T")[0];
-    return {
-      date: d.toLocaleDateString("en-US", { month: "short", day: "numeric" }),
-      expenses: expenses
-        .filter((tx) => txDate(tx.date) === key)
-        .reduce((s, tx) => s + parseFloat(tx.amount), 0),
-      income: income
-        .filter((tx) => txDate(tx.date) === key)
-        .reduce((s, tx) => s + parseFloat(tx.amount), 0),
-    };
-  });
+  // Chart data
+  const chartResult = buildChartData(filtered, range);
+  const chartData = Array.isArray(chartResult) ? chartResult : chartResult.data;
+  const chartInterval = Array.isArray(chartResult) ? 3 : chartResult.interval;
 
-  // Category breakdown
+  // Category breakdown (based on filtered)
   const catData = Object.entries(
     expenses.reduce((acc, tx) => {
       acc[tx.category] = (acc[tx.category] || 0) + parseFloat(tx.amount);
       return acc;
     }, {})
   )
-    .map(([cat, value]) => ({
-      cat,
-      value,
-      pct: totalExpenses > 0 ? (value / totalExpenses) * 100 : 0,
-    }))
+    .map(([cat, value]) => ({ cat, value, pct: totalExpenses > 0 ? (value / totalExpenses) * 100 : 0 }))
     .sort((a, b) => b.value - a.value);
+
+  const rangeLabel = RANGE_LABELS[range]?.[lang] ?? range;
 
   return (
     <div className="space-y-4 anim-1">
-      {/* Stats grid */}
-      <div className="grid grid-cols-2 gap-3">
+      {/* Range selector */}
+      <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+        {Object.entries(RANGE_LABELS).map(([key, labels]) => {
+          const active = range === key;
+          return (
+            <button
+              key={key}
+              onClick={() => setRange(key)}
+              className="shrink-0 px-3 py-1.5 text-xs font-medium cursor-pointer transition-all rounded-lg"
+              style={{
+                backgroundColor: active ? "var(--brand)" : "var(--surface)",
+                color: active ? "white" : "var(--text-2)",
+                border: `1px solid ${active ? "var(--brand)" : "var(--border)"}`,
+              }}
+            >
+              {labels[lang] ?? labels.en}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Stats grid — 2 cols on mobile, 4 on sm+ */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <StatCard
           label={t("avgExpense")}
           value={`${symbol}${fmt(avgExpense)}`}
@@ -175,21 +253,20 @@ function Analytics({ transactions }) {
         />
         <StatCard
           label={t("transactions")}
-          value={transactions.length}
+          value={filtered.length}
           sub={`${income.length} income · ${expenses.length} expenses`}
         />
         <StatCard
           label={t("biggestExpense")}
           value={`${symbol}${fmt(biggestExpense)}`}
-          sub={expenses.find((tx) => parseFloat(tx.amount) === biggestExpense)?.description}
+          sub={expenses.find(tx => parseFloat(tx.amount) === biggestExpense)?.description}
         />
       </div>
 
-      {/* Spending Trends */}
+      {/* Spending Trends (always this month vs last) */}
       {hasTrendData && (
         <div className="fin-card rounded-2xl p-5">
           <p className="fin-label mb-4">{t("spendingTrends")}</p>
-
           <div className="grid grid-cols-2 gap-4 mb-4">
             <div>
               <p className="text-xs mb-1" style={{ color: "var(--text-3)" }}>{t("thisMonth")}</p>
@@ -215,9 +292,7 @@ function Analytics({ transactions }) {
                 }}
               >
                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                  {totalChange > 0
-                    ? <polyline points="6 15 12 9 18 15" />
-                    : <polyline points="6 9 12 15 18 9" />}
+                  {totalChange > 0 ? <polyline points="6 15 12 9 18 15" /> : <polyline points="6 9 12 15 18 9" />}
                 </svg>
                 {Math.abs(totalChange).toFixed(1)}%
               </div>
@@ -234,13 +309,8 @@ function Analytics({ transactions }) {
                   return (
                     <div key={cat} className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <div
-                          className="w-2 h-2 rounded-full"
-                          style={{ backgroundColor: catColors[cat] || catColors.other }}
-                        />
-                        <span className="text-sm capitalize" style={{ color: "var(--text-2)" }}>
-                          {t(cat)}
-                        </span>
+                        <div className="w-2 h-2 rounded-full" style={{ backgroundColor: getCatColor(cat) }} />
+                        <span className="text-sm capitalize" style={{ color: "var(--text-2)" }}>{t(cat)}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="fin-mono text-sm font-semibold" style={{ color: "var(--text-1)" }}>
@@ -265,23 +335,19 @@ function Analytics({ transactions }) {
         </div>
       )}
 
-      {/* Bar chart: last 30 days */}
+      {/* Bar chart */}
       <div className="fin-card rounded-2xl p-5">
-        <p className="fin-label mb-4">{t("last30Days")}</p>
-        <div style={{ height: 200, minWidth: 0 }}>
+        <p className="fin-label mb-4">{rangeLabel}</p>
+        <div className="h-[200px] sm:h-56" style={{ minWidth: 0 }}>
           <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
-            <BarChart data={last30} barGap={1} margin={{ top: 4, right: 0, left: -24, bottom: 0 }}>
-              <CartesianGrid
-                strokeDasharray="3 3"
-                stroke="var(--border)"
-                vertical={false}
-              />
+            <BarChart data={chartData} barGap={1} margin={{ top: 4, right: 0, left: -24, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
               <XAxis
                 dataKey="date"
                 tick={{ fontSize: 9, fill: "var(--text-3)", fontFamily: "JetBrains Mono" }}
                 tickLine={false}
                 axisLine={false}
-                interval={6}
+                interval={chartInterval}
               />
               <YAxis
                 tick={{ fontSize: 9, fill: "var(--text-3)", fontFamily: "JetBrains Mono" }}
@@ -314,35 +380,22 @@ function Analytics({ transactions }) {
               <div key={cat}>
                 <div className="flex items-center justify-between mb-1.5">
                   <div className="flex items-center gap-2">
-                    <div
-                      className="w-2 h-2 rounded-full"
-                      style={{ backgroundColor: catColors[cat] || catColors.other }}
-                    />
-                    <span className="text-sm capitalize" style={{ color: "var(--text-2)" }}>
-                      {t(cat)}
-                    </span>
+                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: getCatColor(cat) }} />
+                    <span className="text-sm capitalize" style={{ color: "var(--text-2)" }}>{t(cat)}</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="text-xs" style={{ color: "var(--text-3)" }}>
-                      {pct.toFixed(1)}%
-                    </span>
-                    <span
-                      className="fin-mono text-sm font-semibold"
-                      style={{ color: "var(--text-1)", minWidth: 64, textAlign: "right" }}
-                    >
+                    <span className="text-xs" style={{ color: "var(--text-3)" }}>{pct.toFixed(1)}%</span>
+                    <span className="fin-mono text-sm font-semibold" style={{ color: "var(--text-1)", minWidth: 64, textAlign: "right" }}>
                       {symbol}{fmt(value)}
                     </span>
                   </div>
                 </div>
-                <div
-                  className="h-1.5 rounded-full overflow-hidden"
-                  style={{ backgroundColor: "var(--surface-2)" }}
-                >
+                <div className="h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: "var(--surface-2)" }}>
                   <div
                     className="h-full rounded-full"
                     style={{
                       width: `${pct}%`,
-                      backgroundColor: catColors[cat] || catColors.other,
+                      backgroundColor: getCatColor(cat),
                       transition: "width 0.6s cubic-bezier(0.16,1,0.3,1)",
                     }}
                   />

@@ -13,6 +13,7 @@ import LandingPage from "./LandingPage";
 import PrivacyPage from "./PrivacyPage";
 import TermsPage from "./TermsPage";
 import { CurrencyProvider } from "./currency.jsx";
+import { CategoriesProvider } from "./categories.jsx";
 import { useLang } from "./i18n.jsx";
 import Subscriptions from "./Subscriptions";
 import Budgets from "./Budgets";
@@ -323,6 +324,7 @@ function App() {
   // ── Main app ──
   return (
     <CurrencyProvider code={currentUser?.currency || "USD"}>
+    <CategoriesProvider>
     <div className="min-h-screen flex flex-col transition-colors duration-300" style={{ backgroundColor: "var(--bg)" }}>
       <div className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 pt-6 sm:pt-10 pb-24 sm:pb-6">
 
@@ -502,6 +504,7 @@ function App() {
         </div>
       )}
     </div>
+    </CategoriesProvider>
     </CurrencyProvider>
   );
 }

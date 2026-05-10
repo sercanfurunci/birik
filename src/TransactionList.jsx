@@ -2,26 +2,15 @@ import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { useLang } from "./i18n.jsx";
 import { useCurrency } from "./currency.jsx";
-
-const categories = ["food", "housing", "utilities", "transport", "entertainment", "salary", "other"];
-
-const catDotColor = {
-  food:          "#F97316",
-  housing:       "#3B82F6",
-  utilities:     "#EAB308",
-  transport:     "#06B6D4",
-  entertainment: "#EC4899",
-  salary:        "#10B981",
-  other:         "#94A3B8",
-};
+import { useCategories } from "./categories.jsx";
 
 const fmt = (n) =>
   parseFloat(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-function CategoryPill({ cat, label }) {
+function CategoryPill({ cat, label, getCatColor }) {
   return (
     <span className="cat-pill">
-      <span className="cat-dot" style={{ backgroundColor: catDotColor[cat] ?? catDotColor.other }} />
+      <span className="cat-dot" style={{ backgroundColor: getCatColor(cat) }} />
       {label}
     </span>
   );
@@ -149,6 +138,7 @@ const PAGE_SIZE = 15;
 function TransactionList({ transactions, onDelete, onEdit }) {
   const { t, formatDate } = useLang();
   const { symbol } = useCurrency();
+  const { allCats, getCatColor } = useCategories();
   const [filterType, setFilterType] = useState("all");
   const [filterCategory, setFilterCategory] = useState("all");
   const [search, setSearch] = useState("");
@@ -289,7 +279,7 @@ function TransactionList({ transactions, onDelete, onEdit }) {
               style={{ width: "auto" }}
             >
               <option value="all">{t("allCategories")}</option>
-              {categories.map((cat) => (
+              {allCats.map((cat) => (
                 <option key={cat} value={cat}>{t(cat)}</option>
               ))}
             </select>
@@ -426,7 +416,7 @@ function TransactionList({ transactions, onDelete, onEdit }) {
                         <span className="fin-mono text-[10px]" style={{ color: "var(--text-3)" }}>
                           {formatDate(tx.date)}
                         </span>
-                        <CategoryPill cat={tx.category} label={t(tx.category)} />
+                        <CategoryPill cat={tx.category} label={t(tx.category)} getCatColor={getCatColor} />
                       </div>
                     </div>
                     <div className="flex items-center gap-1.5 shrink-0">
@@ -573,7 +563,7 @@ function TransactionList({ transactions, onDelete, onEdit }) {
                           <span className="block truncate" title={tx.description}>{tx.description}</span>
                         </td>
                         <td className="px-5 py-2.5">
-                          <CategoryPill cat={tx.category} label={t(tx.category)} />
+                          <CategoryPill cat={tx.category} label={t(tx.category)} getCatColor={getCatColor} />
                         </td>
                         <td className="px-5 py-2.5 text-right whitespace-nowrap">
                           <span

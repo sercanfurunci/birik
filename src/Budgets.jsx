@@ -2,20 +2,9 @@ import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { useLang } from "./i18n.jsx";
 import { useCurrency } from "./currency.jsx";
+import { useCategories } from "./categories.jsx";
 
 const API = import.meta.env.VITE_API_URL;
-
-const CATEGORIES = ["food", "housing", "utilities", "transport", "entertainment", "other"];
-
-const catColor = {
-  food:          "#F97316",
-  housing:       "#3B82F6",
-  utilities:     "#EAB308",
-  transport:     "#06B6D4",
-  entertainment: "#EC4899",
-  salary:        "#10B981",
-  other:         "#94A3B8",
-};
 
 function authFetch(url, opts = {}) {
   const token = localStorage.getItem("auth_token");
@@ -32,12 +21,12 @@ function authFetch(url, opts = {}) {
 const fmt = (n) =>
   parseFloat(n || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-function BudgetForm({ initial, existingCategories, onSave, onCancel }) {
+function BudgetForm({ initial, allExpenseCats, existingCategories, onSave, onCancel }) {
   const { t } = useLang();
   const isEdit = !!initial?.id;
   const available = isEdit
-    ? CATEGORIES
-    : CATEGORIES.filter((c) => !existingCategories.includes(c));
+    ? allExpenseCats
+    : allExpenseCats.filter((c) => !existingCategories.includes(c));
 
   const [category, setCategory] = useState(initial?.category || available[0] || "food");
   const [amount, setAmount] = useState(initial?.amount || "");
@@ -157,6 +146,7 @@ function DeleteConfirm({ budget, onConfirm, onCancel }) {
 function Budgets({ transactions, showToast }) {
   const { t } = useLang();
   const { symbol } = useCurrency();
+  const { expenseCats, getCatColor } = useCategories();
   const [budgets, setBudgets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(null);
@@ -217,7 +207,7 @@ function Budgets({ transactions, showToast }) {
   const totalBudget = budgets.reduce((s, b) => s + parseFloat(b.amount), 0);
   const totalSpent = budgets.reduce((s, b) => s + (monthSpend[b.category] || 0), 0);
   const existingCategories = budgets.map((b) => b.category);
-  const canAddMore = existingCategories.length < CATEGORIES.length;
+  const canAddMore = existingCategories.length < expenseCats.length;
 
   if (loading) {
     return (
@@ -250,6 +240,7 @@ function Budgets({ transactions, showToast }) {
       {showForm && (
         <BudgetForm
           initial={editing}
+          allExpenseCats={expenseCats}
           existingCategories={existingCategories}
           onSave={handleSave}
           onCancel={() => { setShowForm(false); setEditing(null); }}
@@ -328,7 +319,7 @@ function Budgets({ transactions, showToast }) {
           <div key={b.id} className="fin-card rounded-2xl p-5">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
-                <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: catColor[b.category] || catColor.other }} />
+                <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: getCatColor(b.category) }} />
                 <span className="text-sm font-semibold" style={{ color: "var(--text-1)" }}>
                   {t(b.category)}
                 </span>

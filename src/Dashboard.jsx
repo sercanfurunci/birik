@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { useLang } from "./i18n.jsx";
 import { useCurrency } from "./currency.jsx";
+import { useCategories } from "./categories.jsx";
 import Summary from "./Summary.jsx";
 
 const API = import.meta.env.VITE_API_URL;
@@ -11,26 +12,16 @@ function authFetch(url, opts = {}) {
   return fetch(url, { ...opts, credentials: "include", headers: { ...opts.headers, ...(token ? { Authorization: `Bearer ${token}` } : {}) } });
 }
 
-const catColors = {
-  food:          "#F97316",
-  housing:       "#3B82F6",
-  utilities:     "#EAB308",
-  transport:     "#06B6D4",
-  entertainment: "#EC4899",
-  salary:        "#10B981",
-  other:         "#94A3B8",
-};
-
 const fmt = (n) =>
   parseFloat(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-function ChartTooltip({ active, payload, t, symbol }) {
+function ChartTooltip({ active, payload, t, symbol, getCatColor }) {
   if (!active || !payload?.length) return null;
   const { name, value } = payload[0].payload;
   return (
     <div className="fin-card rounded-xl px-3 py-2 text-sm shadow-lg">
       <p className="font-medium capitalize" style={{ color: "var(--text-1)" }}>{t(name)}</p>
-      <p className="fin-mono font-bold" style={{ color: catColors[name] || catColors.other }}>
+      <p className="fin-mono font-bold" style={{ color: getCatColor(name) }}>
         {symbol}{fmt(value)}
       </p>
     </div>
@@ -40,6 +31,7 @@ function ChartTooltip({ active, payload, t, symbol }) {
 function Dashboard({ transactions, onNavigate }) {
   const { t, formatDate } = useLang();
   const { symbol } = useCurrency();
+  const { getCatColor } = useCategories();
   const [goals, setGoals] = useState([]);
 
   useEffect(() => {
@@ -129,10 +121,10 @@ function Dashboard({ transactions, onNavigate }) {
                       strokeWidth={0}
                     >
                       {catData.map((entry) => (
-                        <Cell key={entry.name} fill={catColors[entry.name] || catColors.other} />
+                        <Cell key={entry.name} fill={getCatColor(entry.name)} />
                       ))}
                     </Pie>
-                    <Tooltip content={<ChartTooltip t={t} symbol={symbol} />} />
+                    <Tooltip content={<ChartTooltip t={t} symbol={symbol} getCatColor={getCatColor} />} />
                   </PieChart>
                 </ResponsiveContainer>
               </div>
@@ -141,7 +133,7 @@ function Dashboard({ transactions, onNavigate }) {
                   <div key={name} className="flex items-center gap-3">
                     <div
                       className="w-2 h-2 rounded-full shrink-0"
-                      style={{ backgroundColor: catColors[name] || catColors.other }}
+                      style={{ backgroundColor: getCatColor(name) }}
                     />
                     <span className="text-sm capitalize flex-1 truncate" style={{ color: "var(--text-2)" }}>
                       {t(name)}
@@ -154,7 +146,7 @@ function Dashboard({ transactions, onNavigate }) {
                         className="h-full rounded-full"
                         style={{
                           width: `${totalExpenses > 0 ? (value / totalExpenses) * 100 : 0}%`,
-                          backgroundColor: catColors[name] || catColors.other,
+                          backgroundColor: getCatColor(name),
                         }}
                       />
                     </div>
@@ -193,11 +185,11 @@ function Dashboard({ transactions, onNavigate }) {
               >
                 <div
                   className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
-                  style={{ backgroundColor: `${catColors[tx.category] || catColors.other}18` }}
+                  style={{ backgroundColor: `${getCatColor(tx.category)}18` }}
                 >
                   <div
                     className="w-2 h-2 rounded-full"
-                    style={{ backgroundColor: catColors[tx.category] || catColors.other }}
+                    style={{ backgroundColor: getCatColor(tx.category) }}
                   />
                 </div>
                 <div className="flex-1 min-w-0">

@@ -199,6 +199,12 @@ const translations = {
     topMovers: "Top Category Changes",
     noTrendData: "Need at least one full month of data",
 
+    // Custom categories
+    catAddNew: "New category",
+    catAddPlaceholder: "Category name…",
+    catManage: "Manage",
+    catRemove: "Remove",
+
     // Budgets
     budgets: "Budgets",
     budgetsTab: "Budgets",
@@ -568,6 +574,12 @@ const translations = {
     vsLastMonth: "geçen aya göre",
     topMovers: "Öne Çıkan Değişimler",
     noTrendData: "En az bir tam aylık veri gerekli",
+
+    // Custom categories
+    catAddNew: "Yeni kategori",
+    catAddPlaceholder: "Kategori adı…",
+    catManage: "Yönet",
+    catRemove: "Kaldır",
 
     // Budgets
     budgets: "Bütçeler",

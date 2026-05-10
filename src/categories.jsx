@@ -1,0 +1,66 @@
+import { createContext, useContext, useState, useCallback } from "react";
+
+export const BASE_CATS = ["food", "housing", "utilities", "transport", "entertainment", "salary", "other"];
+
+export const BASE_CAT_COLORS = {
+  food: "#F97316",
+  housing: "#3B82F6",
+  utilities: "#EAB308",
+  transport: "#06B6D4",
+  entertainment: "#EC4899",
+  salary: "#10B981",
+  other: "#94A3B8",
+};
+
+const PALETTE = [
+  "#8B5CF6", "#F59E0B", "#14B8A6", "#84CC16", "#D946EF",
+  "#EF4444", "#0EA5E9", "#FB923C", "#A16207", "#22C55E",
+];
+
+const CatsContext = createContext(null);
+
+export function CategoriesProvider({ children }) {
+  const [customCats, setCustomCats] = useState(() => {
+    try { return JSON.parse(localStorage.getItem("moneto_custom_cats") || "[]"); }
+    catch { return []; }
+  });
+
+  const addCat = useCallback((label) => {
+    const id = label.trim();
+    if (!id) return false;
+    const lower = id.toLowerCase();
+    if (BASE_CATS.includes(lower)) return false;
+    setCustomCats(prev => {
+      if (prev.find(c => c.id.toLowerCase() === lower)) return prev;
+      const color = PALETTE[prev.length % PALETTE.length];
+      const next = [...prev, { id, color }];
+      localStorage.setItem("moneto_custom_cats", JSON.stringify(next));
+      return next;
+    });
+    return true;
+  }, []);
+
+  const removeCat = useCallback((id) => {
+    setCustomCats(prev => {
+      const next = prev.filter(c => c.id !== id);
+      localStorage.setItem("moneto_custom_cats", JSON.stringify(next));
+      return next;
+    });
+  }, []);
+
+  const getCatColor = useCallback((cat) => {
+    if (BASE_CAT_COLORS[cat]) return BASE_CAT_COLORS[cat];
+    return customCats.find(c => c.id === cat)?.color ?? "#94A3B8";
+  }, [customCats]);
+
+  const allCats = [...BASE_CATS, ...customCats.map(c => c.id)];
+  const expenseCats = allCats.filter(c => c !== "salary");
+
+  return (
+    <CatsContext.Provider value={{ customCats, allCats, expenseCats, addCat, removeCat, getCatColor }}>
+      {children}
+    </CatsContext.Provider>
+  );
+}
+
+export const useCategories = () => useContext(CatsContext);
