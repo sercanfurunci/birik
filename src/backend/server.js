@@ -1342,6 +1342,11 @@ CRITICAL — Turkish installment payments (taksit): Lines may look like:
   The number after "Taksidi" (e.g. 732,66) is the actual installment amount charged — USE THIS as the amount.
   Similarly "01.Tak", "02.Tak", "03.Tak" in the description means it is an installment transaction.
 
+INSTALLMENT METADATA: When you identify a taksit (installment) transaction, ALSO include these two optional integer fields:
+  installment_index – the current installment number (e.g. 2 for "2/3")
+  installment_total – total installment count (e.g. 3 for "2/3")
+  Only add these when clearly visible in the statement. If the installment fraction is not visible, omit them.
+
 Category rules:
   food          → restaurants, cafes, supermarkets, food delivery
   housing       → rent, mortgage
@@ -1372,13 +1377,22 @@ Return only the JSON array.` }
   const list = JSON.parse(cleaned);
   if (!Array.isArray(list)) throw new Error("AI returned non-array");
 
-  return list.map(tx => ({
-    date:        String(tx.date || "").trim(),
-    description: String(tx.description || "").trim(),
-    amount:      Math.abs(Number(tx.amount)),
-    type:        tx.type === "income" ? "income" : "expense",
-    category:    VALID_CATEGORIES.has(tx.category) ? tx.category : "other",
-  })).filter(tx => tx.description && tx.amount > 0 && tx.amount < 1_000_000_000 && /^\d{4}-\d{2}-\d{2}$/.test(tx.date));
+  return list.map(tx => {
+    const idx   = Number.isInteger(tx.installment_index) && tx.installment_index > 0 ? tx.installment_index : null;
+    const total = Number.isInteger(tx.installment_total) && tx.installment_total > 1  ? tx.installment_total : null;
+    const entry = {
+      date:        String(tx.date || "").trim(),
+      description: String(tx.description || "").trim(),
+      amount:      Math.abs(Number(tx.amount)),
+      type:        tx.type === "income" ? "income" : "expense",
+      category:    VALID_CATEGORIES.has(tx.category) ? tx.category : "other",
+    };
+    if (idx !== null && total !== null) {
+      entry.installment_index = idx;
+      entry.installment_total = total;
+    }
+    return entry;
+  }).filter(tx => tx.description && tx.amount > 0 && tx.amount < 1_000_000_000 && /^\d{4}-\d{2}-\d{2}$/.test(tx.date));
 }
 
 async function extractPdfText(buffer) {

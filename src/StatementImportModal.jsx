@@ -18,9 +18,25 @@ export default function StatementImportModal({ onClose, onImported }) {
   const [error, setError] = useState(null);
   const [preview, setPreview] = useState([]);
   const [importedCount, setImportedCount] = useState(0);
+  const [recurringCount, setRecurringCount] = useState(0);
   const [selectedFile, setSelectedFile] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [installmentFlags, setInstallmentFlags] = useState(new Set());
   const CATEGORIES = ["food","housing","utilities","transport","entertainment","salary","other"];
+
+  function toggleInstallment(i) {
+    setInstallmentFlags(prev => {
+      const next = new Set(prev);
+      if (next.has(i)) next.delete(i); else next.add(i);
+      return next;
+    });
+  }
+
+  function addMonths(dateStr, months) {
+    const d = new Date(dateStr + "T00:00:00");
+    d.setMonth(d.getMonth() + months);
+    return d.toISOString().split("T")[0];
+  }
 
   function deleteTx(i) {
     setPreview(prev => prev.filter((_, idx) => idx !== i));
@@ -78,15 +94,47 @@ export default function StatementImportModal({ onClose, onImported }) {
     setError(null);
 
     try {
-      const res = await fetch(`${API}/transactions/import/bulk`, {
-        method: "POST",
-        headers: { ...authHeader(), "Content-Type": "application/json" },
-        body: JSON.stringify({ transactions: preview }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Import failed");
+      const regularTxs  = preview.filter((_, i) => !installmentFlags.has(i));
+      const recurringTxs = preview.filter((_, i) => installmentFlags.has(i));
 
-      setImportedCount(data.imported);
+      let txImported = 0;
+      let recCreated = 0;
+
+      if (regularTxs.length > 0) {
+        const res = await fetch(`${API}/transactions/import/bulk`, {
+          method: "POST",
+          headers: { ...authHeader(), "Content-Type": "application/json" },
+          body: JSON.stringify({ transactions: regularTxs }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Import failed");
+        txImported = data.imported;
+      }
+
+      for (const tx of recurringTxs) {
+        const remaining  = (tx.installment_total ?? 1) - (tx.installment_index ?? 1);
+        const end_date   = addMonths(tx.date, remaining);
+        const day_of_period = parseInt(tx.date.split("-")[2], 10);
+        const res = await fetch(`${API}/recurring`, {
+          method: "POST",
+          headers: { ...authHeader(), "Content-Type": "application/json" },
+          body: JSON.stringify({
+            description: tx.description,
+            amount: parseFloat(tx.amount),
+            type: tx.type,
+            category: tx.category,
+            frequency: "monthly",
+            start_date: tx.date,
+            end_date,
+            day_of_period,
+          }),
+        });
+        if (!res.ok) { const d = await res.json(); throw new Error(d.error || "Recurring failed"); }
+        recCreated++;
+      }
+
+      setImportedCount(txImported);
+      setRecurringCount(recCreated);
       setStep("done");
       onImported();
     } catch (err) {
@@ -288,6 +336,32 @@ export default function StatementImportModal({ onClose, onImported }) {
                         onChange={e => setPreview(p => p.map((r, idx) => idx === i ? { ...r, date: e.target.value } : r))}
                       />
                     </div>
+                    {/* installment badge + recurring toggle */}
+                    {tx.installment_total && (
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, flexWrap: "wrap" }}>
+                        <span style={{
+                          fontSize: 11, fontWeight: 600, padding: "2px 7px", borderRadius: 5,
+                          color: "var(--brand)", background: "var(--brand-dim)",
+                        }}>
+                          {tx.installment_index}/{tx.installment_total} Taksit
+                          {tx.installment_total - tx.installment_index > 0 && ` · ${tx.installment_total - tx.installment_index} kalan`}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => toggleInstallment(i)}
+                          style={{
+                            fontSize: 11, fontWeight: 600, padding: "3px 9px", borderRadius: 5,
+                            cursor: "pointer", transition: "all 0.15s",
+                            border: installmentFlags.has(i) ? "1px solid var(--brand)" : "1px solid var(--border)",
+                            background: installmentFlags.has(i) ? "var(--brand-dim)" : "transparent",
+                            color: installmentFlags.has(i) ? "var(--brand)" : "var(--text-3)",
+                          }}
+                        >
+                          {installmentFlags.has(i) ? "✓ Tekrarlayan" : "↻ Tekrarlayan yap"}
+                        </button>
+                      </div>
+                    )}
+
                     {/* type + category + delete */}
                     <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
                       <div className="type-toggle" style={{ flexShrink: 0 }}>
@@ -321,7 +395,7 @@ export default function StatementImportModal({ onClose, onImported }) {
 
               <div style={{ display: "flex", gap: 8 }}>
                 <button
-                  onClick={() => { setStep("pick"); setPreview([]); setError(null); setSelectedFile(null); }}
+                  onClick={() => { setStep("pick"); setPreview([]); setError(null); setSelectedFile(null); setInstallmentFlags(new Set()); }}
                   style={{
                     padding: "10px 16px",
                     borderRadius: 10,
@@ -344,7 +418,7 @@ export default function StatementImportModal({ onClose, onImported }) {
                   className="fin-btn-primary"
                   style={{ flex: 1, opacity: loading ? 0.7 : 1 }}
                 >
-                  {loading ? t("importImporting") : t("importConfirm", { count: preview.filter(Boolean).length })}
+                  {loading ? t("importImporting") : t("importConfirm", { count: preview.filter((_, i) => !installmentFlags.has(i)).length }) + (installmentFlags.size > 0 ? ` + ${installmentFlags.size} tekrarlayan` : "")}
                 </button>
               </div>
             </>
@@ -365,6 +439,11 @@ export default function StatementImportModal({ onClose, onImported }) {
               <p style={{ fontSize: 14, fontWeight: 600, color: "var(--text-1)", textAlign: "center", margin: 0 }}>
                 {t("importSuccess", { count: importedCount })}
               </p>
+              {recurringCount > 0 && (
+                <p style={{ fontSize: 13, color: "var(--text-2)", textAlign: "center", margin: 0 }}>
+                  {recurringCount} taksitli işlem tekrarlayan kurala dönüştürüldü.
+                </p>
+              )}
               <button onClick={onClose} className="fin-btn-primary">
                 {t("importDoneBtn")}
               </button>
