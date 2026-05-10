@@ -196,7 +196,7 @@ function TransactionList({ transactions, onDelete, onEdit }) {
     setEditValues({ description: tx.description, amount: tx.amount, type: tx.type, category: tx.category });
   };
   const saveEdit = (id) => {
-    if (!editValues.description || !editValues.amount) return;
+    if (!editValues.amount) return;
     onEdit(id, editValues);
     setEditingId(null);
   };
@@ -458,10 +458,10 @@ function TransactionList({ transactions, onDelete, onEdit }) {
             <div className="hidden sm:block overflow-x-auto">
               <table className="w-full" style={{ tableLayout: "fixed" }}>
                 <colgroup>
-                  <col style={{ width: "120px" }} />  {/* date */}
+                  <col style={{ width: "110px" }} />  {/* date */}
                   <col />                              {/* description — takes remaining */}
-                  <col style={{ width: "160px" }} />  {/* category */}
-                  <col style={{ width: "130px" }} />  {/* amount */}
+                  <col style={{ width: "140px" }} />  {/* category */}
+                  <col style={{ width: "180px" }} />  {/* type + amount */}
                   <col style={{ width: "72px" }} />   {/* actions */}
                 </colgroup>
                 <thead>
@@ -509,12 +509,12 @@ function TransactionList({ transactions, onDelete, onEdit }) {
                             </select>
                           </td>
                           <td className="px-3 py-2.5">
-                            <div className="flex items-center gap-2 justify-end">
+                            <div className="flex items-center gap-1.5">
                               <select
                                 value={editValues.type}
                                 onChange={(e) => setEditValues({ ...editValues, type: e.target.value })}
-                                className="fin-select"
-                                style={{ width: "auto" }}
+                                className="fin-select shrink-0"
+                                style={{ width: "52px", paddingLeft: "6px", paddingRight: "4px" }}
                               >
                                 <option value="income">+</option>
                                 <option value="expense">−</option>
@@ -523,8 +523,7 @@ function TransactionList({ transactions, onDelete, onEdit }) {
                                 type="number"
                                 value={editValues.amount}
                                 onChange={(e) => setEditValues({ ...editValues, amount: e.target.value })}
-                                className="fin-input fin-mono text-right"
-                                style={{ width: "96px" }}
+                                className="fin-input fin-mono text-right flex-1"
                               />
                             </div>
                           </td>
