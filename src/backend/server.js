@@ -1,3 +1,4 @@
+// v2 — custom_categories per user (JSONB), installment detection
 // Required SQL migrations:
 // CREATE TABLE users (
 //   id SERIAL PRIMARY KEY,
