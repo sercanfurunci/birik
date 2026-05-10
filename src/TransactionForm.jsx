@@ -146,6 +146,7 @@ function TransactionForm({ onAdd, onRefresh }) {
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
                   className="fin-select w-full appearance-none"
+                  style={{ paddingLeft: "2rem" }}
                 >
                   {allCats.map((cat) => (
                     <option key={cat} value={cat}>
