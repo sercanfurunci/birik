@@ -392,14 +392,14 @@ function TransactionList({ transactions, onDelete, onEdit }) {
                           className="flex-1 py-2 rounded-lg text-sm font-medium cursor-pointer transition-opacity hover:opacity-80"
                           style={{ backgroundColor: "rgba(16,185,129,0.12)", color: "var(--green)" }}
                         >
-                          Save
+                          {t("saveBtn")}
                         </button>
                         <button
                           onClick={cancelEdit}
                           className="flex-1 py-2 rounded-lg text-sm font-medium cursor-pointer transition-opacity hover:opacity-80"
                           style={{ backgroundColor: "var(--surface-2)", color: "var(--text-2)", border: "1px solid var(--border)" }}
                         >
-                          Cancel
+                          {t("cancelBtn")}
                         </button>
                       </div>
                     </div>
