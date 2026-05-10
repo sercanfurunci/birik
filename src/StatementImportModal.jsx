@@ -160,6 +160,7 @@ export default function StatementImportModal({ onClose, onImported }) {
         justifyContent: "center",
         padding: 16,
         background: "rgba(0,0,0,0.7)",
+        backdropFilter: "blur(4px)",
       }}
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >

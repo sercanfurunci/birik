@@ -220,7 +220,7 @@ function DeleteConfirm({ sub, onConfirm, onCancel }) {
   return (
     <div
       className="fixed inset-0 z-60 flex items-center justify-center p-4"
-      style={{ backgroundColor: "rgba(0,0,0,0.6)" }}
+      style={{ backgroundColor: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)" }}
       onClick={e => e.target === e.currentTarget && onCancel()}
     >
       <div className="w-full max-w-sm p-5" style={{ backgroundColor: "var(--surface)", border: "1px solid var(--border)", borderRadius: 10 }}>
