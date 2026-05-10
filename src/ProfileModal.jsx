@@ -201,13 +201,13 @@ function ProfileModal({ user, onClose, onSave, onDeleted }) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
       style={{ backgroundColor: "rgba(0,0,0,0.5)", backdropFilter: "blur(4px)" }}
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <div id="profile-recaptcha" />
       <div
-        className="fin-card-elev rounded-t-3xl sm:rounded-3xl w-full max-w-sm p-6 anim-1"
+        className="fin-card-elev rounded-2xl w-full max-w-sm p-6 anim-1"
         style={{
           maxHeight: "calc(90vh - env(safe-area-inset-bottom, 0px))",
           overflowY: "auto",
