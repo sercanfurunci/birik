@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /reset-password
+Disallow: /verify
+
+Sitemap: https://furunci.tech/sitemap.xml

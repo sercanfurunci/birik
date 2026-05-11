@@ -1,0 +1,21 @@
+{
+  "name": "Moneto — Personal Finance Tracker",
+  "short_name": "Moneto",
+  "description": "Free expense tracker with AI bank statement import. Track income, expenses, budgets, subscriptions, and savings goals.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f5f1ea",
+  "theme_color": "#f5f1ea",
+  "lang": "en",
+  "categories": ["finance", "productivity", "lifestyle"],
+  "icons": [
+    {
+      "src": "/moneto.svg",
+      "type": "image/svg+xml",
+      "sizes": "any",
+      "purpose": "any maskable"
+    }
+  ]
+}

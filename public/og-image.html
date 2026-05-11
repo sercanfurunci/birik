@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Moneto OG Image</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=JetBrains+Mono:wght@500;600;700&family=Outfit:wght@400;500;600;700&display=swap" />
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    width: 1200px;
+    height: 630px;
+    overflow: hidden;
+    font-family: 'Outfit', system-ui, sans-serif;
+    color: #1A1820;
+    background: #F5F2EB;
+  }
+  body {
+    position: relative;
+    background:
+      radial-gradient(at 0% 0%, rgba(91, 91, 214, 0.18) 0%, transparent 50%),
+      radial-gradient(at 100% 100%, rgba(180, 83, 9, 0.16) 0%, transparent 50%),
+      #F5F2EB;
+    padding: 72px 80px;
+    display: flex;
+    align-items: center;
+    gap: 72px;
+  }
+
+  .left { flex: 1; max-width: 600px; }
+
+  .brand-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 36px;
+  }
+  .logo {
+    width: 64px;
+    height: 64px;
+    border-radius: 14px;
+    background: #111111;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .logo svg { width: 38px; height: 38px; }
+  .brand-name {
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-size: 44px;
+    letter-spacing: -0.02em;
+    color: #1A1820;
+  }
+
+  .headline {
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-size: 74px;
+    line-height: 1.04;
+    letter-spacing: -0.025em;
+    color: #1A1820;
+    margin-bottom: 24px;
+  }
+  .headline .accent { color: #B45309; }
+
+  .subtitle {
+    font-size: 24px;
+    line-height: 1.45;
+    color: #56535F;
+    margin-bottom: 36px;
+    font-weight: 400;
+  }
+
+  .badges {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #FFFFFF;
+    border: 1px solid rgba(91, 91, 214, 0.22);
+    color: #5B5BD6;
+    padding: 10px 16px;
+    border-radius: 999px;
+    font-size: 15px;
+    font-weight: 600;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  }
+  .badge .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #5B5BD6;
+  }
+
+  /* Right side mock card */
+  .right {
+    width: 380px;
+    background: #FFFFFF;
+    border-radius: 24px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 28px 64px -20px rgba(26, 24, 32, 0.22), 0 8px 18px -8px rgba(26, 24, 32, 0.12);
+    overflow: hidden;
+    transform: rotate(2deg);
+  }
+  .card-head {
+    padding: 18px 22px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .card-head-title {
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-size: 18px;
+  }
+  .card-head-dots { display: flex; gap: 5px; }
+  .card-head-dots span {
+    width: 9px; height: 9px; border-radius: 50%; opacity: 0.75;
+  }
+
+  .balance-block {
+    padding: 22px 22px 18px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+  }
+  .label {
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-size: 11px;
+    color: #8A8794;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .balance-amt {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 38px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    color: #1A1820;
+  }
+  .ie-row {
+    display: flex; gap: 28px; margin-top: 14px;
+  }
+  .ie-row .ie-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #8A8794;
+    font-weight: 600;
+    margin-bottom: 3px;
+  }
+  .ie-row .ie-amt {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 15px;
+    font-weight: 700;
+  }
+  .green { color: #10B981; }
+  .red   { color: #DC2626; }
+
+  .tx-block { padding: 18px 22px 22px; }
+  .tx-row {
+    display: flex; align-items: center; gap: 12px; padding: 8px 0;
+  }
+  .tx-icon {
+    width: 26px; height: 26px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .tx-icon .inner { width: 8px; height: 8px; border-radius: 50%; }
+  .tx-label { flex: 1; font-size: 14px; color: #3B3845; font-weight: 500; }
+  .tx-amt {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 14px; font-weight: 700;
+  }
+</style>
+</head>
+<body>
+  <div class="left">
+    <div class="brand-row">
+      <div class="logo">
+        <svg viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M32 88V40L64 72L96 40V88" stroke="white" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="brand-name">Moneto</div>
+    </div>
+    <h1 class="headline">Know where your <span class="accent">money</span> goes.</h1>
+    <p class="subtitle">Track income, expenses, budgets and subscriptions. Import bank statements with AI in seconds.</p>
+    <div class="badges">
+      <div class="badge"><span class="dot"></span>Free forever</div>
+      <div class="badge"><span class="dot"></span>AI statement import</div>
+      <div class="badge"><span class="dot"></span>Multi-currency</div>
+    </div>
+  </div>
+
+  <div class="right">
+    <div class="card-head">
+      <div class="card-head-title">Moneto</div>
+      <div class="card-head-dots">
+        <span style="background:#FF5F57"></span>
+        <span style="background:#FEBC2E"></span>
+        <span style="background:#28C840"></span>
+      </div>
+    </div>
+    <div class="balance-block">
+      <div class="label">Net Balance</div>
+      <div class="balance-amt">$2,271.01</div>
+      <div class="ie-row">
+        <div>
+          <div class="ie-label">Income</div>
+          <div class="ie-amt green">+$3,500</div>
+        </div>
+        <div>
+          <div class="ie-label">Expenses</div>
+          <div class="ie-amt red">−$1,228.99</div>
+        </div>
+      </div>
+    </div>
+    <div class="tx-block">
+      <div class="label" style="margin-bottom:10px;">Recent Activity</div>
+      <div class="tx-row">
+        <div class="tx-icon" style="background:#10B98122"><div class="inner" style="background:#10B981"></div></div>
+        <div class="tx-label">Monthly Salary</div>
+        <div class="tx-amt green">+$3,500</div>
+      </div>
+      <div class="tx-row">
+        <div class="tx-icon" style="background:#F9731622"><div class="inner" style="background:#F97316"></div></div>
+        <div class="tx-label">Grocery</div>
+        <div class="tx-amt red">−$124</div>
+      </div>
+      <div class="tx-row">
+        <div class="tx-icon" style="background:#EC489922"><div class="inner" style="background:#EC4899"></div></div>
+        <div class="tx-label">Netflix</div>
+        <div class="tx-amt red">−$15.99</div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

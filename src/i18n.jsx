@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 
 const translations = {
   en: {
@@ -766,8 +766,27 @@ const translations = {
 
 const LangContext = createContext();
 
+const META_DESCRIPTIONS = {
+  en: "Moneto is a free personal finance app to track income, expenses, budgets, savings goals, and subscriptions. Import bank statements with AI in seconds.",
+  tr: "Moneto, gelir ve giderlerinizi, bütçelerinizi, tasarruf hedeflerinizi ve aboneliklerinizi takip eden ücretsiz kişisel finans uygulamasıdır. Banka ekstrenizi saniyeler içinde yapay zekâyla içe aktarın.",
+};
+const META_TITLES = {
+  en: "Moneto — Free expense tracker with AI bank statement import",
+  tr: "Moneto — Yapay zekâlı banka ekstresi içe aktarımlı ücretsiz harcama takipçisi",
+};
+
 export function LangProvider({ children }) {
   const [lang, setLang] = useState(() => localStorage.getItem("lang") || "en");
+
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    document.documentElement.lang = lang;
+    document.title = META_TITLES[lang] ?? META_TITLES.en;
+    const desc = document.querySelector('meta[name="description"]');
+    if (desc) desc.setAttribute("content", META_DESCRIPTIONS[lang] ?? META_DESCRIPTIONS.en);
+    const ogLocale = document.querySelector('meta[property="og:locale"]');
+    if (ogLocale) ogLocale.setAttribute("content", lang === "tr" ? "tr_TR" : "en_US");
+  }, [lang]);
 
   const t = (key, params) => {
     const val = translations[lang][key] ?? key;
