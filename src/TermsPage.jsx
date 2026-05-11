@@ -23,12 +23,12 @@ const CONTENT = {
   en: {
     title: "Terms of Service",
     lastUpdated: "Last updated: May 10, 2026",
-    intro: "These Terms of Service govern your use of Moneto (\"Service\"), operated by Sercan Furunci (\"we\", \"us\"). By creating an account you agree to these terms.",
+    intro: "These Terms of Service govern your use of Birik (\"Service\"), operated by Sercan Furunci (\"we\", \"us\"). By creating an account you agree to these terms.",
     sections: [
       {
         h: "1. Eligibility",
         body: [
-          "You must be at least 13 years old to use Moneto. By registering, you confirm that you meet this requirement.",
+          "You must be at least 13 years old to use Birik. By registering, you confirm that you meet this requirement.",
         ],
       },
       {
@@ -42,7 +42,7 @@ const CONTENT = {
       {
         h: "3. Acceptable Use",
         body: [
-          "You may use Moneto only for lawful personal finance tracking. You agree not to:",
+          "You may use Birik only for lawful personal finance tracking. You agree not to:",
           "• Attempt to reverse-engineer, hack, or disrupt the Service or its infrastructure.",
           "• Upload malicious files, scripts, or content designed to harm other users or our systems.",
           "• Use the Service to store or process financial data of third parties without their consent.",
@@ -52,7 +52,7 @@ const CONTENT = {
       {
         h: "4. Data You Enter",
         body: [
-          "You retain ownership of all financial data you enter into Moneto. We do not claim any rights over your transactions, budgets, or goals.",
+          "You retain ownership of all financial data you enter into Birik. We do not claim any rights over your transactions, budgets, or goals.",
           "You grant us a limited license to store and process your data solely to provide the Service to you.",
         ],
       },
@@ -66,20 +66,20 @@ const CONTENT = {
       {
         h: "6. Subscription Reminders & Emails",
         body: [
-          "By registering, you consent to receiving transactional emails from Moneto, including account verification, password reset, and optional subscription bill reminders you configure.",
+          "By registering, you consent to receiving transactional emails from Birik, including account verification, password reset, and optional subscription bill reminders you configure.",
           "You can disable bill reminder emails at any time by removing the reminder setting from each subscription inside the app.",
         ],
       },
       {
         h: "7. Service Availability",
         body: [
-          "We aim to keep Moneto available at all times but do not guarantee uninterrupted access. We may perform maintenance, apply updates, or temporarily suspend the Service without prior notice.",
+          "We aim to keep Birik available at all times but do not guarantee uninterrupted access. We may perform maintenance, apply updates, or temporarily suspend the Service without prior notice.",
         ],
       },
       {
         h: "8. Disclaimer of Warranties",
         body: [
-          "Moneto is provided \"as is\" without warranties of any kind. We are not financial advisors. Nothing in the Service constitutes financial, tax, or investment advice.",
+          "Birik is provided \"as is\" without warranties of any kind. We are not financial advisors. Nothing in the Service constitutes financial, tax, or investment advice.",
           "We are not liable for decisions you make based on data displayed in the app.",
         ],
       },
@@ -114,12 +114,12 @@ const CONTENT = {
   tr: {
     title: "Kullanım Koşulları",
     lastUpdated: "Son güncelleme: 10 Mayıs 2026",
-    intro: "Bu Kullanım Koşulları, Sercan Furunci (\"biz\", \"bizim\") tarafından işletilen Moneto'yu (\"Hizmet\") kullanımınızı düzenler. Hesap oluşturarak bu koşulları kabul etmiş sayılırsınız.",
+    intro: "Bu Kullanım Koşulları, Sercan Furunci (\"biz\", \"bizim\") tarafından işletilen Birik'yu (\"Hizmet\") kullanımınızı düzenler. Hesap oluşturarak bu koşulları kabul etmiş sayılırsınız.",
     sections: [
       {
         h: "1. Uygunluk",
         body: [
-          "Moneto'yu kullanabilmek için en az 13 yaşında olmanız gerekir. Kayıt olarak bu şartı karşıladığınızı onaylamış olursunuz.",
+          "Birik'yu kullanabilmek için en az 13 yaşında olmanız gerekir. Kayıt olarak bu şartı karşıladığınızı onaylamış olursunuz.",
         ],
       },
       {
@@ -133,7 +133,7 @@ const CONTENT = {
       {
         h: "3. Kabul Edilebilir Kullanım",
         body: [
-          "Moneto'yu yalnızca yasal kişisel finans takibi için kullanabilirsiniz. Aşağıdakileri yapmamayı kabul edersiniz:",
+          "Birik'yu yalnızca yasal kişisel finans takibi için kullanabilirsiniz. Aşağıdakileri yapmamayı kabul edersiniz:",
           "• Hizmeti veya altyapısını tersine mühendislik, hackleme veya kesintiye uğratma girişiminde bulunmak.",
           "• Diğer kullanıcılara veya sistemlerimize zarar vermek amacıyla kötü amaçlı dosya, komut dosyası veya içerik yüklemek.",
           "• Üçüncü kişilerin finansal verilerini rızaları olmadan işlemek için Hizmeti kullanmak.",
@@ -143,7 +143,7 @@ const CONTENT = {
       {
         h: "4. Girdiğiniz Veriler",
         body: [
-          "Moneto'ya girdiğiniz tüm finansal verilerin mülkiyeti size aittir. İşlemleriniz, bütçeleriniz veya hedefleriniz üzerinde herhangi bir hak talep etmiyoruz.",
+          "Birik'ya girdiğiniz tüm finansal verilerin mülkiyeti size aittir. İşlemleriniz, bütçeleriniz veya hedefleriniz üzerinde herhangi bir hak talep etmiyoruz.",
           "Size Hizmeti sunmak amacıyla verilerinizi depolamak ve işlemek için bize sınırlı bir lisans vermiş olursunuz.",
         ],
       },
@@ -157,20 +157,20 @@ const CONTENT = {
       {
         h: "6. Abonelik Hatırlatıcıları ve E-postalar",
         body: [
-          "Kayıt olarak Moneto'dan işlem e-postaları almayı kabul etmiş olursunuz; bunlar arasında hesap doğrulama, şifre sıfırlama ve uygulama içinde yapılandırdığınız isteğe bağlı abonelik fatura hatırlatıcıları yer alır.",
+          "Kayıt olarak Birik'dan işlem e-postaları almayı kabul etmiş olursunuz; bunlar arasında hesap doğrulama, şifre sıfırlama ve uygulama içinde yapılandırdığınız isteğe bağlı abonelik fatura hatırlatıcıları yer alır.",
           "Fatura hatırlatıcısı e-postalarını, uygulama içinden ilgili aboneliğin hatırlatıcı ayarını kaldırarak istediğiniz zaman devre dışı bırakabilirsiniz.",
         ],
       },
       {
         h: "7. Hizmet Erişilebilirliği",
         body: [
-          "Moneto'yu her zaman erişilebilir tutmayı hedefliyoruz ancak kesintisiz erişimi garanti etmiyoruz. Önceden bildirimde bulunmaksızın bakım yapabilir, güncellemeler uygulayabilir veya Hizmeti geçici olarak askıya alabiliriz.",
+          "Birik'yu her zaman erişilebilir tutmayı hedefliyoruz ancak kesintisiz erişimi garanti etmiyoruz. Önceden bildirimde bulunmaksızın bakım yapabilir, güncellemeler uygulayabilir veya Hizmeti geçici olarak askıya alabiliriz.",
         ],
       },
       {
         h: "8. Garanti Reddi",
         body: [
-          "Moneto, herhangi bir garanti olmaksızın \"olduğu gibi\" sunulmaktadır. Finansal danışman değiliz. Hizmet içindeki hiçbir şey finansal, vergi veya yatırım tavsiyesi niteliği taşımaz.",
+          "Birik, herhangi bir garanti olmaksızın \"olduğu gibi\" sunulmaktadır. Finansal danışman değiliz. Hizmet içindeki hiçbir şey finansal, vergi veya yatırım tavsiyesi niteliği taşımaz.",
           "Uygulamada gösterilen verilere dayanarak verdiğiniz kararlardan sorumlu değiliz.",
         ],
       },
@@ -235,11 +235,13 @@ function TermsPage({ isDark, toggleDark, onBack }) {
 
       <article className="max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-12 anim-1">
         <div className="flex items-center gap-3 mb-3">
-          <svg className="moneto-logo shrink-0" width="40" height="40" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ borderRadius: 11 }}>
+          <svg className="birik-logo shrink-0" width="40" height="40" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ borderRadius: 11 }}>
             <rect width="128" height="128" rx="28" fill="#111111"/>
-            <path d="M32 88V40L64 72L96 40V88" stroke="white" strokeWidth="10" strokeLinecap="round" strokeLinejoin="round"/>
+            <rect x="28" y="82" width="36" height="20" rx="5" fill="white"/>
+            <rect x="28" y="54" width="56" height="20" rx="5" fill="white"/>
+            <rect x="28" y="26" width="76" height="20" rx="5" fill="white"/>
           </svg>
-          <span className="fin-serif text-lg" style={{ color: "var(--text-2)" }}>Moneto</span>
+          <span className="fin-serif text-lg" style={{ color: "var(--text-2)" }}>Birik</span>
         </div>
         <h1 className="fin-serif text-3xl sm:text-4xl mb-2" style={{ color: "var(--text-1)" }}>
           {c.title}
@@ -267,7 +269,7 @@ function TermsPage({ isDark, toggleDark, onBack }) {
 
         <div className="mt-12 pt-6" style={{ borderTop: "1px solid var(--border)" }}>
           <p className="text-xs" style={{ color: "var(--text-3)" }}>
-            © {new Date().getFullYear()} Moneto · furunci.tech
+            © {new Date().getFullYear()} Birik · furunci.tech
           </p>
         </div>
       </article>

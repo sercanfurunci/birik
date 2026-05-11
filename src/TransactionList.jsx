@@ -97,7 +97,7 @@ function downloadCsv(transactions, t, symbol) {
   const fmt2 = (n) => n.toFixed(2);
 
   const summary = [
-    ["Moneto Export", stamp],
+    ["Birik Export", stamp],
     ["Date Range", dateRange],
     ["Currency", symbol],
     [""],
@@ -126,7 +126,7 @@ function downloadCsv(transactions, t, symbol) {
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.download = `moneto-${stamp}.csv`;
+  link.download = `birik-${stamp}.csv`;
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);

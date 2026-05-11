@@ -97,9 +97,11 @@ function LoginPage({ onSuccess, onSwitch, onForgotPassword, onBack, isDark, togg
       <div className="w-full max-w-sm anim-1">
         {/* Brand mark */}
         <div className="flex flex-col items-center mb-8">
-          <svg className="moneto-logo mb-4" width="48" height="48" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ borderRadius: 14 }}>
+          <svg className="birik-logo mb-4" width="48" height="48" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ borderRadius: 14 }}>
             <rect width="128" height="128" rx="28" fill="#111111"/>
-            <path d="M32 88V40L64 72L96 40V88" stroke="white" strokeWidth="10" strokeLinecap="round" strokeLinejoin="round"/>
+            <rect x="28" y="82" width="36" height="20" rx="5" fill="white"/>
+            <rect x="28" y="54" width="56" height="20" rx="5" fill="white"/>
+            <rect x="28" y="26" width="76" height="20" rx="5" fill="white"/>
           </svg>
           <h1 className="fin-serif text-2xl" style={{ color: "var(--text-1)" }}>{t("appName")}</h1>
           <p className="text-sm mt-1" style={{ color: "var(--text-3)" }}>{t("appSubtitle")}</p>

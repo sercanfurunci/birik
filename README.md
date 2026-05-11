@@ -1,4 +1,4 @@
-# Moneto
+# Birik
 
 A full-stack personal finance app to track income and expenses, manage budgets and subscriptions, set savings goals, and import bank statements with AI — with multi-currency support and a clean bilingual UI.
 

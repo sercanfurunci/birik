@@ -1,6 +1,6 @@
 {
-  "name": "Moneto — Personal Finance Tracker",
-  "short_name": "Moneto",
+  "name": "Birik — Personal Finance Tracker",
+  "short_name": "Birik",
   "description": "Free expense tracker with AI bank statement import. Track income, expenses, budgets, subscriptions, and savings goals.",
   "start_url": "/",
   "scope": "/",
@@ -12,7 +12,7 @@
   "categories": ["finance", "productivity", "lifestyle"],
   "icons": [
     {
-      "src": "/moneto.svg",
+      "src": "/birik.svg",
       "type": "image/svg+xml",
       "sizes": "any",
       "purpose": "any maskable"

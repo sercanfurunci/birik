@@ -23,7 +23,7 @@ const CONTENT = {
   en: {
     title: "Privacy Policy",
     lastUpdated: "Last updated: May 8, 2026",
-    intro: "Moneto (\"we\", \"us\", \"our\") respects your privacy. This policy explains what data we collect, how we use it, and your rights.",
+    intro: "Birik (\"we\", \"us\", \"our\") respects your privacy. This policy explains what data we collect, how we use it, and your rights.",
     sections: [
       {
         h: "1. Data We Collect",
@@ -81,7 +81,7 @@ const CONTENT = {
       {
         h: "7. Children",
         body: [
-          "Moneto is not intended for users under 13. We do not knowingly collect data from children. If you believe a child has registered, contact us and we will delete the account.",
+          "Birik is not intended for users under 13. We do not knowingly collect data from children. If you believe a child has registered, contact us and we will delete the account.",
         ],
       },
       {
@@ -108,7 +108,7 @@ const CONTENT = {
   tr: {
     title: "Gizlilik Politikası",
     lastUpdated: "Son güncelleme: 8 Mayıs 2026",
-    intro: "Moneto (\"biz\", \"bizim\") gizliliğinize saygı duyar. Bu politika, hangi verileri topladığımızı, nasıl kullandığımızı ve haklarınızı açıklar.",
+    intro: "Birik (\"biz\", \"bizim\") gizliliğinize saygı duyar. Bu politika, hangi verileri topladığımızı, nasıl kullandığımızı ve haklarınızı açıklar.",
     sections: [
       {
         h: "1. Topladığımız Veriler",
@@ -166,7 +166,7 @@ const CONTENT = {
       {
         h: "7. Çocuklar",
         body: [
-          "Moneto 13 yaş altı kullanıcılar için tasarlanmamıştır. Çocuklardan bilerek veri toplamayız. Bir çocuğun kayıt olduğunu düşünüyorsanız bize ulaşın, hesabı sileriz.",
+          "Birik 13 yaş altı kullanıcılar için tasarlanmamıştır. Çocuklardan bilerek veri toplamayız. Bir çocuğun kayıt olduğunu düşünüyorsanız bize ulaşın, hesabı sileriz.",
         ],
       },
       {
@@ -225,11 +225,13 @@ function PrivacyPage({ isDark, toggleDark, onBack }) {
       {/* Content */}
       <article className="max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-12 anim-1">
         <div className="flex items-center gap-3 mb-3">
-          <svg className="moneto-logo shrink-0" width="40" height="40" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ borderRadius: 11 }}>
+          <svg className="birik-logo shrink-0" width="40" height="40" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ borderRadius: 11 }}>
             <rect width="128" height="128" rx="28" fill="#111111"/>
-            <path d="M32 88V40L64 72L96 40V88" stroke="white" strokeWidth="10" strokeLinecap="round" strokeLinejoin="round"/>
+            <rect x="28" y="82" width="36" height="20" rx="5" fill="white"/>
+            <rect x="28" y="54" width="56" height="20" rx="5" fill="white"/>
+            <rect x="28" y="26" width="76" height="20" rx="5" fill="white"/>
           </svg>
-          <span className="fin-serif text-lg" style={{ color: "var(--text-2)" }}>Moneto</span>
+          <span className="fin-serif text-lg" style={{ color: "var(--text-2)" }}>Birik</span>
         </div>
         <h1 className="fin-serif text-3xl sm:text-4xl mb-2" style={{ color: "var(--text-1)" }}>
           {c.title}
@@ -257,7 +259,7 @@ function PrivacyPage({ isDark, toggleDark, onBack }) {
 
         <div className="mt-12 pt-6" style={{ borderTop: "1px solid var(--border)" }}>
           <p className="text-xs" style={{ color: "var(--text-3)" }}>
-            © {new Date().getFullYear()} Moneto · furunci.tech
+            © {new Date().getFullYear()} Birik · furunci.tech
           </p>
         </div>
       </article>

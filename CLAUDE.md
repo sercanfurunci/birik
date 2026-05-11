@@ -17,7 +17,7 @@ node src/backend/server.js   # Run backend locally on port 3000
 
 ## Architecture
 
-Full-stack personal finance app called **Moneto**. React 19 + Vite frontend, Express + PostgreSQL (Neon) backend.
+Full-stack personal finance app called **Birik**. React 19 + Vite frontend, Express + PostgreSQL (Neon) backend.
 
 ### Deployment
 
@@ -199,7 +199,7 @@ Tailwind CSS v4 + custom classes in `src/App.css`:
 - `.fin-btn-primary`, `.fin-icon-btn`, `.fin-input`, `.fin-select`
 - `.anim-1` through `.anim-5` — staggered fade-up entrance animations
 - `.tx-row` / `.tx-card-row` — transaction row with colored left accent bar
-- `.moneto-logo` — animated M-logo with `drawM` SVG draw-on-load + `logoPulse` hover
+- `.birik-logo` — animated brick-stack logo with staggered `brickSlide` on load + `logoPulse` hover
 
 Body background uses two radial gradients (brand-tinted top-left + warm gold bottom-right) over `--bg` for atmospheric depth. Shadow tokens: `--shadow-sm`, `--shadow-md`, `--shadow-lg` (separately tuned for light/dark).
 
@@ -307,6 +307,6 @@ Beyond type + category filter pills, the list supports:
 
 ### Branding
 
-- Name: **Moneto** (formerly "Finance Tracker"). Strings come from `i18n.jsx` `appName` key.
-- Logo: animated M-mark at `public/moneto.svg` (also inlined in `App.jsx`, `LandingPage.jsx`, `LoginPage.jsx`, `RegisterPage.jsx`). The `.moneto-logo` class drives stroke-draw on load + pulse-glow on hover.
-- Favicon: `/moneto.svg`
+- Name: **Birik** (formerly "Finance Tracker"). Strings come from `i18n.jsx` `appName` key.
+- Logo: animated M-mark at `public/birik.svg` (also inlined in `App.jsx`, `LandingPage.jsx`, `LoginPage.jsx`, `RegisterPage.jsx`). The `.birik-logo` class drives stroke-draw on load + pulse-glow on hover.
+- Favicon: `/birik.svg`

@@ -2,7 +2,7 @@ import { createContext, useContext, useState, useEffect } from "react";
 
 const translations = {
   en: {
-    appName: "Moneto",
+    appName: "Birik",
     appSubtitle: "Keep tabs on your income and expenses",
     signOut: "Sign out",
     dateLocale: "en-US",
@@ -384,7 +384,7 @@ const translations = {
   },
 
   tr: {
-    appName: "Moneto",
+    appName: "Birik",
     appSubtitle: "Gelir ve giderlerinizi takip edin",
     signOut: "Çıkış yap",
     dateLocale: "tr-TR",
@@ -767,12 +767,12 @@ const translations = {
 const LangContext = createContext();
 
 const META_DESCRIPTIONS = {
-  en: "Moneto is a free personal finance app to track income, expenses, budgets, savings goals, and subscriptions. Import bank statements with AI in seconds.",
-  tr: "Moneto, gelir ve giderlerinizi, bütçelerinizi, tasarruf hedeflerinizi ve aboneliklerinizi takip eden ücretsiz kişisel finans uygulamasıdır. Banka ekstrenizi saniyeler içinde yapay zekâyla içe aktarın.",
+  en: "Birik is a free personal finance app to track income, expenses, budgets, savings goals, and subscriptions. Import bank statements with AI in seconds.",
+  tr: "Birik; gelir ve giderlerinizi, bütçelerinizi, tasarruf hedeflerinizi ve aboneliklerinizi takip eden ücretsiz kişisel finans uygulamasıdır. Banka ekstrenizi saniyeler içinde yapay zekâyla içe aktarın.",
 };
 const META_TITLES = {
-  en: "Moneto — Free expense tracker with AI bank statement import",
-  tr: "Moneto — Yapay zekâlı banka ekstresi içe aktarımlı ücretsiz harcama takipçisi",
+  en: "Birik — Free expense tracker with AI bank statement import",
+  tr: "Birik — Yapay zekâlı banka ekstresi içe aktarımlı ücretsiz harcama takipçisi",
 };
 
 export function LangProvider({ children }) {

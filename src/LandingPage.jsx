@@ -38,7 +38,7 @@ function AppPreview({ sym, t }) {
     <div className="fin-card rounded-2xl overflow-hidden" style={{ maxWidth: 300, width: "100%" }}>
       {/* Title bar */}
       <div className="px-4 py-3 flex items-center justify-between" style={{ borderBottom: "1px solid var(--border)" }}>
-        <span className="fin-serif text-sm" style={{ color: "var(--text-1)" }}>Moneto</span>
+        <span className="fin-serif text-sm" style={{ color: "var(--text-1)" }}>Birik</span>
         <div className="flex gap-1">
           {["#FF5F57","#FEBC2E","#28C840"].map(c => (
             <div key={c} style={{ width: 8, height: 8, borderRadius: "50%", backgroundColor: c, opacity: 0.7 }} />
@@ -173,9 +173,11 @@ function LandingPage({ onGetStarted, onSignIn, isDark, toggleDark }) {
       <header style={{ borderBottom: "1px solid var(--border)" }}>
         <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <svg className="moneto-logo shrink-0" width="34" height="34" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ borderRadius: 9 }}>
+            <svg className="birik-logo shrink-0" width="34" height="34" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ borderRadius: 9 }}>
               <rect width="128" height="128" rx="28" fill="#111111"/>
-              <path d="M32 88V40L64 72L96 40V88" stroke="white" strokeWidth="10" strokeLinecap="round" strokeLinejoin="round"/>
+              <rect x="28" y="82" width="36" height="20" rx="5" fill="white"/>
+              <rect x="28" y="54" width="56" height="20" rx="5" fill="white"/>
+              <rect x="28" y="26" width="76" height="20" rx="5" fill="white"/>
             </svg>
             <span className="fin-serif text-base" style={{ color: "var(--text-1)" }}>{t("appName")}</span>
           </div>

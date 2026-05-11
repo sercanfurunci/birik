@@ -353,9 +353,11 @@ function App() {
         <header className="mb-6 anim-1">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3 min-w-0">
-              <svg className="moneto-logo shrink-0" width="36" height="36" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ borderRadius: 10 }}>
+              <svg className="birik-logo shrink-0" width="36" height="36" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ borderRadius: 10 }}>
                 <rect width="128" height="128" rx="28" fill="#111111"/>
-                <path d="M32 88V40L64 72L96 40V88" stroke="white" strokeWidth="10" strokeLinecap="round" strokeLinejoin="round"/>
+                <rect x="28" y="82" width="36" height="20" rx="5" fill="white"/>
+                <rect x="28" y="54" width="56" height="20" rx="5" fill="white"/>
+                <rect x="28" y="26" width="76" height="20" rx="5" fill="white"/>
               </svg>
               <div className="min-w-0">
                 <h1 className="fin-serif text-xl sm:text-2xl leading-tight truncate" style={{ color: "var(--text-1)" }}>
@@ -452,7 +454,7 @@ function App() {
 
       {/* ── Footer ── */}
       <footer className="hidden sm:flex items-center justify-between max-w-6xl w-full mx-auto px-4 sm:px-6 py-4 text-xs mt-auto" style={{ borderTop: "1px solid var(--border)", color: "var(--text-3)" }}>
-        <span>© {new Date().getFullYear()} Moneto</span>
+        <span>© {new Date().getFullYear()} Birik</span>
         <div className="flex items-center gap-4">
           <button onClick={() => setAuthPage("terms")} className="hover:opacity-70 transition-opacity">{t("termsOfService")}</button>
           <span style={{ color: "var(--border-2)" }}>·</span>
