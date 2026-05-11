@@ -82,7 +82,6 @@ const SERVICE_DOMAIN = {
   "grammarly": "grammarly.com",
   "todoist": "todoist.com",
   "evernote": "evernote.com",
-  "dropbox": "dropbox.com",
   "twitch": "twitch.tv",
   "steam": "store.steampowered.com",
   "playstation": "playstation.com",

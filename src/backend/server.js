@@ -270,6 +270,24 @@ const VALID_CURRENCIES       = new Set(["USD", "EUR", "GBP", "TRY", "JPY", "CAD"
 const VALID_BILLING_CYCLES   = new Set(["weekly", "monthly", "yearly"]);
 const VALID_SUB_CATEGORIES   = new Set(["ai", "entertainment", "music", "finance", "productivity", "health", "news", "other"]);
 
+// Categories include the base set plus the user's saved custom_categories.
+async function isCategoryAllowedForUser(userId, category) {
+  if (!category) return false;
+  if (VALID_CATEGORIES.has(category)) return true;
+  try {
+    const { rows } = await pool.query(
+      "SELECT custom_categories FROM users WHERE id = $1",
+      [userId]
+    );
+    const list = rows[0]?.custom_categories;
+    if (!Array.isArray(list)) return false;
+    return list.some(c => c && typeof c === "object" && c.id === category);
+  } catch (err) {
+    console.error("isCategoryAllowedForUser:", err);
+    return false;
+  }
+}
+
 function trimStr(val, maxLen) {
   if (typeof val !== "string") return null;
   const s = val.trim();
@@ -934,7 +952,7 @@ app.post("/transactions", authMiddleware, async (req, res) => {
 
   if (amount === null)                               return res.status(400).json({ error: "Amount must be a positive number under 1 billion" });
   if (!type || !VALID_TYPES.has(type))               return res.status(400).json({ error: "Type must be 'income' or 'expense'" });
-  if (!category || !VALID_CATEGORIES.has(category)) return res.status(400).json({ error: "Invalid category" });
+  if (!(await isCategoryAllowedForUser(req.user.id, category))) return res.status(400).json({ error: "Invalid category" });
   if (!date)                                         return res.status(400).json({ error: "Valid date required" });
 
   try {
@@ -960,7 +978,7 @@ app.put("/transactions/:id", authMiddleware, async (req, res) => {
   if (!id)                                           return res.status(400).json({ error: "Invalid transaction ID" });
   if (amount === null)                               return res.status(400).json({ error: "Amount must be a positive number under 1 billion" });
   if (!type || !VALID_TYPES.has(type))               return res.status(400).json({ error: "Type must be 'income' or 'expense'" });
-  if (!category || !VALID_CATEGORIES.has(category)) return res.status(400).json({ error: "Invalid category" });
+  if (!(await isCategoryAllowedForUser(req.user.id, category))) return res.status(400).json({ error: "Invalid category" });
 
   try {
     const result = await pool.query(
@@ -1219,7 +1237,7 @@ app.post("/recurring", authMiddleware, async (req, res) => {
 
   if (amount === null)                                    return res.status(400).json({ error: "Amount must be a positive number under 1 billion" });
   if (!type || !VALID_TYPES.has(type))                    return res.status(400).json({ error: "Type must be 'income' or 'expense'" });
-  if (!category || !VALID_CATEGORIES.has(category))       return res.status(400).json({ error: "Invalid category" });
+  if (!(await isCategoryAllowedForUser(req.user.id, category))) return res.status(400).json({ error: "Invalid category" });
   if (!frequency || !VALID_FREQUENCIES.has(frequency))    return res.status(400).json({ error: "Invalid frequency" });
   if (!start_date)                                        return res.status(400).json({ error: "Valid start_date required" });
   if (req.body.end_date && !end_date)                     return res.status(400).json({ error: "Invalid end_date" });
@@ -1254,7 +1272,7 @@ app.put("/recurring/:id", authMiddleware, async (req, res) => {
 
   if (amount === null)                                    return res.status(400).json({ error: "Amount must be a positive number under 1 billion" });
   if (!type || !VALID_TYPES.has(type))                    return res.status(400).json({ error: "Type must be 'income' or 'expense'" });
-  if (!category || !VALID_CATEGORIES.has(category))       return res.status(400).json({ error: "Invalid category" });
+  if (!(await isCategoryAllowedForUser(req.user.id, category))) return res.status(400).json({ error: "Invalid category" });
   if (!frequency || !VALID_FREQUENCIES.has(frequency))    return res.status(400).json({ error: "Invalid frequency" });
   if (!start_date)                                        return res.status(400).json({ error: "Valid start_date required" });
 
@@ -1647,6 +1665,15 @@ app.post("/transactions/import/bulk", authMiddleware, async (req, res) => {
     return res.status(400).json({ error: "Too many transactions in one import (max 500)" });
   }
   try {
+    const { rows: userRows } = await pool.query(
+      "SELECT custom_categories FROM users WHERE id = $1",
+      [req.user.id]
+    );
+    const customIds = Array.isArray(userRows[0]?.custom_categories)
+      ? userRows[0].custom_categories.map(c => c?.id).filter(Boolean)
+      : [];
+    const allowedCategories = new Set([...VALID_CATEGORIES, ...customIds]);
+
     for (const tx of transactions) {
       const description = trimStr(tx.description, 500) ?? "";
       const amount      = Math.abs(Number(tx.amount)) || 0;
@@ -1654,8 +1681,8 @@ app.post("/transactions/import/bulk", authMiddleware, async (req, res) => {
       const category    = trimStr(tx.category, 50);
       const date        = isValidDate(tx.date) ?? new Date().toISOString().split("T")[0];
 
-      if (!type || !VALID_TYPES.has(type))               continue;
-      if (!category || !VALID_CATEGORIES.has(category))  continue;
+      if (!type || !VALID_TYPES.has(type))           continue;
+      if (!category || !allowedCategories.has(category)) continue;
 
       await pool.query(
         `INSERT INTO transactions (description, amount, type, category, date, user_id)
@@ -1689,7 +1716,7 @@ app.put("/budgets", authMiddleware, async (req, res) => {
   const category = trimStr(req.body.category, 50);
   const amount   = isValidAmount(req.body.amount);
 
-  if (!category || !VALID_CATEGORIES.has(category)) return res.status(400).json({ error: "Invalid category" });
+  if (!(await isCategoryAllowedForUser(req.user.id, category))) return res.status(400).json({ error: "Invalid category" });
   if (amount === null) return res.status(400).json({ error: "Amount must be a positive number under 1 billion" });
 
   try {

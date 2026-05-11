@@ -33,7 +33,7 @@ function Summary({ transactions }) {
           {!isPositive && "−"}{symbol}{fmt(Math.abs(balance))}
         </p>
         <p className="text-xs mt-2" style={{ color: "var(--text-3)" }}>
-          {transactions.length} {transactions.length === 1 ? "transaction" : "transactions"} recorded
+          {t("transactionsRecorded", { count: transactions.length })}
         </p>
         <div className="fin-bar" style={{ background: isPositive ? "var(--gold)" : "var(--red)" }} />
       </div>

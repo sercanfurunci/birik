@@ -184,6 +184,12 @@ const translations = {
     statVsLastMonth: "vs Last Month",
     statSpending: "spending",
     statThisMonth: "This Month",
+    transactionsRecorded: ({ count }) =>
+      `${count} ${count === 1 ? "transaction" : "transactions"} recorded`,
+    expensesTotal: ({ count }) =>
+      `${count} ${count === 1 ? "expense" : "expenses"} total`,
+    incomeExpensesCount: ({ income, expenses }) =>
+      `${income} ${income === 1 ? "income" : "income"} · ${expenses} ${expenses === 1 ? "expense" : "expenses"}`,
 
     // Analytics
     noTransactionsAnalytics: "Add transactions to see analytics",
@@ -560,6 +566,10 @@ const translations = {
     statVsLastMonth: "Geçen Aya Göre",
     statSpending: "harcama",
     statThisMonth: "Bu Ay",
+    transactionsRecorded: ({ count }) => `${count} işlem kaydedildi`,
+    expensesTotal: ({ count }) => `toplam ${count} gider`,
+    incomeExpensesCount: ({ income, expenses }) =>
+      `${income} gelir · ${expenses} gider`,
 
     // Analytics
     noTransactionsAnalytics: "Analiz görmek için işlem ekleyin",

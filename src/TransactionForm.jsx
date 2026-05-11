@@ -6,7 +6,7 @@ import Recurring from "./Recurring.jsx";
 
 function TransactionForm({ onAdd, onRefresh }) {
   const { t } = useLang();
-  const { allCats, addCat, getCatColor } = useCategories();
+  const { expenseCats, addCat, getCatColor } = useCategories();
 
   const [showImport, setShowImport] = useState(false);
   const [showRecurring, setShowRecurring] = useState(false);
@@ -18,9 +18,18 @@ function TransactionForm({ onAdd, onRefresh }) {
   const [type, setType] = useState("expense");
   const [category, setCategory] = useState("food");
 
+  const categoryOptions = type === "income" ? ["salary"] : expenseCats;
+
+  function switchType(nextType) {
+    if (nextType === type) return;
+    setType(nextType);
+    setCategory(nextType === "income" ? "salary" : "food");
+  }
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!amount) return;
+    const amt = Number(amount);
+    if (!Number.isFinite(amt) || amt <= 0) return;
     onAdd({ description, amount, type, category, date: new Date().toISOString().split("T")[0] });
     setDescription("");
     setAmount("");
@@ -99,10 +108,10 @@ function TransactionForm({ onAdd, onRefresh }) {
           <div className="space-y-1.5">
             <label className="fin-label">{t("type")}</label>
             <div className="type-toggle w-full">
-              <button type="button" onClick={() => setType("income")} className={`type-btn flex-1 ${type === "income" ? "active-income" : ""}`}>
+              <button type="button" onClick={() => switchType("income")} className={`type-btn flex-1 ${type === "income" ? "active-income" : ""}`}>
                 + {t("incomeOption")}
               </button>
-              <button type="button" onClick={() => setType("expense")} className={`type-btn flex-1 ${type === "expense" ? "active-expense" : ""}`}>
+              <button type="button" onClick={() => switchType("expense")} className={`type-btn flex-1 ${type === "expense" ? "active-expense" : ""}`}>
                 − {t("expenseOption")}
               </button>
             </div>
@@ -149,7 +158,7 @@ function TransactionForm({ onAdd, onRefresh }) {
                   className="fin-select w-full appearance-none"
                   style={{ paddingLeft: "2rem" }}
                 >
-                  {allCats.map((cat) => (
+                  {categoryOptions.map((cat) => (
                     <option key={cat} value={cat}>
                       {t(cat)}
                     </option>

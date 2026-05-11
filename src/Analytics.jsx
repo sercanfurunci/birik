@@ -157,8 +157,8 @@ function Analytics({ transactions }) {
 
   const dayCount = [0, 0, 0, 0, 0, 0, 0];
   filtered.forEach(tx => { dayCount[new Date(txDate(tx.date)).getDay()]++; });
-  const busiestDayIdx = dayCount.indexOf(Math.max(...dayCount));
-  const busiestDay = DAYS[busiestDayIdx];
+  const maxDayCount = Math.max(...dayCount);
+  const busiestDay = maxDayCount > 0 ? DAYS[dayCount.indexOf(maxDayCount)] : null;
 
   const biggestExpense = expenses.length > 0 ? Math.max(...expenses.map(tx => parseFloat(tx.amount))) : 0;
 
@@ -244,17 +244,17 @@ function Analytics({ transactions }) {
         <StatCard
           label={t("avgExpense")}
           value={`${symbol}${fmt(avgExpense)}`}
-          sub={`${expenses.length} expenses total`}
+          sub={t("expensesTotal", { count: expenses.length })}
         />
         <StatCard
           label={t("busiestDay")}
-          value={busiestDay.slice(0, 3)}
-          sub={busiestDay}
+          value={busiestDay ? busiestDay.slice(0, 3) : "—"}
+          sub={busiestDay ?? ""}
         />
         <StatCard
           label={t("transactions")}
           value={filtered.length}
-          sub={`${income.length} income · ${expenses.length} expenses`}
+          sub={t("incomeExpensesCount", { income: income.length, expenses: expenses.length })}
         />
         <StatCard
           label={t("biggestExpense")}

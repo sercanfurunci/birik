@@ -352,13 +352,28 @@ export default function Goals({ showToast }) {
             </p>
           )}
         </div>
-        <button onClick={() => setShowForm(true)} className="fin-btn-primary flex items-center gap-2">
+        <button
+          onClick={() => setShowForm(true)}
+          className="hidden sm:flex fin-btn-primary items-center gap-2"
+        >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
             <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
           </svg>
           {t("goalAdd")}
         </button>
       </div>
+
+      {/* Mobile FAB */}
+      <button
+        onClick={() => setShowForm(true)}
+        className="sm:hidden fixed bottom-20 right-4 w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-transform active:scale-95 cursor-pointer z-30"
+        style={{ backgroundColor: "var(--brand)", color: "white" }}
+        aria-label={t("goalAdd")}
+      >
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+          <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+        </svg>
+      </button>
 
       {loading ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
