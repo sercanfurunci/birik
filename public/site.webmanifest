@@ -1,7 +1,7 @@
 {
-  "name": "Birik — Personal Finance Tracker",
+  "name": "Birik — Build your savings",
   "short_name": "Birik",
-  "description": "Free expense tracker with AI bank statement import. Track income, expenses, budgets, subscriptions, and savings goals.",
+  "description": "Build your savings, brick by brick. Free expense tracker with AI bank statement import. Track income, expenses, budgets, subscriptions, and savings goals.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
@@ -16,6 +16,12 @@
       "type": "image/svg+xml",
       "sizes": "any",
       "purpose": "any maskable"
+    },
+    {
+      "src": "/birik-icon.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any"
     }
   ]
 }

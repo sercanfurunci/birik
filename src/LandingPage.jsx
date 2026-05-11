@@ -174,10 +174,12 @@ function LandingPage({ onGetStarted, onSignIn, isDark, toggleDark }) {
         <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <svg className="birik-logo shrink-0" width="34" height="34" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ borderRadius: 9 }}>
-              <rect width="128" height="128" rx="28" fill="#111111"/>
-              <rect x="28" y="82" width="36" height="20" rx="5" fill="white"/>
-              <rect x="28" y="54" width="56" height="20" rx="5" fill="white"/>
-              <rect x="28" y="26" width="76" height="20" rx="5" fill="white"/>
+              <rect width="128" height="128" rx="28" fill="#0D0D0D"/>
+              <path d="M30 28 H70 Q90 28 90 46 Q90 64 70 64 H30 Z" fill="#10B981"/>
+              <path d="M30 64 H74 Q96 64 96 82 Q96 100 74 100 H30 Z" fill="#10B981"/>
+              <circle cx="40" cy="22" r="3.5" fill="#10B981"/>
+              <circle cx="60" cy="22" r="3.5" fill="#10B981"/>
+              <circle cx="80" cy="22" r="3.5" fill="#10B981"/>
             </svg>
             <span className="fin-serif text-base" style={{ color: "var(--text-1)" }}>{t("appName")}</span>
           </div>

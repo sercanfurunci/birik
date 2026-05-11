@@ -98,10 +98,12 @@ function LoginPage({ onSuccess, onSwitch, onForgotPassword, onBack, isDark, togg
         {/* Brand mark */}
         <div className="flex flex-col items-center mb-8">
           <svg className="birik-logo mb-4" width="48" height="48" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ borderRadius: 14 }}>
-            <rect width="128" height="128" rx="28" fill="#111111"/>
-            <rect x="28" y="82" width="36" height="20" rx="5" fill="white"/>
-            <rect x="28" y="54" width="56" height="20" rx="5" fill="white"/>
-            <rect x="28" y="26" width="76" height="20" rx="5" fill="white"/>
+            <rect width="128" height="128" rx="28" fill="#0D0D0D"/>
+            <path d="M30 28 H70 Q90 28 90 46 Q90 64 70 64 H30 Z" fill="#10B981"/>
+            <path d="M30 64 H74 Q96 64 96 82 Q96 100 74 100 H30 Z" fill="#10B981"/>
+            <circle cx="40" cy="22" r="3.5" fill="#10B981"/>
+            <circle cx="60" cy="22" r="3.5" fill="#10B981"/>
+            <circle cx="80" cy="22" r="3.5" fill="#10B981"/>
           </svg>
           <h1 className="fin-serif text-2xl" style={{ color: "var(--text-1)" }}>{t("appName")}</h1>
           <p className="text-sm mt-1" style={{ color: "var(--text-3)" }}>{t("appSubtitle")}</p>

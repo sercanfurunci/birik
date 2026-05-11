@@ -291,9 +291,10 @@ const translations = {
 
     // Landing
     landingTagline: "Free · No credit card needed",
-    landingHeadline1: "Know where your",
-    landingHeadline2: "money goes.",
-    landingSubtitle: "Log income and expenses, track subscriptions, and import bank statements with AI. Understand your money at a glance.",
+    landingHeadline1: "Build your",
+    landingHeadline2: "savings.",
+    landingSubtitle: "Log income and expenses, track subscriptions, and import bank statements with AI. Build your savings, brick by brick.",
+    slogan: "Build your savings.",
     landingGetStarted: "Create free account",
     landingSignIn: "Sign in",
     landingFeaturesLabel: "How it works",
@@ -671,9 +672,10 @@ const translations = {
 
     // Landing
     landingTagline: "Ücretsiz · Kredi kartı gerekmez",
-    landingHeadline1: "Paranızın nereye",
-    landingHeadline2: "gittiğini bilin.",
-    landingSubtitle: "Gelir ve gider ekleyin, abonelikleri takip edin, banka ekstrelerinizi yapay zeka ile içe aktarın. Paranızı tek bakışta anlayın.",
+    landingHeadline1: "Birikimini",
+    landingHeadline2: "inşa et.",
+    landingSubtitle: "Gelir ve gider ekleyin, abonelikleri takip edin, banka ekstrelerinizi yapay zekâyla içe aktarın. Birikimini tuğla tuğla inşa et.",
+    slogan: "Birikimini inşa et.",
     landingGetStarted: "Ücretsiz hesap oluştur",
     landingSignIn: "Giriş yap",
     landingFeaturesLabel: "Nasıl çalışır",
@@ -767,12 +769,12 @@ const translations = {
 const LangContext = createContext();
 
 const META_DESCRIPTIONS = {
-  en: "Birik is a free personal finance app to track income, expenses, budgets, savings goals, and subscriptions. Import bank statements with AI in seconds.",
-  tr: "Birik; gelir ve giderlerinizi, bütçelerinizi, tasarruf hedeflerinizi ve aboneliklerinizi takip eden ücretsiz kişisel finans uygulamasıdır. Banka ekstrenizi saniyeler içinde yapay zekâyla içe aktarın.",
+  en: "Build your savings, brick by brick. Birik is a free personal finance app to track income, expenses, budgets, savings goals, and subscriptions — with AI bank statement import.",
+  tr: "Birikimini tuğla tuğla inşa et. Birik; gelir ve giderlerinizi, bütçelerinizi, tasarruf hedeflerinizi ve aboneliklerinizi takip eden ücretsiz kişisel finans uygulamasıdır — yapay zekâlı banka ekstresi içe aktarımıyla.",
 };
 const META_TITLES = {
-  en: "Birik — Free expense tracker with AI bank statement import",
-  tr: "Birik — Yapay zekâlı banka ekstresi içe aktarımlı ücretsiz harcama takipçisi",
+  en: "Birik — Build your savings. Free expense tracker with AI bank statement import",
+  tr: "Birik — Birikimini inşa et. Yapay zekâlı banka ekstresi içe aktarımlı ücretsiz harcama takipçisi",
 };
 
 export function LangProvider({ children }) {
