@@ -439,16 +439,16 @@ app.post("/auth/register", async (req, res) => {
       to: email,
       subject: "Verify your email",
       html: `
-        <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px;background:#f8fafc;border-radius:16px;">
+        <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px;background:#F7F4ED;border-radius:16px;">
           <div style="text-align:center;margin-bottom:24px;">
-            <div style="display:inline-block;background:#7c3aed;color:#fff;font-size:22px;font-weight:bold;width:48px;height:48px;line-height:48px;border-radius:12px;">$</div>
+            <img src="https://furunci.tech/birik.png" width="48" height="48" alt="Birik" style="border-radius:12px;display:inline-block;"/>
             <h2 style="margin:12px 0 4px;color:#1e293b;">Birik</h2>
             <p style="color:#64748b;margin:0;font-size:14px;">Email Verification</p>
           </div>
-          <div style="background:#fff;border-radius:12px;padding:24px;border:1px solid #e2e8f0;">
+          <div style="background:#fff;border-radius:12px;padding:24px;border:1px solid #DDD8CE;">
             <p style="color:#334155;margin:0 0 20px;">Click the button below to verify your email address. This link expires in <strong>24 hours</strong>.</p>
-            <a href="${verifyUrl}" style="display:block;text-align:center;background:#7c3aed;color:#fff;text-decoration:none;padding:12px 24px;border-radius:10px;font-weight:600;font-size:15px;">Verify Email</a>
-            <p style="color:#94a3b8;font-size:12px;margin:16px 0 0;text-align:center;">Or copy this link:<br/><span style="color:#7c3aed;">${verifyUrl}</span></p>
+            <a href="${verifyUrl}" style="display:block;text-align:center;background:#37C978;color:#fff;text-decoration:none;padding:12px 24px;border-radius:10px;font-weight:600;font-size:15px;">Verify Email</a>
+            <p style="color:#94a3b8;font-size:12px;margin:16px 0 0;text-align:center;">Or copy this link:<br/><span style="color:#37C978;">${verifyUrl}</span></p>
           </div>
         </div>`,
     });
@@ -485,15 +485,16 @@ app.get("/auth/verify", async (req, res) => {
 });
 
 function verifyHtmlPage(message, success) {
-  const color = success ? "#10b981" : "#ef4444";
+  const color = success ? "#37C978" : "#E04F4F";
   const icon  = success ? "✓" : "✕";
   return `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Email Verification</title></head>
-  <body style="font-family:sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;background:#0f172a;">
-    <div style="text-align:center;background:#1e293b;border:1px solid #334155;border-radius:16px;padding:40px 48px;max-width:400px;">
+  <body style="font-family:sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;background:#0D0D0D;">
+    <div style="text-align:center;background:#15151A;border:1px solid #262630;border-radius:16px;padding:40px 48px;max-width:400px;">
+      <img src="https://furunci.tech/birik.png" width="48" height="48" alt="Birik" style="border-radius:12px;display:inline-block;margin-bottom:16px;"/>
       <div style="width:56px;height:56px;border-radius:50%;background:${color}22;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:24px;color:${color};">${icon}</div>
-      <div style="font-size:24px;font-weight:bold;color:#fff;margin-bottom:8px;">Birik</div>
-      <p style="color:#94a3b8;margin:0 0 24px;">${message}</p>
-      <a href="${FRONTEND_URL}" style="display:inline-block;background:#7c3aed;color:#fff;text-decoration:none;padding:10px 28px;border-radius:10px;font-weight:600;">Go to App</a>
+      <div style="font-size:20px;font-weight:bold;color:#F5F5F5;margin-bottom:8px;">Birik</div>
+      <p style="color:#A8A8B0;margin:0 0 24px;">${message}</p>
+      <a href="${FRONTEND_URL}" style="display:inline-block;background:#37C978;color:#fff;text-decoration:none;padding:10px 28px;border-radius:10px;font-weight:600;">Go to App</a>
     </div>
   </body></html>`;
 }
@@ -624,17 +625,17 @@ app.post("/auth/forgot-password", async (req, res) => {
       to: email,
       subject: "Reset your password",
       html: `
-        <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px;background:#f8fafc;border-radius:16px;">
+        <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px;background:#F7F4ED;border-radius:16px;">
           <div style="text-align:center;margin-bottom:24px;">
-            <div style="display:inline-block;background:#7c3aed;color:#fff;font-size:22px;font-weight:bold;width:48px;height:48px;line-height:48px;border-radius:12px;">$</div>
+            <img src="https://furunci.tech/birik.png" width="48" height="48" alt="Birik" style="border-radius:12px;display:inline-block;"/>
             <h2 style="margin:12px 0 4px;color:#1e293b;">Birik</h2>
             <p style="color:#64748b;margin:0;font-size:14px;">Password Reset</p>
           </div>
-          <div style="background:#fff;border-radius:12px;padding:24px;border:1px solid #e2e8f0;">
+          <div style="background:#fff;border-radius:12px;padding:24px;border:1px solid #DDD8CE;">
             <p style="color:#334155;margin:0 0 8px;">You requested a password reset. Click below to choose a new password. This link expires in <strong>1 hour</strong>.</p>
             <p style="color:#64748b;font-size:13px;margin:0 0 20px;">If you didn't request this, you can safely ignore this email.</p>
-            <a href="${resetUrl}" style="display:block;text-align:center;background:#7c3aed;color:#fff;text-decoration:none;padding:12px 24px;border-radius:10px;font-weight:600;font-size:15px;">Reset Password</a>
-            <p style="color:#94a3b8;font-size:12px;margin:16px 0 0;text-align:center;">Or copy this link:<br/><span style="color:#7c3aed;">${resetUrl}</span></p>
+            <a href="${resetUrl}" style="display:block;text-align:center;background:#37C978;color:#fff;text-decoration:none;padding:12px 24px;border-radius:10px;font-weight:600;font-size:15px;">Reset Password</a>
+            <p style="color:#94a3b8;font-size:12px;margin:16px 0 0;text-align:center;">Or copy this link:<br/><span style="color:#37C978;">${resetUrl}</span></p>
           </div>
         </div>`,
     });
@@ -881,14 +882,14 @@ app.post("/auth/link-email", authMiddleware, async (req, res) => {
       to: email,
       subject: "Link your email to Birik",
       html: `
-        <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px;background:#f8fafc;border-radius:16px;">
+        <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px;background:#F7F4ED;border-radius:16px;">
           <div style="text-align:center;margin-bottom:24px;">
-            <div style="display:inline-block;background:#7c3aed;color:#fff;font-size:22px;font-weight:bold;width:48px;height:48px;line-height:48px;border-radius:12px;">$</div>
+            <img src="https://furunci.tech/birik.png" width="48" height="48" alt="Birik" style="border-radius:12px;display:inline-block;"/>
             <h2 style="margin:12px 0 4px;color:#1e293b;">Birik</h2>
           </div>
-          <div style="background:#fff;border-radius:12px;padding:24px;border:1px solid #e2e8f0;">
+          <div style="background:#fff;border-radius:12px;padding:24px;border:1px solid #DDD8CE;">
             <p style="color:#334155;margin:0 0 20px;">Click below to link this email to your account. This link expires in <strong>24 hours</strong>.</p>
-            <a href="${verifyUrl}" style="display:block;text-align:center;background:#7c3aed;color:#fff;text-decoration:none;padding:12px 24px;border-radius:10px;font-weight:600;font-size:15px;">Link Email</a>
+            <a href="${verifyUrl}" style="display:block;text-align:center;background:#37C978;color:#fff;text-decoration:none;padding:12px 24px;border-radius:10px;font-weight:600;font-size:15px;">Link Email</a>
           </div>
         </div>`,
     });
