@@ -3,13 +3,13 @@ import { createContext, useContext, useState, useCallback, useEffect, useRef } f
 export const BASE_CATS = ["food", "housing", "utilities", "transport", "entertainment", "salary", "other"];
 
 export const BASE_CAT_COLORS = {
-  food: "#F97316",
-  housing: "#3B82F6",
-  utilities: "#EAB308",
-  transport: "#06B6D4",
-  entertainment: "#EC4899",
-  salary: "#10B981",
-  other: "#94A3B8",
+  food:          "#F5C451",
+  housing:       "#4B82F1",
+  utilities:     "#FB923C",
+  transport:     "#38BDF8",
+  entertainment: "#E04F4F",
+  salary:        "#37C978",
+  other:         "#94A3B8",
 };
 
 const PALETTE = [

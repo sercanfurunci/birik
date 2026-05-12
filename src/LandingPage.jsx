@@ -27,11 +27,11 @@ function AppPreview({ sym, t }) {
     { label: "Netflix",                 income: false, amt: `−${sym}15.99`, dot: "#EC4899" },
   ];
   const cats = [
-    { label: t("food"),          pct: 38, color: "#F97316" },
-    { label: t("entertainment"), pct: 22, color: "#EC4899" },
-    { label: t("transport"),     pct: 18, color: "#06B6D4" },
-    { label: t("housing"),       pct: 14, color: "#3B82F6" },
-    { label: t("utilities"),     pct: 8,  color: "#EAB308" },
+    { label: t("food"),          pct: 38, color: "#F5C451" },
+    { label: t("entertainment"), pct: 22, color: "#E04F4F" },
+    { label: t("transport"),     pct: 18, color: "#38BDF8" },
+    { label: t("housing"),       pct: 14, color: "#4B82F1" },
+    { label: t("utilities"),     pct: 8,  color: "#FB923C" },
   ];
 
   return (
