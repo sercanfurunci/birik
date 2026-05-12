@@ -353,14 +353,7 @@ function App() {
         <header className="mb-6 anim-1">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3 min-w-0">
-              <svg className="birik-logo shrink-0" width="36" height="36" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ borderRadius: 10 }}>
-                <rect width="128" height="128" rx="28" fill="#0D0D0D"/>
-                <path d="M30 28 H70 Q90 28 90 46 Q90 64 70 64 H30 Z" fill="#10B981"/>
-                <path d="M30 64 H74 Q96 64 96 82 Q96 100 74 100 H30 Z" fill="#10B981"/>
-                <circle cx="40" cy="22" r="3.5" fill="#10B981"/>
-                <circle cx="60" cy="22" r="3.5" fill="#10B981"/>
-                <circle cx="80" cy="22" r="3.5" fill="#10B981"/>
-              </svg>
+              <img src="/birik.png" className="birik-logo shrink-0" width="36" height="36" style={{ borderRadius: 10 }} alt="Birik" />
               <div className="min-w-0">
                 <h1 className="fin-serif text-xl sm:text-2xl leading-tight truncate" style={{ color: "var(--text-1)" }}>
                   {t("appName")}

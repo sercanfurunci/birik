@@ -453,36 +453,18 @@ nav.sm\:hidden span {
 ::-webkit-scrollbar-thumb:hover { background: var(--text-3); }
 
 /* ── Birik logo animation ─────────────────────────────────── */
-@keyframes brickSlide {
-  from { transform: scaleX(0); opacity: 0; }
-  to   { transform: scaleX(1); opacity: 1; }
-}
-@keyframes studPop {
-  from { transform: scale(0); opacity: 0; }
-  to   { transform: scale(1); opacity: 1; }
+@keyframes logoAppear {
+  from { opacity: 0; transform: scale(0.82); }
+  to   { opacity: 1; transform: scale(1); }
 }
 @keyframes logoPulse {
   0%, 100% { filter: drop-shadow(0 0 0px rgba(16, 185, 129, 0)); }
-  50%       { filter: drop-shadow(0 0 6px rgba(16, 185, 129, 0.45)); }
+  50%       { filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.55)); }
 }
-.birik-logo path {
-  transform-origin: 30px center;
-  transform: scaleX(0);
+.birik-logo {
   opacity: 0;
-  animation: brickSlide 0.55s cubic-bezier(0.16,1,0.3,1) forwards;
+  animation: logoAppear 0.5s cubic-bezier(0.16,1,0.3,1) 0.1s forwards;
 }
-.birik-logo path:nth-of-type(1) { animation-delay: 0.1s; }
-.birik-logo path:nth-of-type(2) { animation-delay: 0.28s; }
-.birik-logo circle {
-  transform-box: fill-box;
-  transform-origin: center;
-  transform: scale(0);
-  opacity: 0;
-  animation: studPop 0.35s cubic-bezier(0.16,1,0.3,1) forwards;
-}
-.birik-logo circle:nth-of-type(1) { animation-delay: 0.48s; }
-.birik-logo circle:nth-of-type(2) { animation-delay: 0.55s; }
-.birik-logo circle:nth-of-type(3) { animation-delay: 0.62s; }
 .birik-logo:hover {
   animation: logoPulse 1.5s ease-in-out infinite;
 }

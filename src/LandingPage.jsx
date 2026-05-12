@@ -173,14 +173,7 @@ function LandingPage({ onGetStarted, onSignIn, isDark, toggleDark }) {
       <header style={{ borderBottom: "1px solid var(--border)" }}>
         <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <svg className="birik-logo shrink-0" width="34" height="34" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ borderRadius: 9 }}>
-              <rect width="128" height="128" rx="28" fill="#0D0D0D"/>
-              <path d="M30 28 H70 Q90 28 90 46 Q90 64 70 64 H30 Z" fill="#10B981"/>
-              <path d="M30 64 H74 Q96 64 96 82 Q96 100 74 100 H30 Z" fill="#10B981"/>
-              <circle cx="40" cy="22" r="3.5" fill="#10B981"/>
-              <circle cx="60" cy="22" r="3.5" fill="#10B981"/>
-              <circle cx="80" cy="22" r="3.5" fill="#10B981"/>
-            </svg>
+            <img src="/birik.png" className="birik-logo shrink-0" width="34" height="34" style={{ borderRadius: 9 }} alt="Birik" />
             <span className="fin-serif text-base" style={{ color: "var(--text-1)" }}>{t("appName")}</span>
           </div>
           <div className="flex items-center gap-2">
@@ -285,10 +278,7 @@ function LandingPage({ onGetStarted, onSignIn, isDark, toggleDark }) {
       <footer style={{ borderTop: "1px solid var(--border)" }}>
         <div className="max-w-5xl mx-auto px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <svg width="20" height="20" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ borderRadius: 5 }}>
-              <rect width="128" height="128" rx="28" fill="#111111"/>
-              <path d="M32 88V40L64 72L96 40V88" stroke="white" strokeWidth="10" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
+            <img src="/birik.png" width="20" height="20" style={{ borderRadius: 5 }} alt="Birik" />
             <span className="fin-serif text-sm" style={{ color: "var(--text-2)" }}>{t("appName")}</span>
           </div>
           <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4">
