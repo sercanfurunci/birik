@@ -381,6 +381,7 @@ const translations = {
     subCat_productivity: "Productivity",
     subCat_health: "Health",
     subCat_news: "News",
+    subCat_telecom: "Telecom",
     subCat_other: "Other",
   },
 
@@ -762,6 +763,7 @@ const translations = {
     subCat_productivity: "Üretkenlik",
     subCat_health: "Sağlık",
     subCat_news: "Haber",
+    subCat_telecom: "Telekomünikasyon",
     subCat_other: "Diğer",
   },
 };

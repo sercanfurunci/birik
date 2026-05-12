@@ -268,7 +268,7 @@ const VALID_TYPES            = new Set(["income", "expense"]);
 const VALID_CATEGORIES       = new Set(["food", "housing", "utilities", "transport", "entertainment", "salary", "other"]);
 const VALID_CURRENCIES       = new Set(["USD", "EUR", "GBP", "TRY", "JPY", "CAD", "AUD", "CHF"]);
 const VALID_BILLING_CYCLES   = new Set(["weekly", "monthly", "yearly"]);
-const VALID_SUB_CATEGORIES   = new Set(["ai", "entertainment", "music", "finance", "productivity", "health", "news", "other"]);
+const VALID_SUB_CATEGORIES   = new Set(["ai", "entertainment", "music", "finance", "productivity", "health", "news", "telecom", "other"]);
 
 // Categories include the base set plus the user's saved custom_categories.
 async function isCategoryAllowedForUser(userId, category) {
@@ -1156,7 +1156,7 @@ function advanceDate(isoDate, frequency, dayOfPeriod) {
 const SUB_TO_TX_CAT = {
   ai: "other", entertainment: "entertainment", music: "entertainment",
   finance: "other", productivity: "other", health: "other",
-  news: "other", other: "other",
+  news: "other", telecom: "utilities", other: "other",
 };
 
 async function materializeDueSubscriptions(userId) {

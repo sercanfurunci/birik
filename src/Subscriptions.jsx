@@ -23,7 +23,7 @@ async function getRate(from, to) {
 const SUB_TO_TX_CATEGORY = {
   ai: "other", entertainment: "entertainment", music: "entertainment",
   finance: "other", productivity: "other", health: "other",
-  news: "other", other: "other",
+  news: "other", telecom: "utilities", other: "other",
 };
 
 const API = import.meta.env.VITE_API_URL;
@@ -112,7 +112,7 @@ const CATEGORY_EMOJI = {
   ai: "✨", entertainment: "🎬",
   music: "🎵", finance: "🏦",
   productivity: "⚡", health: "❤️",
-  news: "📰", other: "📦",
+  news: "📰", telecom: "📱", other: "📦",
 };
 
 function getServiceDomain(name) {
@@ -196,7 +196,7 @@ function monthsActive(startedAt) {
   return Math.max(1, m);
 }
 
-const CATEGORIES = ["ai", "entertainment", "music", "finance", "productivity", "health", "news", "other"];
+const CATEGORIES = ["ai", "entertainment", "music", "finance", "productivity", "health", "news", "telecom", "other"];
 const BILLING_CYCLES = ["weekly", "monthly", "yearly"];
 
 const EMPTY_FORM = {
