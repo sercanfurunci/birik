@@ -225,7 +225,7 @@ function PrivacyPage({ isDark, toggleDark, onBack }) {
       {/* Content */}
       <article className="max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-12 anim-1">
         <div className="flex items-center gap-3 mb-3">
-          <img src="/birik.svg" className="birik-logo shrink-0" width="40" height="40" alt="Birik" />
+          <img src="/birik.png" className="birik-logo shrink-0" width="40" height="40" style={{ borderRadius: 11 }} alt="Birik" />
           <span className="fin-serif text-lg" style={{ color: "var(--text-2)" }}>Birik</span>
         </div>
         <h1 className="fin-serif text-3xl sm:text-4xl mb-2" style={{ color: "var(--text-1)" }}>

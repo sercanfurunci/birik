@@ -353,7 +353,7 @@ function App() {
         <header className="mb-6 anim-1">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3 min-w-0">
-              <img src="/birik.svg" className="birik-logo shrink-0" width="36" height="36" alt="Birik" />
+              <img src="/birik.png" className="birik-logo shrink-0" width="36" height="36" style={{ borderRadius: 10 }} alt="Birik" />
               <div className="min-w-0">
                 <h1 className="fin-serif text-xl sm:text-2xl leading-tight truncate" style={{ color: "var(--text-1)" }}>
                   {t("appName")}
