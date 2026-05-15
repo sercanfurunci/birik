@@ -468,9 +468,10 @@ nav.sm\:hidden span {
 .birik-logo {
   opacity: 0;
   animation: logoAppear 0.5s cubic-bezier(0.16,1,0.3,1) 0.1s forwards;
+  transition: filter 0.3s ease;
 }
 .birik-logo:hover {
-  animation: logoPulse 1.5s ease-in-out infinite;
+  filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.55));
 }
 
 /* ── Focus-visible default for keyboard users ─────────────── */
