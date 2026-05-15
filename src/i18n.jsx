@@ -66,6 +66,7 @@ const translations = {
     loginInvalidCredentials: "Email or password is incorrect.",
     checkYourEmail: "Check your email",
     verificationSent: "We sent a verification link to",
+    spamWarning: "Can't find the email? Check your spam or junk folder — verification emails sometimes land there.",
     backToSignIn: "Back to sign in",
 
     // SMS verification
@@ -452,6 +453,7 @@ const translations = {
     loginInvalidCredentials: "E-posta veya şifre hatalı.",
     checkYourEmail: "E-postanızı kontrol edin",
     verificationSent: "Doğrulama bağlantısı gönderildi:",
+    spamWarning: "E-postayı bulamıyor musunuz? Spam veya gereksiz posta klasörünüzü kontrol edin — doğrulama mailleri bazen oraya düşebilir.",
     backToSignIn: "Girişe dön",
 
     // SMS verification

@@ -487,16 +487,33 @@ app.get("/auth/verify", async (req, res) => {
 function verifyHtmlPage(message, success) {
   const color = success ? "#37C978" : "#E04F4F";
   const icon  = success ? "✓" : "✕";
-  return `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Email Verification</title></head>
-  <body style="font-family:sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;background:#0D0D0D;">
-    <div style="text-align:center;background:#15151A;border:1px solid #262630;border-radius:16px;padding:40px 48px;max-width:400px;">
-      <img src="https://furunci.tech/birik.png" width="48" height="48" alt="Birik" style="border-radius:12px;display:inline-block;margin-bottom:16px;"/>
-      <div style="width:56px;height:56px;border-radius:50%;background:${color}22;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:24px;color:${color};">${icon}</div>
-      <div style="font-size:20px;font-weight:bold;color:#F5F5F5;margin-bottom:8px;">Birik</div>
-      <p style="color:#A8A8B0;margin:0 0 24px;">${message}</p>
-      <a href="${FRONTEND_URL}" style="display:inline-block;background:#37C978;color:#fff;text-decoration:none;padding:10px 28px;border-radius:10px;font-weight:600;">Go to App</a>
-    </div>
-  </body></html>`;
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Email Verification — Birik</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0D0D0D;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;}
+    .card{background:#15151A;border:1px solid #262630;border-radius:20px;padding:40px 32px;max-width:400px;width:100%;text-align:center;}
+    .logo{border-radius:12px;display:inline-block;margin-bottom:20px;}
+    .icon{width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:26px;font-weight:bold;}
+    .title{font-size:22px;font-weight:700;color:#F5F5F5;margin-bottom:10px;}
+    .msg{color:#A8A8B0;font-size:15px;line-height:1.5;margin-bottom:28px;}
+    .btn{display:inline-block;background:#37C978;color:#fff;text-decoration:none;padding:13px 36px;border-radius:12px;font-weight:600;font-size:15px;}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <img src="https://furunci.tech/birik.png" width="56" height="56" alt="Birik" class="logo"/>
+    <div class="icon" style="background:${color}22;color:${color};">${icon}</div>
+    <div class="title">Birik</div>
+    <p class="msg">${message}</p>
+    <a href="${FRONTEND_URL}" class="btn">Go to App</a>
+  </div>
+</body>
+</html>`;
 }
 
 app.post("/auth/login", async (req, res) => {

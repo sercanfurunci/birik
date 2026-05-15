@@ -205,7 +205,11 @@ function RegisterPage({ onSwitch, onBack, isDark, toggleDark, onShowTerms, onSho
             {!isSms && (
               <>
                 <p className="text-sm mb-1" style={{ color: "var(--text-2)" }}>{t("verificationSent")}</p>
-                <p className="text-sm font-medium mb-6" style={{ color: "var(--text-1)" }}>{email}</p>
+                <p className="text-sm font-medium mb-3" style={{ color: "var(--text-1)" }}>{email}</p>
+                <div className="flex items-start gap-2 rounded-xl px-3 py-2.5 mb-4 text-left" style={{ backgroundColor: "var(--surface-2)", border: "1px solid var(--border)" }}>
+                  <span style={{ fontSize: 14 }}>📬</span>
+                  <p className="text-xs leading-relaxed" style={{ color: "var(--text-3)" }}>{t("spamWarning")}</p>
+                </div>
               </>
             )}
             {isSms && <div className="mb-6" />}
