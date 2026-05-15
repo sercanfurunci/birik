@@ -97,7 +97,7 @@ function LoginPage({ onSuccess, onSwitch, onForgotPassword, onBack, isDark, togg
       <div className="w-full max-w-sm anim-1">
         {/* Brand mark */}
         <div className="flex flex-col items-center mb-8">
-          <img src="/birik.png" className="birik-logo mb-4" width="48" height="48" style={{ borderRadius: 14 }} alt="Birik" />
+          <img src="/birik.svg" className="birik-logo mb-4" width="48" height="48" alt="Birik" />
           <h1 className="fin-serif text-2xl" style={{ color: "var(--text-1)" }}>{t("appName")}</h1>
           <p className="text-sm mt-1" style={{ color: "var(--text-3)" }}>{t("appSubtitle")}</p>
         </div>

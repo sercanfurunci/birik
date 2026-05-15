@@ -173,7 +173,7 @@ function LandingPage({ onGetStarted, onSignIn, isDark, toggleDark }) {
       <header style={{ borderBottom: "1px solid var(--border)" }}>
         <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <img src="/birik.png" className="birik-logo shrink-0" width="34" height="34" style={{ borderRadius: 9 }} alt="Birik" />
+            <img src="/birik.svg" className="birik-logo shrink-0" width="34" height="34" alt="Birik" />
             <span className="fin-serif text-base" style={{ color: "var(--text-1)" }}>{t("appName")}</span>
           </div>
           <div className="flex items-center gap-2">
@@ -278,7 +278,7 @@ function LandingPage({ onGetStarted, onSignIn, isDark, toggleDark }) {
       <footer style={{ borderTop: "1px solid var(--border)" }}>
         <div className="max-w-5xl mx-auto px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <img src="/birik.png" width="20" height="20" style={{ borderRadius: 5 }} alt="Birik" />
+            <img src="/birik.svg" width="20" height="20" alt="Birik" />
             <span className="fin-serif text-sm" style={{ color: "var(--text-2)" }}>{t("appName")}</span>
           </div>
           <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4">
