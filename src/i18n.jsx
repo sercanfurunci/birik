@@ -163,6 +163,10 @@ const translations = {
     transport: "Transport",
     entertainment: "Entertainment",
     salary: "Salary",
+    freelance: "Freelance",
+    investment: "Investment",
+    rental: "Rental Income",
+    bonus: "Bonus",
     other: "Other",
 
     // Dashboard
@@ -550,6 +554,10 @@ const translations = {
     transport: "Ulaşım",
     entertainment: "Eğlence",
     salary: "Maaş",
+    freelance: "Serbest Meslek",
+    investment: "Yatırım",
+    rental: "Kira Geliri",
+    bonus: "İkramiye",
     other: "Diğer",
 
     // Dashboard

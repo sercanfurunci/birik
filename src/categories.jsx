@@ -1,6 +1,8 @@
 import { createContext, useContext, useState, useCallback, useEffect, useRef } from "react";
 
-export const BASE_CATS = ["food", "housing", "utilities", "transport", "entertainment", "salary", "other"];
+export const BASE_CATS = ["food", "housing", "utilities", "transport", "entertainment", "salary", "freelance", "investment", "rental", "bonus", "other"];
+
+export const INCOME_ONLY_CATS = ["salary", "freelance", "investment", "rental", "bonus"];
 
 export const BASE_CAT_COLORS = {
   food:          "#F5C451",
@@ -9,6 +11,10 @@ export const BASE_CAT_COLORS = {
   transport:     "#38BDF8",
   entertainment: "#E04F4F",
   salary:        "#37C978",
+  freelance:     "#8B5CF6",
+  investment:    "#14B8A6",
+  rental:        "#F59E0B",
+  bonus:         "#D946EF",
   other:         "#94A3B8",
 };
 
@@ -65,10 +71,11 @@ export function CategoriesProvider({ initialCats = [], onSave, children }) {
   }, [customCats]);
 
   const allCats = [...BASE_CATS, ...customCats.map(c => c.id)];
-  const expenseCats = allCats.filter(c => c !== "salary");
+  const expenseCats = allCats.filter(c => !INCOME_ONLY_CATS.includes(c));
+  const incomeCats = [...INCOME_ONLY_CATS, "other"];
 
   return (
-    <CatsContext.Provider value={{ customCats, allCats, expenseCats, addCat, removeCat, getCatColor }}>
+    <CatsContext.Provider value={{ customCats, allCats, expenseCats, incomeCats, addCat, removeCat, getCatColor }}>
       {children}
     </CatsContext.Provider>
   );

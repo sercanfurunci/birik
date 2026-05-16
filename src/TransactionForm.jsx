@@ -6,7 +6,7 @@ import Recurring from "./Recurring.jsx";
 
 function TransactionForm({ onAdd, onRefresh }) {
   const { t } = useLang();
-  const { expenseCats, addCat, getCatColor } = useCategories();
+  const { expenseCats, incomeCats, addCat, getCatColor } = useCategories();
 
   const [showImport, setShowImport] = useState(false);
   const [showRecurring, setShowRecurring] = useState(false);
@@ -18,7 +18,7 @@ function TransactionForm({ onAdd, onRefresh }) {
   const [type, setType] = useState("expense");
   const [category, setCategory] = useState("food");
 
-  const categoryOptions = type === "income" ? ["salary"] : expenseCats;
+  const categoryOptions = type === "income" ? incomeCats : expenseCats;
 
   function switchType(nextType) {
     if (nextType === type) return;
