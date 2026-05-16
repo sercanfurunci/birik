@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { useLang } from "./i18n.jsx";
 import { useCurrency } from "./currency.jsx";
+import { todayLocalISO } from "./dateUtils.js";
 
 const API = import.meta.env.VITE_API_URL;
 const CATEGORIES = ["food", "housing", "utilities", "transport", "entertainment", "salary", "other"];
@@ -20,7 +21,7 @@ function authFetch(url, opts = {}) {
   });
 }
 
-const todayISO = () => new Date().toISOString().split("T")[0];
+const todayISO = todayLocalISO;
 
 function fmtAmount(n, symbol) {
   return symbol + parseFloat(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });

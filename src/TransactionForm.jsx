@@ -3,6 +3,7 @@ import { useLang } from "./i18n.jsx";
 import { useCategories } from "./categories.jsx";
 import StatementImportModal from "./StatementImportModal.jsx";
 import Recurring from "./Recurring.jsx";
+import { todayLocalISO } from "./dateUtils.js";
 
 function TransactionForm({ onAdd, onRefresh }) {
   const { t } = useLang();
@@ -30,7 +31,7 @@ function TransactionForm({ onAdd, onRefresh }) {
     e.preventDefault();
     const amt = Number(amount);
     if (!Number.isFinite(amt) || amt <= 0) return;
-    onAdd({ description, amount, type, category, date: new Date().toISOString().split("T")[0] });
+    onAdd({ description, amount, type, category, date: todayLocalISO() });
     setDescription("");
     setAmount("");
     setType("expense");

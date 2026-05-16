@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { useLang } from "./i18n.jsx";
 import { useCurrency } from "./currency.jsx";
+import { parseLocalDate } from "./dateUtils.js";
 
 const API = import.meta.env.VITE_API_URL;
 
@@ -218,8 +219,8 @@ function GoalCard({ goal, currency, lang, onEdit, onDelete }) {
   let daysLeft = null;
   if (goal.target_date) {
     const today = new Date(); today.setHours(0, 0, 0, 0);
-    const due = new Date(goal.target_date); due.setHours(0, 0, 0, 0);
-    daysLeft = Math.round((due - today) / 86400000);
+    const due = parseLocalDate(goal.target_date);
+    if (due) daysLeft = Math.round((due - today) / 86400000);
   }
 
   const barColor = done ? "var(--green)" : "var(--brand)";
@@ -329,14 +330,15 @@ export default function Goals({ showToast }) {
 
   const handleDelete = async () => {
     if (!deleteTarget) return;
-    await authFetch(`${API}/goals/${deleteTarget.id}`, { method: "DELETE" });
+    const res = await authFetch(`${API}/goals/${deleteTarget.id}`, { method: "DELETE" });
+    if (!res.ok) return;
     setGoals(prev => prev.filter(g => g.id !== deleteTarget.id));
     setDeleteTarget(null);
     showToast?.(t("toastGoalDeleted"));
   };
 
-  const totalTarget = goals.reduce((s, g) => s + parseFloat(g.target_amount), 0);
-  const totalSaved = goals.reduce((s, g) => s + parseFloat(g.saved_amount || 0), 0);
+  const totalTarget = goals.reduce((s, g) => s + (parseFloat(g.target_amount) || 0), 0);
+  const totalSaved = goals.reduce((s, g) => s + (parseFloat(g.saved_amount || 0) || 0), 0);
   const locale = lang === "tr" ? "tr-TR" : "en-US";
 
   return (

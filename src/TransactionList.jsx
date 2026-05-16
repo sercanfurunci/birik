@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import { useLang } from "./i18n.jsx";
 import { useCurrency } from "./currency.jsx";
 import { useCategories } from "./categories.jsx";
+import { todayLocalISO } from "./dateUtils.js";
 
 const fmt = (n) =>
   parseFloat(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -87,7 +88,7 @@ function csvEscape(val) {
 function downloadCsv(transactions, t, symbol) {
   if (!transactions.length) return;
 
-  const stamp = new Date().toISOString().slice(0, 10);
+  const stamp = todayLocalISO();
   const dates = transactions.map((tx) => (tx.date || "").slice(0, 10)).filter(Boolean).sort();
   const dateRange = dates.length ? `${dates[0]} → ${dates[dates.length - 1]}` : stamp;
 

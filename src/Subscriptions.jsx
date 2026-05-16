@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useLang } from "./i18n.jsx";
 import { useCurrency, CURRENCIES } from "./currency.jsx";
+import { todayLocalISO, parseLocalDate } from "./dateUtils.js";
 
 // ── Exchange rate ─────────────────────────────────────────────────────────────
 const _rateCache = {};
@@ -176,11 +177,11 @@ function ServiceIcon({ name, category, size = 40 }) {
 }
 
 function daysUntil(dateStr) {
-  const target = new Date(dateStr);
+  const target = parseLocalDate(dateStr);
+  if (!target) return 0;
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  target.setHours(0, 0, 0, 0);
-  return Math.ceil((target - today) / (1000 * 60 * 60 * 24));
+  return Math.round((target - today) / 86400000);
 }
 
 function monthlyEquivalent(amount, cycle) {
@@ -190,7 +191,7 @@ function monthlyEquivalent(amount, cycle) {
 }
 
 function monthsActive(startedAt) {
-  const start = new Date(startedAt);
+  const start = parseLocalDate(startedAt) || new Date(startedAt);
   const now = new Date();
   const m = (now.getFullYear() - start.getFullYear()) * 12 + (now.getMonth() - start.getMonth());
   return Math.max(1, m);
@@ -206,7 +207,7 @@ const EMPTY_FORM = {
   billing_cycle: "monthly",
   next_billing_date: "",
   category: "other",
-  started_at: new Date().toISOString().split("T")[0],
+  started_at: todayLocalISO(),
   is_active: true,
   auto_charge: false,
   notes: "",
@@ -277,7 +278,7 @@ function SubDetail({ sub, onEdit, onDelete, onClose, onAddExpense, userCurrency,
     setTimeout(() => setExpenseAdded(false), 2500);
   }
 
-  const startDate = new Date(sub.started_at).toLocaleDateString(dateLocale, {
+  const startDate = (parseLocalDate(sub.started_at) || new Date(sub.started_at)).toLocaleDateString(dateLocale, {
     day: "numeric", month: "short", year: "numeric",
   });
 
@@ -384,7 +385,7 @@ function SubForm({ initial, onSave, onClose }) {
           billing_cycle: initial.billing_cycle,
           next_billing_date: initial.next_billing_date?.split("T")[0] || "",
           category: initial.category,
-          started_at: initial.started_at?.split("T")[0] || new Date().toISOString().split("T")[0],
+          started_at: initial.started_at?.split("T")[0] || todayLocalISO(),
           is_active: initial.is_active,
           auto_charge: initial.auto_charge ?? false,
           notes: initial.notes || "",
@@ -746,14 +747,15 @@ export default function Subscriptions({ onExpenseAdded }) {
   }
 
   async function handleDelete(id) {
-    await authFetch(`${API}/subscriptions/${id}`, { method: "DELETE" });
+    const res = await authFetch(`${API}/subscriptions/${id}`, { method: "DELETE" });
+    if (!res.ok) return;
     setSubs(prev => prev.filter(s => s.id !== id));
     setDeleteTarget(null);
     setDetailTarget(null);
   }
 
   async function handleAddAsExpense(sub, convertedAmount, usedCurrency) {
-    await authFetch(`${API}/transactions`, {
+    const res = await authFetch(`${API}/transactions`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -761,10 +763,11 @@ export default function Subscriptions({ onExpenseAdded }) {
         amount: convertedAmount,
         type: "expense",
         category: SUB_TO_TX_CATEGORY[sub.category] || "other",
-        date: new Date().toISOString().split("T")[0],
+        date: todayLocalISO(),
         currency: usedCurrency,
       }),
     });
+    if (!res.ok) return;
     onExpenseAdded?.();
   }
 

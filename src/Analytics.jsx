@@ -5,6 +5,14 @@ import {
 import { useLang } from "./i18n.jsx";
 import { useCurrency } from "./currency.jsx";
 import { useCategories } from "./categories.jsx";
+import { parseLocalDate } from "./dateUtils.js";
+
+function isoFromLocalDate(d) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
 
 const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
@@ -61,7 +69,7 @@ function buildChartData(transactions, range) {
     const sorted = Object.values(months).sort((a, b) => a.date.localeCompare(b.date));
     return sorted.map(d => ({
       ...d,
-      date: new Date(d.date + "-01").toLocaleDateString("en-US", { month: "short", year: "2-digit" }),
+      date: parseLocalDate(d.date + "-01").toLocaleDateString("en-US", { month: "short", year: "2-digit" }),
     }));
   }
 
@@ -90,7 +98,7 @@ function buildChartData(transactions, range) {
   return { data: Array.from({ length: days }, (_, i) => {
     const d = new Date(startDate);
     d.setDate(d.getDate() + i);
-    const key = d.toISOString().split("T")[0];
+    const key = isoFromLocalDate(d);
     return {
       date: d.toLocaleDateString("en-US", { month: "short", day: "numeric" }),
       expenses: expenses.filter(tx => txDate(tx.date) === key).reduce((s, tx) => s + (parseFloat(tx.amount) || 0), 0),
@@ -121,8 +129,8 @@ function filterByRange(transactions, range) {
   }
 
   return transactions.filter(tx => {
-    const d = new Date(txDate(tx.date));
-    return (!from || d >= from) && (!to || d <= to);
+    const d = parseLocalDate(txDate(tx.date));
+    return d && (!from || d >= from) && (!to || d <= to);
   });
 }
 
@@ -156,7 +164,10 @@ function Analytics({ transactions }) {
   const avgExpense = expenses.length > 0 ? totalExpenses / expenses.length : 0;
 
   const dayCount = [0, 0, 0, 0, 0, 0, 0];
-  filtered.forEach(tx => { dayCount[new Date(txDate(tx.date)).getDay()]++; });
+  filtered.forEach(tx => {
+    const d = parseLocalDate(txDate(tx.date));
+    if (d) dayCount[d.getDay()]++;
+  });
   const maxDayCount = Math.max(...dayCount);
   const busiestDay = maxDayCount > 0 ? DAYS[dayCount.indexOf(maxDayCount)] : null;
 

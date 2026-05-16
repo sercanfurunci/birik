@@ -415,7 +415,9 @@ function Dashboard({ transactions, onNavigate }) {
           </div>
           <div>
             {goals.slice(0, 3).map((g, i) => {
-              const pct = Math.min(100, Math.round((parseFloat(g.saved_amount || 0) / parseFloat(g.target_amount)) * 100));
+              const target = parseFloat(g.target_amount) || 0;
+              const saved = parseFloat(g.saved_amount || 0);
+              const pct = target > 0 ? Math.min(100, Math.round((saved / target) * 100)) : 0;
               const done = pct >= 100;
               const barColor = done ? "var(--green)" : "var(--brand)";
               return (

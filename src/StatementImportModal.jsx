@@ -35,7 +35,10 @@ export default function StatementImportModal({ onClose, onImported }) {
   function addMonths(dateStr, months) {
     const d = new Date(dateStr + "T00:00:00");
     d.setMonth(d.getMonth() + months);
-    return d.toISOString().split("T")[0];
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${y}-${m}-${day}`;
   }
 
   function deleteTx(i) {
