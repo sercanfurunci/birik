@@ -127,6 +127,15 @@ function Dashboard({ transactions, onNavigate }) {
   const daysLeft = daysInMonth - dayElapsed;
   const avgDaily = dayElapsed > 0 ? thisMonthTotal / dayElapsed : 0;
   const monthChange = prevMonthTotal > 0 ? ((thisMonthTotal - prevMonthTotal) / prevMonthTotal) * 100 : null;
+
+  // End-of-month projection — needs at least 3 days of data and 2 transactions to be meaningful
+  const projectedMonthTotal = avgDaily * daysInMonth;
+  const projectedRemaining = avgDaily * daysLeft;
+  const showProjection = thisMonthExp.length >= 2 && dayElapsed >= 3 && daysLeft > 0;
+  const projVsLast = prevMonthTotal > 0
+    ? ((projectedMonthTotal - prevMonthTotal) / prevMonthTotal) * 100
+    : null;
+  const monthProgressPct = (dayElapsed / daysInMonth) * 100;
   const topCatThisMonth = Object.entries(
     thisMonthExp.reduce((acc, tx) => { acc[tx.category] = (acc[tx.category] || 0) + parseFloat(tx.amount); return acc; }, {})
   ).sort((a, b) => b[1] - a[1])[0];
@@ -310,6 +319,68 @@ function Dashboard({ transactions, onNavigate }) {
               </Bar>
             </BarChart>
           </ResponsiveContainer>
+        </div>
+      )}
+
+      {/* ── End-of-month projection ── */}
+      {showProjection && (
+        <div className="fin-card rounded-2xl p-5 mt-4 anim-4">
+          <div className="flex items-start justify-between gap-3 flex-wrap">
+            <div className="min-w-0">
+              <p className="fin-label mb-2">{t("projTitle")}</p>
+              <p
+                className="fin-mono font-bold"
+                style={{
+                  color: "var(--text-1)",
+                  fontSize: "clamp(1.5rem, 2.2vw, 2rem)",
+                  letterSpacing: "-0.02em",
+                  lineHeight: 1.1,
+                }}
+              >
+                {symbol}{fmt(projectedMonthTotal)}
+              </p>
+              <p className="text-xs mt-1" style={{ color: "var(--text-3)" }}>
+                {t("projSubtitle")}
+              </p>
+            </div>
+            {projVsLast !== null && (
+              <div
+                className="px-2.5 py-1 rounded-lg text-xs font-semibold shrink-0"
+                style={{
+                  backgroundColor: projVsLast <= 0 ? "color-mix(in srgb, var(--green) 12%, transparent)" : "color-mix(in srgb, var(--red) 12%, transparent)",
+                  color: projVsLast <= 0 ? "var(--green)" : "var(--red)",
+                }}
+              >
+                {projVsLast > 0 ? "+" : ""}{projVsLast.toFixed(1)}% {t("projVsLast")}
+              </div>
+            )}
+          </div>
+
+          <div className="mt-4 flex items-center gap-4 text-xs flex-wrap" style={{ color: "var(--text-3)" }}>
+            <span>
+              <span className="fin-mono font-semibold" style={{ color: "var(--text-2)" }}>{symbol}{fmt(thisMonthTotal)}</span> {t("projSpentSoFar")}
+            </span>
+            <span style={{ color: "var(--border)" }}>·</span>
+            <span>
+              <span className="fin-mono font-semibold" style={{ color: "var(--text-2)" }}>{daysLeft}</span> {t("projDaysLeft")}
+            </span>
+          </div>
+
+          <div className="mt-3">
+            <div className="h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: "var(--surface-2)" }}>
+              <div
+                className="h-full rounded-full"
+                style={{
+                  width: `${monthProgressPct}%`,
+                  backgroundColor: "var(--brand)",
+                  transition: "width 0.6s cubic-bezier(0.16,1,0.3,1)",
+                }}
+              />
+            </div>
+            <p className="text-xs mt-1.5" style={{ color: "var(--text-3)" }}>
+              {t("projMonthProgress", { done: dayElapsed, total: daysInMonth })}
+            </p>
+          </div>
         </div>
       )}
 

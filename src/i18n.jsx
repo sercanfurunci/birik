@@ -191,6 +191,12 @@ const translations = {
     statVsLastMonth: "vs Last Month",
     statSpending: "spending",
     statThisMonth: "This Month",
+    projTitle: "End-of-month projection",
+    projSubtitle: "at current pace",
+    projSpentSoFar: "spent so far",
+    projDaysLeft: "days left",
+    projVsLast: "vs last month",
+    projMonthProgress: ({ done, total }) => `${done} of ${total} days`,
     transactionsRecorded: ({ count }) =>
       `${count} ${count === 1 ? "transaction" : "transactions"} recorded`,
     expensesTotal: ({ count }) =>
@@ -582,6 +588,12 @@ const translations = {
     statVsLastMonth: "Geçen Aya Göre",
     statSpending: "harcama",
     statThisMonth: "Bu Ay",
+    projTitle: "Ay sonu tahmini",
+    projSubtitle: "mevcut hızla",
+    projSpentSoFar: "şu ana kadar harcanan",
+    projDaysLeft: "gün kaldı",
+    projVsLast: "geçen aya göre",
+    projMonthProgress: ({ done, total }) => `${total} günün ${done}'ı`,
     transactionsRecorded: ({ count }) => `${count} işlem kaydedildi`,
     expensesTotal: ({ count }) => `toplam ${count} gider`,
     incomeExpensesCount: ({ income, expenses }) =>
