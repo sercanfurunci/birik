@@ -93,8 +93,8 @@ function buildChartData(transactions, range) {
     const key = d.toISOString().split("T")[0];
     return {
       date: d.toLocaleDateString("en-US", { month: "short", day: "numeric" }),
-      expenses: expenses.filter(tx => txDate(tx.date) === key).reduce((s, tx) => s + parseFloat(tx.amount), 0),
-      income: income.filter(tx => txDate(tx.date) === key).reduce((s, tx) => s + parseFloat(tx.amount), 0),
+      expenses: expenses.filter(tx => txDate(tx.date) === key).reduce((s, tx) => s + (parseFloat(tx.amount) || 0), 0),
+      income: income.filter(tx => txDate(tx.date) === key).reduce((s, tx) => s + (parseFloat(tx.amount) || 0), 0),
     };
   }), interval };
 }
@@ -152,7 +152,7 @@ function Analytics({ transactions }) {
 
   const expenses = filtered.filter(tx => tx.type === "expense");
   const income = filtered.filter(tx => tx.type === "income");
-  const totalExpenses = expenses.reduce((s, tx) => s + parseFloat(tx.amount), 0);
+  const totalExpenses = expenses.reduce((s, tx) => s + (parseFloat(tx.amount) || 0), 0);
   const avgExpense = expenses.length > 0 ? totalExpenses / expenses.length : 0;
 
   const dayCount = [0, 0, 0, 0, 0, 0, 0];
@@ -310,7 +310,7 @@ function Analytics({ transactions }) {
                     <div key={cat} className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <div className="w-2 h-2 rounded-full" style={{ backgroundColor: getCatColor(cat) }} />
-                        <span className="text-sm capitalize" style={{ color: "var(--text-2)" }}>{t(cat)}</span>
+                        <span className="text-sm capitalize truncate max-w-[120px]" style={{ color: "var(--text-2)" }}>{t(cat)}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="fin-mono text-sm font-semibold" style={{ color: "var(--text-1)" }}>
@@ -381,7 +381,7 @@ function Analytics({ transactions }) {
                 <div className="flex items-center justify-between mb-1.5">
                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 rounded-full" style={{ backgroundColor: getCatColor(cat) }} />
-                    <span className="text-sm capitalize" style={{ color: "var(--text-2)" }}>{t(cat)}</span>
+                    <span className="text-sm capitalize truncate max-w-[120px]" style={{ color: "var(--text-2)" }}>{t(cat)}</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <span className="text-xs" style={{ color: "var(--text-3)" }}>{pct.toFixed(1)}%</span>

@@ -9,7 +9,7 @@ const fmt = (n) =>
 
 function CategoryPill({ cat, label, getCatColor }) {
   return (
-    <span className="cat-pill">
+    <span className="cat-pill shrink-0">
       <span className="cat-dot" style={{ backgroundColor: getCatColor(cat) }} />
       {label}
     </span>
@@ -419,6 +419,7 @@ function TransactionList({ transactions, onDelete, onEdit }) {
                         </p>
                         <CategoryPill cat={tx.category} label={t(tx.category)} getCatColor={getCatColor} />
                       </div>
+
                       <span className="fin-mono text-[10px] mt-0.5 block" style={{ color: "var(--text-3)" }}>
                         {formatDate(tx.date)}
                       </span>

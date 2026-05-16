@@ -11,8 +11,8 @@ function Summary({ transactions }) {
   const incomeTxs = transactions.filter((tx) => tx.type === "income");
   const expenseTxs = transactions.filter((tx) => tx.type === "expense");
 
-  const totalIncome = incomeTxs.reduce((sum, tx) => sum + parseFloat(tx.amount), 0);
-  const totalExpenses = expenseTxs.reduce((sum, tx) => sum + parseFloat(tx.amount), 0);
+  const totalIncome = incomeTxs.reduce((sum, tx) => sum + (parseFloat(tx.amount) || 0), 0);
+  const totalExpenses = expenseTxs.reduce((sum, tx) => sum + (parseFloat(tx.amount) || 0), 0);
 
   const balance = totalIncome - totalExpenses;
   const isPositive = balance >= 0;

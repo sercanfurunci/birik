@@ -156,6 +156,7 @@ function Budgets({ transactions, showToast }) {
   const refresh = async () => {
     try {
       const res = await authFetch(`${API}/budgets`);
+      if (!res.ok) return;
       const data = await res.json();
       if (Array.isArray(data)) setBudgets(data);
     } catch (err) {
@@ -320,7 +321,7 @@ function Budgets({ transactions, showToast }) {
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
                 <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: getCatColor(b.category) }} />
-                <span className="text-sm font-semibold" style={{ color: "var(--text-1)" }}>
+                <span className="text-sm font-semibold truncate max-w-[120px]" style={{ color: "var(--text-1)" }}>
                   {t(b.category)}
                 </span>
               </div>

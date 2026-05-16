@@ -81,7 +81,7 @@ function Dashboard({ transactions, onNavigate }) {
   }, []);
 
   const expenses = transactions.filter((tx) => tx.type === "expense");
-  const totalExpenses = expenses.reduce((s, tx) => s + parseFloat(tx.amount), 0);
+  const totalExpenses = expenses.reduce((s, tx) => s + (parseFloat(tx.amount) || 0), 0);
 
   const catData = Object.entries(
     expenses.reduce((acc, tx) => {
@@ -120,8 +120,8 @@ function Dashboard({ transactions, onNavigate }) {
 
   const thisMonthExp = transactions.filter(tx => tx.type === "expense" && (tx.date || "").slice(0, 7) === thisMonthPrefix);
   const prevMonthExp = transactions.filter(tx => tx.type === "expense" && (tx.date || "").slice(0, 7) === prevMonthPrefix);
-  const thisMonthTotal = thisMonthExp.reduce((s, tx) => s + parseFloat(tx.amount), 0);
-  const prevMonthTotal = prevMonthExp.reduce((s, tx) => s + parseFloat(tx.amount), 0);
+  const thisMonthTotal = thisMonthExp.reduce((s, tx) => s + (parseFloat(tx.amount) || 0), 0);
+  const prevMonthTotal = prevMonthExp.reduce((s, tx) => s + (parseFloat(tx.amount) || 0), 0);
   const dayElapsed = now.getDate();
   const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
   const daysLeft = daysInMonth - dayElapsed;
@@ -136,7 +136,7 @@ function Dashboard({ transactions, onNavigate }) {
     const day = i + 1;
     const dayStr = `${thisMonthPrefix}-${String(day).padStart(2, "0")}`;
     const dayTxs = transactions.filter(tx => (tx.date || "").slice(0, 10) === dayStr);
-    const net = dayTxs.reduce((s, tx) => s + (tx.type === "income" ? 1 : -1) * parseFloat(tx.amount), 0);
+    const net = dayTxs.reduce((s, tx) => s + (tx.type === "income" ? 1 : -1) * (parseFloat(tx.amount) || 0), 0);
     return { day, net };
   });
   const hasAnyDailyData = dailyData.some(d => d.net !== 0);
@@ -144,7 +144,7 @@ function Dashboard({ transactions, onNavigate }) {
   const largestExpense = expenses.length > 0
     ? expenses.reduce((max, tx) => parseFloat(tx.amount) > parseFloat(max.amount) ? tx : max, expenses[0])
     : null;
-  const allTimeIncome = transactions.filter(tx => tx.type === "income").reduce((s, tx) => s + parseFloat(tx.amount), 0);
+  const allTimeIncome = transactions.filter(tx => tx.type === "income").reduce((s, tx) => s + (parseFloat(tx.amount) || 0), 0);
   const savingsRate = allTimeIncome > 0 ? ((allTimeIncome - totalExpenses) / allTimeIncome) * 100 : null;
 
   if (transactions.length === 0) {

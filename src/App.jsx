@@ -232,7 +232,9 @@ function App() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(transaction),
       });
+      if (!res.ok) return;
       const data = await res.json();
+      if (!data?.id) return;
       setTransactions((prev) => [data, ...prev]);
       showToast(t("toastTxAdded"));
     } catch (err) {
@@ -257,7 +259,9 @@ function App() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updated),
       });
+      if (!res.ok) return;
       const data = await res.json();
+      if (!data?.id) return;
       setTransactions((prev) => prev.map((tx) => (tx.id === id ? data : tx)));
       showToast(t("toastTxUpdated"));
     } catch (err) {

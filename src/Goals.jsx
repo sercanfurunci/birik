@@ -209,7 +209,7 @@ function GoalCard({ goal, currency, lang, onEdit, onDelete }) {
   const { t } = useLang();
   const saved = parseFloat(goal.saved_amount || 0);
   const target = parseFloat(goal.target_amount);
-  const pct = Math.min(100, Math.round((saved / target) * 100));
+  const pct = target > 0 ? Math.min(100, Math.round((saved / target) * 100)) : 0;
   const done = pct >= 100;
   const remaining = Math.max(0, target - saved);
   const locale = lang === "tr" ? "tr-TR" : "en-US";
