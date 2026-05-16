@@ -591,11 +591,16 @@ function TransactionList({ transactions, onDelete, onEdit }) {
                         </td>
                         <td className="px-5 py-2.5 text-right whitespace-nowrap">
                           <span
-                            className="fin-mono text-sm font-bold"
+                            className="fin-mono text-sm font-bold block"
                             style={{ color: tx.type === "income" ? "var(--green)" : "var(--red)" }}
                           >
                             {tx.type === "income" ? "+" : "−"}{symbol}{fmt(tx.amount)}
                           </span>
+                          {showRunningBalance && runningBalanceMap[tx.id] !== undefined && (
+                            <span className="fin-mono text-xs block" style={{ color: "var(--text-3)" }}>
+                              {runningBalanceMap[tx.id] >= 0 ? "" : "−"}{symbol}{fmt(Math.abs(runningBalanceMap[tx.id]))}
+                            </span>
+                          )}
                         </td>
                         <td className="px-4 py-2.5" style={{ whiteSpace: "nowrap" }}>
                           <div className="flex items-center gap-1 justify-end">
