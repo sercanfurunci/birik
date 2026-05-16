@@ -40,12 +40,9 @@
     width: 64px;
     height: 64px;
     border-radius: 14px;
-    background: #111111;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    overflow: hidden;
   }
-  .logo svg { width: 38px; height: 38px; }
+  .logo img { width: 64px; height: 64px; object-fit: cover; display: block; }
   .brand-name {
     font-family: 'DM Serif Display', Georgia, serif;
     font-size: 44px;
@@ -180,13 +177,7 @@
   <div class="left">
     <div class="brand-row">
       <div class="logo">
-        <svg viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M30 28 H70 Q90 28 90 46 Q90 64 70 64 H30 Z" fill="#10B981"/>
-          <path d="M30 64 H74 Q96 64 96 82 Q96 100 74 100 H30 Z" fill="#10B981"/>
-          <circle cx="40" cy="22" r="3.5" fill="#10B981"/>
-          <circle cx="60" cy="22" r="3.5" fill="#10B981"/>
-          <circle cx="80" cy="22" r="3.5" fill="#10B981"/>
-        </svg>
+        <img src="birik.png" alt="Birik" />
       </div>
       <div class="brand-name">Birik</div>
     </div>
