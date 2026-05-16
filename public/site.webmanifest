@@ -12,16 +12,10 @@
   "categories": ["finance", "productivity", "lifestyle"],
   "icons": [
     {
-      "src": "/birik.svg",
-      "type": "image/svg+xml",
-      "sizes": "any",
-      "purpose": "any maskable"
-    },
-    {
       "src": "/birik-icon.png",
       "type": "image/png",
       "sizes": "512x512",
-      "purpose": "any"
+      "purpose": "any maskable"
     }
   ]
 }
