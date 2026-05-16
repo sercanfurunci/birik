@@ -96,6 +96,16 @@ function Dashboard({ transactions, onNavigate }) {
     .sort((a, b) => new Date(b.date) - new Date(a.date))
     .slice(0, 5);
 
+  // Running balance per transaction (oldest→newest cumulative sum)
+  const runningBalanceMap = {};
+  let runningBal = 0;
+  [...transactions]
+    .sort((a, b) => new Date(a.date) - new Date(b.date))
+    .forEach(tx => {
+      runningBal += tx.type === "income" ? parseFloat(tx.amount) : -parseFloat(tx.amount);
+      runningBalanceMap[tx.id] = runningBal;
+    });
+
   // ── This month stats ──
   const now = new Date();
   const thisMonthPrefix = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
@@ -199,12 +209,14 @@ function Dashboard({ transactions, onNavigate }) {
                         }}
                       />
                     </div>
-                    <span
-                      className="fin-mono text-xs font-semibold shrink-0"
-                      style={{ color: "var(--text-1)", minWidth: 88, textAlign: "right" }}
-                    >
-                      {symbol}{fmt(value)}
-                    </span>
+                    <div className="shrink-0 text-right" style={{ minWidth: 88 }}>
+                      <div className="fin-mono text-xs font-semibold" style={{ color: "var(--text-1)" }}>
+                        {symbol}{fmt(value)}
+                      </div>
+                      <div className="text-xs" style={{ color: "var(--text-3)" }}>
+                        {totalExpenses > 0 ? ((value / totalExpenses) * 100).toFixed(1) : 0}%
+                      </div>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -249,12 +261,16 @@ function Dashboard({ transactions, onNavigate }) {
                     {formatDate(tx.date)} · {t(tx.category)}
                   </p>
                 </div>
-                <span
-                  className="fin-mono text-sm font-bold shrink-0"
-                  style={{ color: tx.type === "income" ? "var(--green)" : "var(--red)" }}
-                >
-                  {tx.type === "income" ? "+" : "−"}{symbol}{fmt(tx.amount)}
-                </span>
+                <div className="shrink-0 text-right">
+                  <div className="fin-mono text-sm font-bold" style={{ color: tx.type === "income" ? "var(--green)" : "var(--red)" }}>
+                    {tx.type === "income" ? "+" : "−"}{symbol}{fmt(tx.amount)}
+                  </div>
+                  {runningBalanceMap[tx.id] !== undefined && (
+                    <div className="fin-mono text-xs mt-0.5" style={{ color: "var(--text-3)" }}>
+                      {runningBalanceMap[tx.id] >= 0 ? "" : "−"}{symbol}{fmt(Math.abs(runningBalanceMap[tx.id]))}
+                    </div>
+                  )}
+                </div>
               </div>
             ))}
           </div>
