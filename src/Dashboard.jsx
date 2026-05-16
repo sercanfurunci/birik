@@ -92,15 +92,21 @@ function Dashboard({ transactions, onNavigate }) {
     .map(([name, value]) => ({ name, value }))
     .sort((a, b) => b.value - a.value);
 
-  const recent = [...transactions]
-    .sort((a, b) => new Date(b.date) - new Date(a.date))
-    .slice(0, 5);
+  const sortByDateDesc = (a, b) => {
+    const d = new Date(b.date) - new Date(a.date);
+    return d !== 0 ? d : b.id - a.id;
+  };
 
-  // Running balance per transaction (oldest→newest cumulative sum)
+  const recent = [...transactions].sort(sortByDateDesc).slice(0, 5);
+
+  // Running balance per transaction (oldest→newest, id as tiebreaker for same-day)
   const runningBalanceMap = {};
   let runningBal = 0;
   [...transactions]
-    .sort((a, b) => new Date(a.date) - new Date(b.date))
+    .sort((a, b) => {
+      const d = new Date(a.date) - new Date(b.date);
+      return d !== 0 ? d : a.id - b.id;
+    })
     .forEach(tx => {
       runningBal += tx.type === "income" ? parseFloat(tx.amount) : -parseFloat(tx.amount);
       runningBalanceMap[tx.id] = runningBal;
