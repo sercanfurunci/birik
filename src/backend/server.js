@@ -104,6 +104,14 @@ app.use(helmet());
 app.use(express.json({ limit: "10kb" }));
 app.use(cookieParser());
 
+// Escape user input before interpolating into HTML email templates so a malicious
+// subscription/account name can't inject markup or scripts into the message.
+const HTML_ESCAPE_MAP = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" };
+function escapeHtml(value) {
+  if (value == null) return "";
+  return String(value).replace(/[&<>"']/g, (c) => HTML_ESCAPE_MAP[c]);
+}
+
 // [FIX 7] httpOnly cookie options — cross-origin (Vercel→Render) needs sameSite:"none" + secure in prod
 const COOKIE_OPTS = {
   httpOnly: true,
@@ -1873,21 +1881,26 @@ async function sendSubscriptionReminders() {
 
     for (const row of result.rows) {
       const dueDate = new Date(row.next_billing_date).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
-      const name = row.username || row.email.split("@")[0];
+      const rawSubName = String(row.name || "").replace(/[\r\n]+/g, " ");
+      const name = escapeHtml(row.username || row.email.split("@")[0]);
+      const subName = escapeHtml(rawSubName);
+      const subCurrency = escapeHtml(row.currency);
+      const reminderDays = Number(row.reminder_days) || 0;
+      const dayLabel = reminderDays === 1 ? "" : "s";
       await sendEmail({
         to: row.email,
-        subject: `Reminder: ${row.name} bills in ${row.reminder_days} day${row.reminder_days === 1 ? "" : "s"}`,
+        subject: `Reminder: ${rawSubName} bills in ${reminderDays} day${dayLabel}`,
         html: `
           <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:24px">
             <h2 style="margin:0 0 8px;font-size:20px">Hi ${name},</h2>
             <p style="color:#555;margin:0 0 20px">
-              Just a heads-up — your <strong>${row.name}</strong> subscription is due in
-              <strong>${row.reminder_days} day${row.reminder_days === 1 ? "" : "s"}</strong>.
+              Just a heads-up — your <strong>${subName}</strong> subscription is due in
+              <strong>${reminderDays} day${dayLabel}</strong>.
             </p>
             <div style="background:#f5f5f5;border-radius:8px;padding:16px;margin-bottom:20px">
               <p style="margin:0 0 4px;font-size:13px;color:#888">NEXT BILLING DATE</p>
               <p style="margin:0;font-size:18px;font-weight:600">${dueDate}</p>
-              <p style="margin:6px 0 0;font-size:16px;color:#333">${row.currency} ${parseFloat(row.amount).toFixed(2)}</p>
+              <p style="margin:6px 0 0;font-size:16px;color:#333">${subCurrency} ${parseFloat(row.amount).toFixed(2)}</p>
             </div>
             <p style="font-size:12px;color:#aaa;margin:0">Sent by Birik · Manage reminders in your Subscriptions tab</p>
           </div>`,
