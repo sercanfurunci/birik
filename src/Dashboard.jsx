@@ -277,7 +277,7 @@ function Dashboard({ transactions, onNavigate }) {
               <YAxis hide />
               <ReferenceLine y={0} stroke="var(--border)" strokeDasharray="4 2" />
               <Tooltip content={<DailyTooltip symbol={symbol} t={t} transactions={transactions} getCatColor={getCatColor} thisMonthPrefix={thisMonthPrefix} />} cursor={{ fill: "var(--surface-2)", radius: 4 }} />
-              <Bar dataKey="net" radius={[3, 3, 0, 0]} maxBarSize={18}>
+              <Bar dataKey="net" radius={[3, 3, 0, 0]} maxBarSize={18} minPointSize={3}>
                 {dailyData.map((entry) => (
                   <Cell
                     key={entry.day}
