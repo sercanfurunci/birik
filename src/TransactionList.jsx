@@ -150,6 +150,20 @@ function TransactionList({ transactions, onDelete, onEdit }) {
   const [editValues, setEditValues] = useState({});
   const [deleteTarget, setDeleteTarget] = useState(null);
 
+  // Running balance per transaction (all transactions, oldest→newest with id tiebreaker)
+  const runningBalanceMap = {};
+  let runningBal = 0;
+  [...transactions]
+    .sort((a, b) => {
+      const d = new Date(a.date) - new Date(b.date);
+      return d !== 0 ? d : (a.id || 0) - (b.id || 0);
+    })
+    .forEach(tx => {
+      runningBal += tx.type === "income" ? parseFloat(tx.amount) : -parseFloat(tx.amount);
+      runningBalanceMap[tx.id] = runningBal;
+    });
+  const showRunningBalance = sortKey === "date_desc" || sortKey === "date_asc";
+
   const sorted = [...transactions].sort((a, b) => {
     if (sortKey === "amount_desc" || sortKey === "amount_asc") {
       const diff = parseFloat(a.amount) - parseFloat(b.amount);
@@ -424,12 +438,19 @@ function TransactionList({ transactions, onDelete, onEdit }) {
                       </span>
                     </div>
                     <div className="flex items-center gap-1.5 shrink-0">
-                      <span
-                        className="fin-mono text-sm font-bold"
-                        style={{ color: tx.type === "income" ? "var(--green)" : "var(--red)" }}
-                      >
-                        {tx.type === "income" ? "+" : "−"}{symbol}{fmt(tx.amount)}
-                      </span>
+                      <div className="text-right">
+                        <span
+                          className="fin-mono text-sm font-bold block"
+                          style={{ color: tx.type === "income" ? "var(--green)" : "var(--red)" }}
+                        >
+                          {tx.type === "income" ? "+" : "−"}{symbol}{fmt(tx.amount)}
+                        </span>
+                        {showRunningBalance && runningBalanceMap[tx.id] !== undefined && (
+                          <span className="fin-mono text-xs block" style={{ color: "var(--text-3)" }}>
+                            {runningBalanceMap[tx.id] >= 0 ? "" : "−"}{symbol}{fmt(Math.abs(runningBalanceMap[tx.id]))}
+                          </span>
+                        )}
+                      </div>
                       <button
                         onClick={() => startEdit(tx)}
                         className="w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer transition-colors"
