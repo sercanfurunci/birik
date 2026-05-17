@@ -31,7 +31,7 @@ Full-stack personal finance app called **Birik**. React 19 + Vite frontend, Expr
 ### Frontend environment variables
 
 ```
-VITE_API_URL=https://expense-track-starter-production.up.railway.app   # Railway backend
+VITE_API_URL=https://api.furunci.tech   # Railway backend (custom domain)
 ```
 
 ### Backend environment variables (Railway)
