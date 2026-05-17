@@ -2,10 +2,10 @@ import { useState, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { useLang } from "./i18n.jsx";
 import { useCurrency } from "./currency.jsx";
+import { useCategories } from "./categories.jsx";
 import { todayLocalISO } from "./dateUtils.js";
 
 const API = import.meta.env.VITE_API_URL;
-const CATEGORIES = ["food", "housing", "utilities", "transport", "entertainment", "salary", "other"];
 const FREQUENCIES = ["weekly", "monthly", "yearly"];
 
 function authFetch(url, opts = {}) {
@@ -148,17 +148,26 @@ function RecurringRow({ rule, symbol, t, formatDate, onEdit, onDeleteRequest, on
 
 // ─── Form ───────────────────────────────────────────────────────────────────
 function RecurringForm({ initial, onCancel, onSubmit, saving, t }) {
+  const { expenseCats, incomeCats, getCatColor } = useCategories();
   const startToday = todayISO();
   const [description, setDescription] = useState(initial?.description || "");
   const [amount,      setAmount]      = useState(initial ? String(initial.amount) : "");
   const [type,        setType]        = useState(initial?.type || "expense");
-  const [category,    setCategory]    = useState(initial?.category || "food");
+  const [category,    setCategory]    = useState(initial?.category || (initial?.type === "income" ? "salary" : "food"));
   const [frequency,   setFrequency]   = useState(initial?.frequency || "monthly");
   const [startDate,   setStartDate]   = useState(initial?.start_date ? String(initial.start_date).split("T")[0] : startToday);
   const [endDate,     setEndDate]     = useState(initial?.end_date ? String(initial.end_date).split("T")[0] : "");
   const [dayOfMonth,  setDayOfMonth]  = useState(
     initial?.day_of_period ?? new Date(startToday).getUTCDate()
   );
+
+  const categoryOptions = type === "income" ? incomeCats : expenseCats;
+
+  function switchType(nextType) {
+    if (nextType === type) return;
+    setType(nextType);
+    setCategory(nextType === "income" ? "salary" : "food");
+  }
 
   const submit = (e) => {
     e.preventDefault();
@@ -200,16 +209,27 @@ function RecurringForm({ initial, onCancel, onSubmit, saving, t }) {
       {/* Type + Category */}
       <div className="flex gap-2.5 flex-wrap sm:flex-nowrap">
         <div className="type-toggle shrink-0">
-          <button type="button" onClick={() => setType("income")}  className={`type-btn ${type === "income" ? "active-income" : ""}`}>
+          <button type="button" onClick={() => switchType("income")}  className={`type-btn ${type === "income" ? "active-income" : ""}`}>
             + {t("incomeOption")}
           </button>
-          <button type="button" onClick={() => setType("expense")} className={`type-btn ${type === "expense" ? "active-expense" : ""}`}>
+          <button type="button" onClick={() => switchType("expense")} className={`type-btn ${type === "expense" ? "active-expense" : ""}`}>
             − {t("expenseOption")}
           </button>
         </div>
-        <select className="fin-select flex-1 min-w-0" value={category} onChange={(e) => setCategory(e.target.value)}>
-          {CATEGORIES.map((c) => (<option key={c} value={c}>{t(c)}</option>))}
-        </select>
+        <div className="relative flex-1 min-w-0">
+          <select
+            className="fin-select w-full appearance-none"
+            style={{ paddingLeft: "2rem" }}
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+          >
+            {categoryOptions.map((c) => (<option key={c} value={c}>{t(c)}</option>))}
+          </select>
+          <span
+            className="absolute left-3 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full pointer-events-none"
+            style={{ backgroundColor: getCatColor(category, type) }}
+          />
+        </div>
       </div>
 
       {/* Frequency */}
