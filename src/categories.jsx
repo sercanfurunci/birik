@@ -42,16 +42,21 @@ export function CategoriesProvider({ initialCats = [], onSave, children }) {
   }, [initialCats]);
 
   // Returns "ok" on success, or an error code: "empty" | "reserved" | "exists"
+  // Same label is allowed across kinds — uniqueness is per (label, kind).
   const addCat = useCallback((label, kind = "expense") => {
     const id = label.trim();
     if (!id) return "empty";
     const lower = id.toLowerCase();
-    if (BASE_CATS.includes(lower)) return "reserved";
-    if (customCats.find(c => c.id.toLowerCase() === lower)) return "exists";
     const normalizedKind = kind === "income" ? "income" : "expense";
+    // Reserve built-in expense names from being added as expense, and built-in income names from being added as income
+    const isReservedExpense = BASE_CATS.includes(lower) && !INCOME_ONLY_CATS.includes(lower);
+    const isReservedIncome  = INCOME_ONLY_CATS.includes(lower) || lower === "other";
+    if (normalizedKind === "expense" && isReservedExpense) return "reserved";
+    if (normalizedKind === "income"  && isReservedIncome)  return "reserved";
+    if (customCats.find(c => c.id.toLowerCase() === lower && (c.kind || "expense") === normalizedKind)) return "exists";
 
     setCustomCats(prev => {
-      if (prev.find(c => c.id.toLowerCase() === lower)) return prev;
+      if (prev.find(c => c.id.toLowerCase() === lower && (c.kind || "expense") === normalizedKind)) return prev;
       const color = PALETTE[prev.length % PALETTE.length];
       const next = [...prev, { id, color, kind: normalizedKind }];
       onSave?.(next);
@@ -68,8 +73,15 @@ export function CategoriesProvider({ initialCats = [], onSave, children }) {
     });
   }, [onSave]);
 
-  const getCatColor = useCallback((cat) => {
+  // kind is optional: pass it when known (per-tx context) so income-"Bonus" and expense-"Bonus" can each have their own color.
+  // When omitted, returns the first match by id (acceptable for aggregate views that don't track type).
+  const getCatColor = useCallback((cat, kind) => {
     if (BASE_CAT_COLORS[cat]) return BASE_CAT_COLORS[cat];
+    if (kind) {
+      const normalized = kind === "income" ? "income" : "expense";
+      const exact = customCats.find(c => c.id === cat && (c.kind || "expense") === normalized);
+      if (exact) return exact.color;
+    }
     return customCats.find(c => c.id === cat)?.color ?? "#94A3B8";
   }, [customCats]);
 

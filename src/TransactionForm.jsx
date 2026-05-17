@@ -178,7 +178,7 @@ function TransactionForm({ onAdd, onRefresh }) {
                 </select>
                 <span
                   className="absolute left-3 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full pointer-events-none"
-                  style={{ backgroundColor: getCatColor(category) }}
+                  style={{ backgroundColor: getCatColor(category, type) }}
                 />
               </div>
             )}

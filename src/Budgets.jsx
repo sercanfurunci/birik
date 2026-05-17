@@ -320,7 +320,7 @@ function Budgets({ transactions, showToast }) {
           <div key={b.id} className="fin-card rounded-2xl p-5">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
-                <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: getCatColor(b.category) }} />
+                <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: getCatColor(b.category, "expense") }} />
                 <span className="text-sm font-semibold truncate max-w-[120px]" style={{ color: "var(--text-1)" }}>
                   {t(b.category)}
                 </span>

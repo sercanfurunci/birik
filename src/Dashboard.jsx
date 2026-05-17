@@ -21,7 +21,7 @@ function ChartTooltip({ active, payload, t, symbol, getCatColor }) {
   return (
     <div className="fin-card rounded-xl px-3 py-2 text-sm shadow-lg">
       <p className="font-medium capitalize" style={{ color: "var(--text-1)" }}>{t(name)}</p>
-      <p className="fin-mono font-bold" style={{ color: getCatColor(name) }}>
+      <p className="fin-mono font-bold" style={{ color: getCatColor(name, "expense") }}>
         {symbol}{fmt(value)}
       </p>
     </div>
@@ -45,7 +45,7 @@ function DailyTooltip({ active, payload, symbol, t, transactions, getCatColor, t
       <div className="space-y-1.5">
         {dayTxs.map(tx => (
           <div key={tx.id} className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: getCatColor(tx.category) }} />
+            <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: getCatColor(tx.category, tx.type) }} />
             <span className="text-xs flex-1 truncate" style={{ color: "var(--text-2)" }}>
               {tx.description || t(tx.category)}
             </span>
@@ -195,7 +195,7 @@ function Dashboard({ transactions, onNavigate }) {
                       strokeWidth={0}
                     >
                       {catData.map((entry) => (
-                        <Cell key={entry.name} fill={getCatColor(entry.name)} />
+                        <Cell key={entry.name} fill={getCatColor(entry.name, "expense")} />
                       ))}
                     </Pie>
                     <Tooltip content={<ChartTooltip t={t} symbol={symbol} getCatColor={getCatColor} />} />
@@ -207,7 +207,7 @@ function Dashboard({ transactions, onNavigate }) {
                   <div key={name} className="flex items-center gap-3">
                     <div
                       className="w-2 h-2 rounded-full shrink-0"
-                      style={{ backgroundColor: getCatColor(name) }}
+                      style={{ backgroundColor: getCatColor(name, "expense") }}
                     />
                     <span className="text-sm capitalize flex-1 truncate" style={{ color: "var(--text-2)" }}>
                       {t(name)}
@@ -220,7 +220,7 @@ function Dashboard({ transactions, onNavigate }) {
                         className="h-full rounded-full"
                         style={{
                           width: `${totalExpenses > 0 ? (value / totalExpenses) * 100 : 0}%`,
-                          backgroundColor: getCatColor(name),
+                          backgroundColor: getCatColor(name, "expense"),
                         }}
                       />
                     </div>
@@ -261,11 +261,11 @@ function Dashboard({ transactions, onNavigate }) {
               >
                 <div
                   className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
-                  style={{ backgroundColor: `${getCatColor(tx.category)}18` }}
+                  style={{ backgroundColor: `${getCatColor(tx.category, tx.type)}18` }}
                 >
                   <div
                     className="w-2 h-2 rounded-full"
-                    style={{ backgroundColor: getCatColor(tx.category) }}
+                    style={{ backgroundColor: getCatColor(tx.category, tx.type) }}
                   />
                 </div>
                 <div className="flex-1 min-w-0">

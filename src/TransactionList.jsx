@@ -8,10 +8,10 @@ import { todayLocalISO } from "./dateUtils.js";
 const fmt = (n) =>
   parseFloat(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-function CategoryPill({ cat, label, getCatColor }) {
+function CategoryPill({ cat, label, getCatColor, kind }) {
   return (
     <span className="cat-pill shrink-0">
-      <span className="cat-dot" style={{ backgroundColor: getCatColor(cat) }} />
+      <span className="cat-dot" style={{ backgroundColor: getCatColor(cat, kind) }} />
       {label}
     </span>
   );
@@ -55,7 +55,7 @@ function DeleteModal({ transaction, onConfirm, onCancel }) {
             </span>
           </div>
           <div className="flex items-center gap-2 text-xs" style={{ color: "var(--text-3)" }}>
-            <CategoryPill cat={transaction.category} label={t(transaction.category)} getCatColor={getCatColor} />
+            <CategoryPill cat={transaction.category} label={t(transaction.category)} getCatColor={getCatColor} kind={transaction.type} />
             <span>·</span>
             <span>{formatDate(transaction.date)}</span>
           </div>
@@ -442,7 +442,7 @@ function TransactionList({ transactions, onDelete, onEdit }) {
                         <p className="text-sm font-medium truncate" style={{ color: "var(--text-1)" }}>
                           {tx.description}
                         </p>
-                        <CategoryPill cat={tx.category} label={t(tx.category)} getCatColor={getCatColor} />
+                        <CategoryPill cat={tx.category} label={t(tx.category)} getCatColor={getCatColor} kind={tx.type} />
                       </div>
 
                       <span className="fin-mono text-[10px] mt-0.5 block" style={{ color: "var(--text-3)" }}>
@@ -592,7 +592,7 @@ function TransactionList({ transactions, onDelete, onEdit }) {
                           <span className="block truncate" title={tx.description}>{tx.description}</span>
                         </td>
                         <td className="px-5 py-2.5">
-                          <CategoryPill cat={tx.category} label={t(tx.category)} getCatColor={getCatColor} />
+                          <CategoryPill cat={tx.category} label={t(tx.category)} getCatColor={getCatColor} kind={tx.type} />
                         </td>
                         <td className="px-5 py-2.5 text-right whitespace-nowrap">
                           <span

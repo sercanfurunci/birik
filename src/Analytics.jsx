@@ -327,7 +327,7 @@ function Analytics({ transactions }) {
                   return (
                     <div key={cat} className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full" style={{ backgroundColor: getCatColor(cat) }} />
+                        <div className="w-2 h-2 rounded-full" style={{ backgroundColor: getCatColor(cat, "expense") }} />
                         <span className="text-sm capitalize truncate max-w-[120px]" style={{ color: "var(--text-2)" }}>{t(cat)}</span>
                       </div>
                       <div className="flex items-center gap-2">
@@ -398,7 +398,7 @@ function Analytics({ transactions }) {
               <div key={cat}>
                 <div className="flex items-center justify-between mb-1.5">
                   <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: getCatColor(cat) }} />
+                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: getCatColor(cat, "expense") }} />
                     <span className="text-sm capitalize truncate max-w-[120px]" style={{ color: "var(--text-2)" }}>{t(cat)}</span>
                   </div>
                   <div className="flex items-center gap-3">
@@ -413,7 +413,7 @@ function Analytics({ transactions }) {
                     className="h-full rounded-full"
                     style={{
                       width: `${pct}%`,
-                      backgroundColor: getCatColor(cat),
+                      backgroundColor: getCatColor(cat, "expense"),
                       transition: "width 0.6s cubic-bezier(0.16,1,0.3,1)",
                     }}
                   />
