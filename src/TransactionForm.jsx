@@ -39,7 +39,7 @@ function TransactionForm({ onAdd, onRefresh }) {
   };
 
   function handleAddCat() {
-    const ok = addCat(newCatInput);
+    const ok = addCat(newCatInput, type);
     if (ok) {
       setCategory(newCatInput.trim());
       setNewCatInput("");

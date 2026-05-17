@@ -18,7 +18,12 @@ function CategoryPill({ cat, label, getCatColor }) {
 }
 
 function DeleteModal({ transaction, onConfirm, onCancel }) {
-  const { t } = useLang();
+  const { t, formatDate } = useLang();
+  const { symbol } = useCurrency();
+  const { getCatColor } = useCategories();
+  const isIncome = transaction.type === "income";
+  const accent = isIncome ? "var(--green)" : "var(--red)";
+  const sign = isIncome ? "+" : "−";
   return createPortal(
     <div className="modal-backdrop fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onCancel} />
@@ -35,8 +40,27 @@ function DeleteModal({ transaction, onConfirm, onCancel }) {
           </svg>
         </div>
         <h3 className="font-semibold text-center text-base mb-1" style={{ color: "var(--text-1)" }}>{t("deleteTransaction")}</h3>
-        <p className="text-sm text-center mb-1" style={{ color: "var(--text-2)" }}>{t("deleteConfirmLine1")}</p>
-        <p className="text-sm text-center font-medium mb-6" style={{ color: "var(--text-1)" }}>"{transaction.description}"?</p>
+        <p className="text-sm text-center mb-4" style={{ color: "var(--text-2)" }}>{t("deleteConfirmLine1")}</p>
+
+        <div
+          className="rounded-xl px-4 py-3 mb-5"
+          style={{ backgroundColor: "var(--surface-2)", border: "1px solid var(--border)", borderLeft: `3px solid ${accent}` }}
+        >
+          <div className="flex items-center justify-between gap-3 mb-1.5">
+            <p className="text-sm font-medium truncate" style={{ color: "var(--text-1)" }}>
+              {transaction.description?.trim() || t(transaction.category)}
+            </p>
+            <span className="fin-mono text-sm font-bold shrink-0" style={{ color: accent }}>
+              {sign}{symbol}{fmt(transaction.amount)}
+            </span>
+          </div>
+          <div className="flex items-center gap-2 text-xs" style={{ color: "var(--text-3)" }}>
+            <CategoryPill cat={transaction.category} label={t(transaction.category)} getCatColor={getCatColor} />
+            <span>·</span>
+            <span>{formatDate(transaction.date)}</span>
+          </div>
+        </div>
+
         <div className="flex gap-2.5">
           <button
             onClick={onCancel}

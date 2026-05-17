@@ -129,6 +129,7 @@ const translations = {
     amountPlaceholder: "Amount",
     incomeOption: "Income",
     expenseOption: "Expense",
+    type: "Type",
     addBtn: "Add",
 
     // List
@@ -527,6 +528,7 @@ const translations = {
     amountPlaceholder: "Tutar",
     incomeOption: "Gelir",
     expenseOption: "Gider",
+    type: "Tür",
     addBtn: "Ekle",
 
     // List

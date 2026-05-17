@@ -41,16 +41,17 @@ export function CategoriesProvider({ initialCats = [], onSave, children }) {
     }
   }, [initialCats]);
 
-  const addCat = useCallback((label) => {
+  const addCat = useCallback((label, kind = "expense") => {
     const id = label.trim();
     if (!id) return false;
     const lower = id.toLowerCase();
     if (BASE_CATS.includes(lower)) return false;
+    const normalizedKind = kind === "income" ? "income" : "expense";
 
     setCustomCats(prev => {
       if (prev.find(c => c.id.toLowerCase() === lower)) return prev;
       const color = PALETTE[prev.length % PALETTE.length];
-      const next = [...prev, { id, color }];
+      const next = [...prev, { id, color, kind: normalizedKind }];
       onSave?.(next);
       return next;
     });
@@ -70,9 +71,13 @@ export function CategoriesProvider({ initialCats = [], onSave, children }) {
     return customCats.find(c => c.id === cat)?.color ?? "#94A3B8";
   }, [customCats]);
 
-  const allCats = [...BASE_CATS, ...customCats.map(c => c.id)];
-  const expenseCats = allCats.filter(c => !INCOME_ONLY_CATS.includes(c));
-  const incomeCats = [...INCOME_ONLY_CATS, "other"];
+  // Custom cats default to "expense" kind when not specified (backwards-compat for rows saved before this field existed)
+  const customIncome  = customCats.filter(c => c.kind === "income").map(c => c.id);
+  const customExpense = customCats.filter(c => c.kind !== "income").map(c => c.id);
+
+  const allCats     = [...BASE_CATS, ...customCats.map(c => c.id)];
+  const expenseCats = [...BASE_CATS.filter(c => !INCOME_ONLY_CATS.includes(c)), ...customExpense];
+  const incomeCats  = [...INCOME_ONLY_CATS, "other", ...customIncome];
 
   return (
     <CatsContext.Provider value={{ customCats, allCats, expenseCats, incomeCats, addCat, removeCat, getCatColor }}>

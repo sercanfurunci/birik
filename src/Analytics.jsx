@@ -14,7 +14,11 @@ function isoFromLocalDate(d) {
   return `${y}-${m}-${day}`;
 }
 
-const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+// 1970-01-04 (UTC) = Sunday → indices 0..6 align with Date.prototype.getDay()
+const DAY_REFERENCE_DATES = [0, 1, 2, 3, 4, 5, 6].map((i) => new Date(Date.UTC(1970, 0, 4 + i)));
+function formatDayName(dayIdx, locale, weekday) {
+  return new Intl.DateTimeFormat(locale, { weekday, timeZone: "UTC" }).format(DAY_REFERENCE_DATES[dayIdx]);
+}
 
 const fmt = (n) =>
   parseFloat(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -169,7 +173,10 @@ function Analytics({ transactions }) {
     if (d) dayCount[d.getDay()]++;
   });
   const maxDayCount = Math.max(...dayCount);
-  const busiestDay = maxDayCount > 0 ? DAYS[dayCount.indexOf(maxDayCount)] : null;
+  const busiestDayIdx = maxDayCount > 0 ? dayCount.indexOf(maxDayCount) : null;
+  const intlLocale = lang === "tr" ? "tr-TR" : "en-US";
+  const busiestDayShort = busiestDayIdx != null ? formatDayName(busiestDayIdx, intlLocale, "short") : "—";
+  const busiestDayLong  = busiestDayIdx != null ? formatDayName(busiestDayIdx, intlLocale, "long")  : "";
 
   const biggestExpense = expenses.length > 0 ? Math.max(...expenses.map(tx => parseFloat(tx.amount))) : 0;
 
@@ -259,8 +266,8 @@ function Analytics({ transactions }) {
         />
         <StatCard
           label={t("busiestDay")}
-          value={busiestDay ? busiestDay.slice(0, 3) : "—"}
-          sub={busiestDay ?? ""}
+          value={busiestDayShort}
+          sub={busiestDayLong}
         />
         <StatCard
           label={t("transactions")}
