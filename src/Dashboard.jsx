@@ -72,11 +72,21 @@ function Dashboard({ transactions, onNavigate }) {
   const { symbol } = useCurrency();
   const { getCatColor } = useCategories();
   const [goals, setGoals] = useState([]);
+  const [recurring, setRecurring] = useState([]);
+  const [subscriptions, setSubscriptions] = useState([]);
 
   useEffect(() => {
     authFetch(`${API}/goals`)
       .then(r => r.json())
       .then(d => { if (Array.isArray(d)) setGoals(d); })
+      .catch(() => {});
+    authFetch(`${API}/recurring`)
+      .then(r => r.json())
+      .then(d => { if (Array.isArray(d)) setRecurring(d); })
+      .catch(() => {});
+    authFetch(`${API}/subscriptions`)
+      .then(r => r.json())
+      .then(d => { if (Array.isArray(d)) setSubscriptions(d); })
       .catch(() => {});
   }, []);
 
@@ -128,9 +138,60 @@ function Dashboard({ transactions, onNavigate }) {
   const avgDaily = dayElapsed > 0 ? thisMonthTotal / dayElapsed : 0;
   const monthChange = prevMonthTotal > 0 ? ((thisMonthTotal - prevMonthTotal) / prevMonthTotal) * 100 : null;
 
+  // Median of per-day expense totals across elapsed days — robust to one-off spikes
+  const dailyExpenseTotals = Array.from({ length: dayElapsed }, () => 0);
+  thisMonthExp.forEach(tx => {
+    const d = parseInt((tx.date || "").slice(8, 10), 10);
+    if (d >= 1 && d <= dayElapsed) dailyExpenseTotals[d - 1] += parseFloat(tx.amount) || 0;
+  });
+  const sortedDaily = [...dailyExpenseTotals].sort((a, b) => a - b);
+  const medianDaily = sortedDaily.length
+    ? (sortedDaily.length % 2
+        ? sortedDaily[(sortedDaily.length - 1) / 2]
+        : (sortedDaily[sortedDaily.length / 2 - 1] + sortedDaily[sortedDaily.length / 2]) / 2)
+    : 0;
+  const variableRate = (dayElapsed >= 5 && medianDaily > 0) ? medianDaily : avgDaily;
+
+  // Known upcoming charges this month: active expense recurring rules + auto-charge subscriptions
+  const monthEndDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+  const parseLocalDate = (s) => {
+    if (!s) return null;
+    const [y, m, d] = String(s).slice(0, 10).split("-").map(Number);
+    if (!y || !m || !d) return null;
+    return new Date(y, m - 1, d);
+  };
+  const sumFutureCharges = (nextDateStr, frequency, amount, ruleEndStr, dayOfPeriod) => {
+    const cursor = parseLocalDate(nextDateStr);
+    if (!cursor) return 0;
+    const ruleEnd = parseLocalDate(ruleEndStr);
+    let total = 0;
+    let safety = 0;
+    while (cursor <= monthEndDate && (!ruleEnd || cursor <= ruleEnd) && safety < 60) {
+      total += parseFloat(amount) || 0;
+      if (frequency === "weekly") cursor.setDate(cursor.getDate() + 7);
+      else if (frequency === "monthly") {
+        cursor.setMonth(cursor.getMonth() + 1);
+        if (dayOfPeriod) {
+          const dim = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 0).getDate();
+          cursor.setDate(Math.min(dayOfPeriod, dim));
+        }
+      } else if (frequency === "yearly") cursor.setFullYear(cursor.getFullYear() + 1);
+      else break;
+      safety++;
+    }
+    return total;
+  };
+  const fixedFromRecurring = recurring
+    .filter(r => r.is_active && r.type === "expense")
+    .reduce((s, r) => s + sumFutureCharges(r.next_run_date, r.frequency, r.amount, r.end_date, r.day_of_period), 0);
+  const fixedFromSubs = subscriptions
+    .filter(s => s.is_active && s.auto_charge)
+    .reduce((s, sub) => s + sumFutureCharges(sub.next_billing_date, sub.billing_cycle, sub.amount, null, null), 0);
+  const fixedUpcoming = fixedFromRecurring + fixedFromSubs;
+
   // End-of-month projection — needs at least 3 days of data and 2 transactions to be meaningful
-  const projectedMonthTotal = avgDaily * daysInMonth;
-  const projectedRemaining = avgDaily * daysLeft;
+  const variableRemaining = variableRate * daysLeft;
+  const projectedMonthTotal = thisMonthTotal + variableRemaining + fixedUpcoming;
   const showProjection = thisMonthExp.length >= 2 && dayElapsed >= 3 && daysLeft > 0;
   const projVsLast = prevMonthTotal > 0
     ? ((projectedMonthTotal - prevMonthTotal) / prevMonthTotal) * 100
@@ -364,6 +425,14 @@ function Dashboard({ transactions, onNavigate }) {
             <span>
               <span className="fin-mono font-semibold" style={{ color: "var(--text-2)" }}>{daysLeft}</span> {t("projDaysLeft")}
             </span>
+            {fixedUpcoming > 0 && (
+              <>
+                <span style={{ color: "var(--border)" }}>·</span>
+                <span title={t("projScheduledTooltip")}>
+                  <span className="fin-mono font-semibold" style={{ color: "var(--text-2)" }}>+{symbol}{fmt(fixedUpcoming)}</span> {t("projScheduled")}
+                </span>
+              </>
+            )}
           </div>
 
           <div className="mt-3">
