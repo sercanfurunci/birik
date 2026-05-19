@@ -198,6 +198,9 @@ pool.query(`ALTER TABLE subscriptions ADD COLUMN IF NOT EXISTS reminder_days INT
 pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS custom_categories JSONB DEFAULT '[]'`)
   .catch(err => console.error("users.custom_categories migration:", err));
 
+pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS token_version INT DEFAULT 0`)
+  .catch(err => console.error("users.token_version migration:", err));
+
 pool.query(`
   CREATE TABLE IF NOT EXISTS goals (
     id             SERIAL PRIMARY KEY,
