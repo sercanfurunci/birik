@@ -2,7 +2,7 @@
 
 A full-stack personal finance app to track income and expenses, manage budgets and subscriptions, set savings goals, and import bank statements with AI — with multi-currency support and a clean bilingual UI.
 
-**Live app → [furunci.tech](https://furunci.tech)**
+**Live app → [birik.furunci.tech](https://birik.furunci.tech)**
 
 ---
 

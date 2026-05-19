@@ -3,4 +3,4 @@ Allow: /
 Disallow: /reset-password
 Disallow: /verify
 
-Sitemap: https://furunci.tech/sitemap.xml
+Sitemap: https://birik.furunci.tech/sitemap.xml

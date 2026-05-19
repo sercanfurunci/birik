@@ -449,7 +449,7 @@ app.post("/auth/register", async (req, res) => {
       html: `
         <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px;background:#F7F4ED;border-radius:16px;">
           <div style="text-align:center;margin-bottom:24px;">
-            <img src="https://furunci.tech/birik.png" width="48" height="48" alt="Birik" style="border-radius:12px;display:inline-block;"/>
+            <img src="https://birik.furunci.tech/birik.png" width="48" height="48" alt="Birik" style="border-radius:12px;display:inline-block;"/>
             <h2 style="margin:12px 0 4px;color:#1e293b;">Birik</h2>
             <p style="color:#64748b;margin:0;font-size:14px;">Email Verification</p>
           </div>
@@ -514,7 +514,7 @@ function verifyHtmlPage(message, success) {
 </head>
 <body>
   <div class="card">
-    <img src="https://furunci.tech/birik.png" width="56" height="56" alt="Birik" class="logo"/>
+    <img src="https://birik.furunci.tech/birik.png" width="56" height="56" alt="Birik" class="logo"/>
     <div class="icon" style="background:${color}22;color:${color};">${icon}</div>
     <div class="title">Birik</div>
     <p class="msg">${message}</p>
@@ -652,7 +652,7 @@ app.post("/auth/forgot-password", async (req, res) => {
       html: `
         <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px;background:#F7F4ED;border-radius:16px;">
           <div style="text-align:center;margin-bottom:24px;">
-            <img src="https://furunci.tech/birik.png" width="48" height="48" alt="Birik" style="border-radius:12px;display:inline-block;"/>
+            <img src="https://birik.furunci.tech/birik.png" width="48" height="48" alt="Birik" style="border-radius:12px;display:inline-block;"/>
             <h2 style="margin:12px 0 4px;color:#1e293b;">Birik</h2>
             <p style="color:#64748b;margin:0;font-size:14px;">Password Reset</p>
           </div>
@@ -909,7 +909,7 @@ app.post("/auth/link-email", authMiddleware, async (req, res) => {
       html: `
         <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px;background:#F7F4ED;border-radius:16px;">
           <div style="text-align:center;margin-bottom:24px;">
-            <img src="https://furunci.tech/birik.png" width="48" height="48" alt="Birik" style="border-radius:12px;display:inline-block;"/>
+            <img src="https://birik.furunci.tech/birik.png" width="48" height="48" alt="Birik" style="border-radius:12px;display:inline-block;"/>
             <h2 style="margin:12px 0 4px;color:#1e293b;">Birik</h2>
           </div>
           <div style="background:#fff;border-radius:12px;padding:24px;border:1px solid #DDD8CE;">

@@ -2,10 +2,10 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>https://furunci.tech/</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://furunci.tech/" />
-    <xhtml:link rel="alternate" hreflang="tr" href="https://furunci.tech/?lang=tr" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://furunci.tech/" />
+    <loc>https://birik.furunci.tech/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://birik.furunci.tech/" />
+    <xhtml:link rel="alternate" hreflang="tr" href="https://birik.furunci.tech/?lang=tr" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://birik.furunci.tech/" />
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>

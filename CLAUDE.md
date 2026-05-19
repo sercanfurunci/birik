@@ -21,7 +21,7 @@ Full-stack personal finance app called **Birik**. React 19 + Vite frontend, Expr
 
 ### Deployment
 
-- **Frontend**: Vercel — auto-deploys from GitHub `main`. Custom domain: `furunci.tech`
+- **Frontend**: Vercel — auto-deploys from GitHub `main`. Custom domain: `birik.furunci.tech` (apex `furunci.tech` is reserved for the personal portfolio site)
 - **Backend**: Railway (Hobby plan, always-on, no cold starts) — auto-deploys from GitHub `main`
   - Custom Build Command: `cd src/backend && npm ci`
   - Custom Start Command: `node src/backend/server.js`
@@ -41,7 +41,7 @@ JWT_SECRET, ADMIN_SECRET            # auth secrets
 RESEND_API_KEY                       # Resend HTTPS email API
 MAIL_FROM=noreply@furunci.tech       # plain email, no display-name/<> (Railway misparses angle brackets)
 BACKEND_URL                          # public URL of this backend (for email links)
-FRONTEND_URL=https://furunci.tech    # primary frontend URL (used for CORS + email links)
+FRONTEND_URL=https://birik.furunci.tech  # primary frontend URL (used for CORS + email links)
 ALLOWED_ORIGINS                      # optional comma-separated extra CORS origins
 ANTHROPIC_API_KEY                    # for AI statement import (claude-haiku-4-5)
 DB_HOST, DB_USER, DB_NAME, DB_PASSWORD, DB_PORT   # Neon PostgreSQL

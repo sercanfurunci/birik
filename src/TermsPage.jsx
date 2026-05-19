@@ -264,7 +264,7 @@ function TermsPage({ isDark, toggleDark, onBack }) {
 
         <div className="mt-12 pt-6" style={{ borderTop: "1px solid var(--border)" }}>
           <p className="text-xs" style={{ color: "var(--text-3)" }}>
-            © {new Date().getFullYear()} Birik · furunci.tech
+            © {new Date().getFullYear()} Birik · birik.furunci.tech
           </p>
         </div>
       </article>
