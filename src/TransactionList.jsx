@@ -213,6 +213,15 @@ function TransactionList({ transactions, onDelete, onEdit }) {
   const safePage = Math.min(page, Math.max(0, totalPages - 1));
   const paginated = filtered.slice(safePage * PAGE_SIZE, (safePage + 1) * PAGE_SIZE);
 
+  const runningBalanceMap = {};
+  let runningBal = 0;
+  [...transactions]
+    .sort((a, b) => { const d = new Date(a.date) - new Date(b.date); return d !== 0 ? d : a.id - b.id; })
+    .forEach(tx => {
+      runningBal += tx.type === "income" ? parseFloat(tx.amount) : -parseFloat(tx.amount);
+      runningBalanceMap[tx.id] = runningBal;
+    });
+
   // Reset to page 0 whenever any filter changes
   useEffect(() => { setPage(0); }, [filterType, filterCategory, searchLower, dateFrom, dateTo, sortKey]);
 
@@ -450,12 +459,19 @@ function TransactionList({ transactions, onDelete, onEdit }) {
                       </span>
                     </div>
                     <div className="flex items-center gap-1.5 shrink-0">
-                      <span
-                        className="fin-mono text-sm font-bold"
-                        style={{ color: tx.type === "income" ? "var(--green)" : "var(--red)" }}
-                      >
-                        {tx.type === "income" ? "+" : "−"}{symbol}{fmt(tx.amount)}
-                      </span>
+                      <div className="text-right">
+                        <span
+                          className="fin-mono text-sm font-bold block"
+                          style={{ color: tx.type === "income" ? "var(--green)" : "var(--red)" }}
+                        >
+                          {tx.type === "income" ? "+" : "−"}{symbol}{fmt(tx.amount)}
+                        </span>
+                        {runningBalanceMap[tx.id] !== undefined && (
+                          <span className="fin-mono text-[10px]" style={{ color: "var(--text-3)" }}>
+                            {runningBalanceMap[tx.id] < 0 ? "−" : ""}{symbol}{fmt(Math.abs(runningBalanceMap[tx.id]))}
+                          </span>
+                        )}
+                      </div>
                       <button
                         onClick={() => startEdit(tx)}
                         className="w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer transition-colors"
@@ -601,6 +617,11 @@ function TransactionList({ transactions, onDelete, onEdit }) {
                           >
                             {tx.type === "income" ? "+" : "−"}{symbol}{fmt(tx.amount)}
                           </span>
+                          {runningBalanceMap[tx.id] !== undefined && (
+                            <div className="fin-mono text-xs mt-0.5" style={{ color: "var(--text-3)" }}>
+                              {runningBalanceMap[tx.id] < 0 ? "−" : ""}{symbol}{fmt(Math.abs(runningBalanceMap[tx.id]))}
+                            </div>
+                          )}
                         </td>
                         <td className="px-4 py-2.5" style={{ whiteSpace: "nowrap" }}>
                           <div className="flex items-center gap-1 justify-end">
