@@ -247,6 +247,8 @@ const translations = {
     budgetTotalSpent: "Total Spent",
     budgetDeleteTitle: "Remove Budget",
     budgetSelectCategory: "Category",
+    budgetNotes: "Notes (optional)",
+    budgetNotesPlaceholder: "e.g. includes streaming + gym",
 
     // Toasts
     toastTxAdded: "Transaction added",
@@ -651,6 +653,8 @@ const translations = {
     budgetTotalSpent: "Toplam Harcama",
     budgetDeleteTitle: "Bütçeyi Kaldır",
     budgetSelectCategory: "Kategori",
+    budgetNotes: "Açıklama (opsiyonel)",
+    budgetNotesPlaceholder: "ör. yayın + spor salonu dahil",
 
     // Toasts
     toastTxAdded: "İşlem eklendi",

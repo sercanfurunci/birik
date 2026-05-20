@@ -227,6 +227,9 @@ pool.query(`
   )
 `).catch(err => console.error("budgets table init error:", err));
 
+pool.query(`ALTER TABLE budgets ADD COLUMN IF NOT EXISTS notes TEXT`)
+  .catch(err => console.error("budgets notes column error:", err));
+
 pool.query(`
   CREATE TABLE IF NOT EXISTS recurring_transactions (
     id              SERIAL PRIMARY KEY,
@@ -1731,7 +1734,7 @@ app.post("/transactions/import/bulk", authMiddleware, async (req, res) => {
 app.get("/budgets", authMiddleware, async (req, res) => {
   try {
     const result = await pool.query(
-      "SELECT id, category, amount FROM budgets WHERE user_id=$1 ORDER BY category",
+      "SELECT id, category, amount, notes FROM budgets WHERE user_id=$1 ORDER BY category",
       [req.user.id]
     );
     res.json(result.rows);
@@ -1744,18 +1747,19 @@ app.get("/budgets", authMiddleware, async (req, res) => {
 app.put("/budgets", authMiddleware, async (req, res) => {
   const category = trimStr(req.body.category, 50);
   const amount   = isValidAmount(req.body.amount);
+  const notes    = trimStr(req.body.notes, 500) ?? null;
 
   if (!(await isCategoryAllowedForUser(req.user.id, category))) return res.status(400).json({ error: "Invalid category" });
   if (amount === null) return res.status(400).json({ error: "Amount must be a positive number under 1 billion" });
 
   try {
     const result = await pool.query(
-      `INSERT INTO budgets (user_id, category, amount)
-       VALUES ($1, $2, $3)
+      `INSERT INTO budgets (user_id, category, amount, notes)
+       VALUES ($1, $2, $3, $4)
        ON CONFLICT (user_id, category) DO UPDATE
-         SET amount = EXCLUDED.amount, updated_at = NOW()
-       RETURNING id, category, amount`,
-      [req.user.id, category, amount]
+         SET amount = EXCLUDED.amount, notes = EXCLUDED.notes, updated_at = NOW()
+       RETURNING id, category, amount, notes`,
+      [req.user.id, category, amount, notes]
     );
     res.json(result.rows[0]);
   } catch (err) {

@@ -21,15 +21,19 @@ function authFetch(url, opts = {}) {
 const fmt = (n) =>
   parseFloat(n || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-function BudgetForm({ initial, allExpenseCats, existingCategories, onSave, onCancel }) {
+function BudgetForm({ initial, allExpenseCats, customExpenseCats, existingCategories, onSave, onCancel }) {
   const { t } = useLang();
   const isEdit = !!initial?.id;
+
+  // Custom cats first, then base cats, filtered out already-budgeted ones on add
+  const orderedCats = [...customExpenseCats, ...allExpenseCats.filter(c => !customExpenseCats.includes(c))];
   const available = isEdit
-    ? allExpenseCats
-    : allExpenseCats.filter((c) => !existingCategories.includes(c));
+    ? orderedCats
+    : orderedCats.filter((c) => !existingCategories.includes(c));
 
   const [category, setCategory] = useState(initial?.category || available[0] || "food");
   const [amount, setAmount] = useState(initial?.amount || "");
+  const [notes, setNotes] = useState(initial?.notes || "");
   const [saving, setSaving] = useState(false);
 
   const submit = async (e) => {
@@ -37,7 +41,7 @@ function BudgetForm({ initial, allExpenseCats, existingCategories, onSave, onCan
     const n = parseFloat(amount);
     if (!Number.isFinite(n) || n <= 0) return;
     setSaving(true);
-    await onSave({ category, amount: n });
+    await onSave({ category, amount: n, notes: notes.trim() || null });
     setSaving(false);
   };
 
@@ -74,6 +78,17 @@ function BudgetForm({ initial, allExpenseCats, existingCategories, onSave, onCan
               className="fin-input fin-mono w-full"
               placeholder="0.00"
               autoFocus
+            />
+          </div>
+          <div>
+            <label className="fin-label block mb-1.5">{t("budgetNotes")}</label>
+            <textarea
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              className="fin-input w-full resize-none"
+              rows={2}
+              placeholder={t("budgetNotesPlaceholder")}
+              maxLength={500}
             />
           </div>
         </div>
@@ -146,7 +161,8 @@ function DeleteConfirm({ budget, onConfirm, onCancel }) {
 function Budgets({ transactions, showToast }) {
   const { t } = useLang();
   const { symbol } = useCurrency();
-  const { expenseCats, getCatColor } = useCategories();
+  const { expenseCats, customCats, getCatColor } = useCategories();
+  const customExpenseCats = customCats.filter(c => c.kind !== "income").map(c => c.id);
   const [budgets, setBudgets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(null);
@@ -179,12 +195,12 @@ function Budgets({ transactions, showToast }) {
     monthSpend[tx.category] = (monthSpend[tx.category] || 0) + parseFloat(tx.amount);
   }
 
-  const handleSave = async ({ category, amount }) => {
+  const handleSave = async ({ category, amount, notes }) => {
     try {
       const res = await authFetch(`${API}/budgets`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ category, amount }),
+        body: JSON.stringify({ category, amount, notes }),
       });
       if (res.ok) {
         await refresh();
@@ -242,6 +258,7 @@ function Budgets({ transactions, showToast }) {
         <BudgetForm
           initial={editing}
           allExpenseCats={expenseCats}
+          customExpenseCats={customExpenseCats}
           existingCategories={existingCategories}
           onSave={handleSave}
           onCancel={() => { setShowForm(false); setEditing(null); }}
@@ -382,6 +399,11 @@ function Budgets({ transactions, showToast }) {
                   : `${symbol}${fmt(remaining)} ${t("budgetRemaining").toLowerCase()}`}
               </span>
             </div>
+            {b.notes && (
+              <p className="text-xs mt-2 truncate" style={{ color: "var(--text-3)" }}>
+                {b.notes}
+              </p>
+            )}
           </div>
         );
       })}
