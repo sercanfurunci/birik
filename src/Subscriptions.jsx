@@ -176,8 +176,25 @@ function ServiceIcon({ name, category, size = 40 }) {
   );
 }
 
-function daysUntil(dateStr) {
-  const target = parseLocalDate(dateStr);
+function advanceToNextBilling(dateStr, cycle) {
+  let date = parseLocalDate(dateStr);
+  if (!date) return date;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  while (date < today) {
+    if (cycle === "weekly") {
+      date.setDate(date.getDate() + 7);
+    } else if (cycle === "yearly") {
+      date.setFullYear(date.getFullYear() + 1);
+    } else {
+      date.setMonth(date.getMonth() + 1);
+    }
+  }
+  return date;
+}
+
+function daysUntil(dateStr, cycle) {
+  const target = cycle ? advanceToNextBilling(dateStr, cycle) : parseLocalDate(dateStr);
   if (!target) return 0;
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -254,7 +271,7 @@ function SubDetail({ sub, onEdit, onDelete, onClose, onAddExpense, userCurrency,
   const { t, lang } = useLang();
   const subCurrency = CURRENCIES.find(c => c.code === sub.currency) || CURRENCIES[0];
   const userCurrencyObj = CURRENCIES.find(c => c.code === userCurrency) || subCurrency;
-  const days = daysUntil(sub.next_billing_date);
+  const days = daysUntil(sub.next_billing_date, sub.billing_cycle);
   const months = monthsActive(sub.started_at);
   const totalSpent = parseFloat(sub.amount) * months;
   const dateLocale = lang === "tr" ? "tr-TR" : "en-US";
@@ -889,7 +906,7 @@ export default function Subscriptions({ onExpenseAdded }) {
               </p>
               <div className="fin-card overflow-hidden rounded-xl">
                 {items.map((sub, i) => {
-                  const days = daysUntil(sub.next_billing_date);
+                  const days = daysUntil(sub.next_billing_date, sub.billing_cycle);
                   const subCurr = CURRENCIES.find(c => c.code === sub.currency) || CURRENCIES[0];
                   const needsConv = sub.currency !== currency.code;
                   const daysLabel =
