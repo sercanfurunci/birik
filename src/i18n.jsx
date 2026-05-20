@@ -715,7 +715,7 @@ const translations = {
     landingTagline: "Ücretsiz · Kredi kartı gerekmez",
     landingHeadline1: "Birikimini",
     landingHeadline2: "inşa et.",
-    landingSubtitle: "Gelir ve gider ekleyin, abonelikleri takip edin, banka ekstrelerinizi yapay zekâyla içe aktarın. Birikimini tuğla tuğla inşa et.",
+    landingSubtitle: "Gelir ve gider ekleyin, abonelikleri takip edin, banka ekstrelerinizi yapay zekâyla içe aktarın. Birikimini birik birik büyüt.",
     slogan: "Birikimini inşa et.",
     landingGetStarted: "Ücretsiz hesap oluştur",
     landingSignIn: "Giriş yap",
