@@ -301,6 +301,12 @@ const translations = {
     recurringDeleteConfirm: "Delete this recurring rule? Already-created transactions will be kept.",
     recurringDuplicateWarn: ({ name }) => `"${name}" already exists in Subscriptions. Adding it here will double-count it every period. Continue anyway?`,
     recurringAddAnyway: "Add anyway",
+    recurringReminder: "Reminder",
+    recurringReminderHelp: "Get a push notification on your phone before this transaction is added.",
+    recurringReminderNone: "None",
+    recurringReminderSameDay: "On the day",
+    recurringReminder1Day: "1 day before",
+    recurringReminder3Days: "3 days before",
     subsTrackingOnly: "Subscriptions are tracking-only by default. Turn on \"Auto-charge\" when creating one to have each billing date logged automatically.",
 
     // Profile modal
@@ -707,6 +713,12 @@ const translations = {
     recurringDeleteConfirm: "Bu tekrarlayan kural silinsin mi? Daha önce eklenmiş işlemler kalacaktır.",
     recurringDuplicateWarn: ({ name }) => `"${name}" zaten Üyelikler'de var. Burada da eklersen her dönem iki kez sayılır. Yine de devam edelim mi?`,
     recurringAddAnyway: "Yine de ekle",
+    recurringReminder: "Hatırlatıcı",
+    recurringReminderHelp: "Bu işlem eklenmeden önce telefonuna bildirim gelsin.",
+    recurringReminderNone: "Yok",
+    recurringReminderSameDay: "İşlem günü",
+    recurringReminder1Day: "1 gün önce",
+    recurringReminder3Days: "3 gün önce",
     subsTrackingOnly: "Üyelikler varsayılan olarak sadece takip içindir. Oluştururken \"Otomatik gider\" seçeneğini açarsan her fatura tarihinde otomatik kayıt düşülür.",
 
     // Profile modal
