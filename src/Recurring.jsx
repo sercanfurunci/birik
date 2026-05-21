@@ -160,6 +160,11 @@ function RecurringForm({ initial, onCancel, onSubmit, saving, t }) {
   const [dayOfMonth,  setDayOfMonth]  = useState(
     initial?.day_of_period ?? new Date(startToday).getUTCDate()
   );
+  const [reminderDays, setReminderDays] = useState(
+    initial?.reminder_days === null || initial?.reminder_days === undefined
+      ? 1
+      : Number(initial.reminder_days)
+  );
 
   const categoryOptions = type === "income" ? incomeCats : expenseCats;
 
@@ -181,6 +186,7 @@ function RecurringForm({ initial, onCancel, onSubmit, saving, t }) {
       start_date: startDate,
       end_date: endDate || null,
       day_of_period: frequency === "monthly" ? Number(dayOfMonth) : null,
+      reminder_days: reminderDays === "" || reminderDays === null ? null : Number(reminderDays),
     });
   };
 
@@ -275,6 +281,22 @@ function RecurringForm({ initial, onCancel, onSubmit, saving, t }) {
         <label className="fin-label self-end">{t("recurringEndDate")}</label>
         <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="fin-input fin-mono w-full" required />
         <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="fin-input fin-mono w-full" />
+      </div>
+
+      {/* Reminder */}
+      <div>
+        <label className="fin-label block mb-1.5">{t("recurringReminder")}</label>
+        <select
+          className="fin-select w-full appearance-none"
+          value={reminderDays === null ? "" : String(reminderDays)}
+          onChange={(e) => setReminderDays(e.target.value === "" ? null : Number(e.target.value))}
+        >
+          <option value="">{t("recurringReminderNone")}</option>
+          <option value="0">{t("recurringReminderSameDay")}</option>
+          <option value="1">{t("recurringReminder1Day")}</option>
+          <option value="3">{t("recurringReminder3Days")}</option>
+        </select>
+        <p className="text-xs mt-1" style={{ color: "var(--text-3)" }}>{t("recurringReminderHelp")}</p>
       </div>
 
       <div className="flex gap-2 mt-2">
@@ -381,6 +403,7 @@ function Recurring({ onClose, onChanged }) {
           day_of_period: rule.day_of_period,
           start_date: String(rule.start_date).split("T")[0],
           end_date: rule.end_date ? String(rule.end_date).split("T")[0] : null,
+          reminder_days: rule.reminder_days ?? null,
           is_active: !rule.is_active,
         }),
       });

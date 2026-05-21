@@ -194,6 +194,8 @@ pool.query(`ALTER TABLE subscriptions ADD COLUMN IF NOT EXISTS last_charged_date
   .catch(err => console.error("subscriptions.last_charged_date migration:", err));
 pool.query(`ALTER TABLE subscriptions ADD COLUMN IF NOT EXISTS reminder_days INTEGER`)
   .catch(err => console.error("subscriptions.reminder_days migration:", err));
+pool.query(`ALTER TABLE recurring_transactions ADD COLUMN IF NOT EXISTS reminder_days INTEGER`)
+  .catch(err => console.error("recurring_transactions.reminder_days migration:", err));
 
 pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS custom_categories JSONB DEFAULT '[]'`)
   .catch(err => console.error("users.custom_categories migration:", err));
@@ -1266,6 +1268,11 @@ app.post("/recurring", authMiddleware, async (req, res) => {
   const start_date    = isValidDate(req.body.start_date);
   const end_date      = req.body.end_date ? isValidDate(req.body.end_date) : null;
   const day_of_period = Number.isInteger(req.body.day_of_period) ? req.body.day_of_period : null;
+  const reminder_days = req.body.reminder_days === null || req.body.reminder_days === undefined
+    ? null
+    : (Number.isInteger(Number(req.body.reminder_days)) && Number(req.body.reminder_days) >= 0 && Number(req.body.reminder_days) <= 30
+        ? Number(req.body.reminder_days)
+        : null);
 
   if (amount === null)                                    return res.status(400).json({ error: "Amount must be a positive number under 1 billion" });
   if (!type || !VALID_TYPES.has(type))                    return res.status(400).json({ error: "Type must be 'income' or 'expense'" });
@@ -1277,9 +1284,9 @@ app.post("/recurring", authMiddleware, async (req, res) => {
   try {
     const result = await pool.query(
       `INSERT INTO recurring_transactions
-         (user_id, description, amount, type, category, frequency, day_of_period, start_date, end_date, next_run_date)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $8) RETURNING *`,
-      [req.user.id, description, amount, type, category, frequency, day_of_period, start_date, end_date]
+         (user_id, description, amount, type, category, frequency, day_of_period, start_date, end_date, next_run_date, reminder_days)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $8, $10) RETURNING *`,
+      [req.user.id, description, amount, type, category, frequency, day_of_period, start_date, end_date, reminder_days]
     );
     res.json(result.rows[0]);
   } catch (err) {
@@ -1301,6 +1308,11 @@ app.put("/recurring/:id", authMiddleware, async (req, res) => {
   const end_date      = req.body.end_date ? isValidDate(req.body.end_date) : null;
   const day_of_period = Number.isInteger(req.body.day_of_period) ? req.body.day_of_period : null;
   const is_active     = typeof req.body.is_active === "boolean" ? req.body.is_active : true;
+  const reminder_days = req.body.reminder_days === null || req.body.reminder_days === undefined
+    ? null
+    : (Number.isInteger(Number(req.body.reminder_days)) && Number(req.body.reminder_days) >= 0 && Number(req.body.reminder_days) <= 30
+        ? Number(req.body.reminder_days)
+        : null);
 
   if (amount === null)                                    return res.status(400).json({ error: "Amount must be a positive number under 1 billion" });
   if (!type || !VALID_TYPES.has(type))                    return res.status(400).json({ error: "Type must be 'income' or 'expense'" });
@@ -1312,10 +1324,10 @@ app.put("/recurring/:id", authMiddleware, async (req, res) => {
     const result = await pool.query(
       `UPDATE recurring_transactions
        SET description=$1, amount=$2, type=$3, category=$4, frequency=$5,
-           day_of_period=$6, start_date=$7, end_date=$8, is_active=$9
-       WHERE id=$10 AND user_id=$11 RETURNING *`,
+           day_of_period=$6, start_date=$7, end_date=$8, is_active=$9, reminder_days=$10
+       WHERE id=$11 AND user_id=$12 RETURNING *`,
       [description, amount, type, category, frequency, day_of_period,
-       start_date, end_date, is_active, id, req.user.id]
+       start_date, end_date, is_active, reminder_days, id, req.user.id]
     );
     if (result.rows.length === 0) return res.status(404).json({ error: "Recurring not found" });
     res.json(result.rows[0]);
@@ -1374,7 +1386,7 @@ async function parseWithAI(buffer, mimeType) {
       role: "user",
       content: [
         contentBlock,
-        { type: "text", text: `Extract all transactions from this bank or credit card statement.
+        { type: "text", text: `Extract financial transactions from this document. It may be a bank statement, credit card statement, OR a single-purchase receipt (fiş / fatura).
 Return ONLY a valid JSON array — no markdown, no explanation.
 Each item must have exactly these fields:
   date        – YYYY-MM-DD
@@ -1382,6 +1394,17 @@ Each item must have exactly these fields:
   amount      – positive number, no currency symbols
   type        – "expense" or "income"
   category    – one of: food, housing, utilities, transport, entertainment, salary, other
+
+CRITICAL — Receipts (fiş / fatura) represent ONE purchase, not many:
+If the document is a single point-of-sale receipt (gas station, supermarket, restaurant, etc.), output EXACTLY ONE transaction:
+  - amount = the final TOPLAM / TOTAL paid (NOT subtotal, NOT individual line items unless the receipt has only one item)
+  - description = the merchant name (from the header, e.g. "Shell", "Migros", "OPET", "BP")
+  - date = the date printed on the receipt
+NEVER output separate transactions for:
+  - KDV, TOPKDV, VAT, TAX (these are taxes INCLUDED in the total — already part of TOPLAM)
+  - ARA TOPLAM, SUBTOTAL (intermediate sums, not separate purchases)
+  - TOPLAM, TOTAL, GENEL TOPLAM (the total — output ONLY this as the amount, with the merchant name as description)
+  - Individual line items on a multi-item receipt — only emit ONE transaction for the whole receipt unless the user clearly listed multiple distinct purchases on separate receipts
 
 CRITICAL — number format: Turkish/European receipts use . as thousands separator and , as decimal.
 Examples: 18.410,00 = 18410.00 | 1.250,50 = 1250.50 | 99,90 = 99.90
@@ -1402,7 +1425,7 @@ Category rules:
   food          → restaurants, cafes, supermarkets, food delivery
   housing       → rent, mortgage
   utilities     → electricity, water, gas, internet, phone bills
-  transport     → fuel, public transit, taxi, rideshare, car payments
+  transport     → fuel (benzin, mazot, motorin, LPG), gas stations (petrol, OPET, Shell, BP, TP), public transit, taxi, rideshare, car payments
   entertainment → streaming services, games, cinema, sports
   salary        → salary, wages, payroll
   other         → everything else
@@ -1417,6 +1440,7 @@ Skip these entirely — do NOT include in output:
 - Any line ending with "+" UNLESS it contains "iade"
 - Interest, fees: "faiz", "kkdf", "bsmv", "komisyon", "gecikme"
 - Turkish: "hesaptan ödeme", "otomatik ödeme", "bankkart lira ile ödeme", "kredi kartı ödemesi", "hesap özeti ödemesi", "ekstreden transfer"
+- Receipt tax/total lines (see above): KDV, TOPKDV, VAT, ARA TOPLAM, TOPLAM (these are NOT separate transactions)
 
 Return only the JSON array.` }
       ]
