@@ -119,6 +119,14 @@ function RegisterPage({ onSwitch, onBack, isDark, toggleDark, onShowTerms, onSho
     if (!phone.trim()) { setError(t("phoneNumber") + " required"); return; }
     setLoading(true);
     try {
+      const checkRes = await fetch(`${import.meta.env.VITE_API_URL}/auth/check-phone`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone }),
+      });
+      if (checkRes.status === 409) { setError(t("phoneAlreadyRegistered")); setLoading(false); return; }
+      if (!checkRes.ok) { setError(t("serverError")); setLoading(false); return; }
+
       const appVerifier = initRecaptcha();
       const result = await signInWithPhoneNumber(auth, phone, appVerifier);
       confirmationResultRef.current = result;

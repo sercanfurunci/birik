@@ -143,6 +143,7 @@ const AUTH_ROUTES = [
   "/auth/login",
   "/auth/register",
   "/auth/register-phone",
+  "/auth/check-phone",
   "/auth/forgot-password",
   "/auth/reset-password",
 ];
@@ -585,6 +586,14 @@ app.post("/auth/login", async (req, res) => {
 app.post("/auth/logout", (req, res) => {
   res.clearCookie("token", { ...COOKIE_OPTS, maxAge: 0 });
   res.json({ message: "Logged out" });
+});
+
+app.post("/auth/check-phone", async (req, res) => {
+  const phone = isValidPhone(req.body.phone);
+  if (!phone) return res.status(400).json({ error: "Invalid phone number" });
+  const existing = await pool.query("SELECT id FROM users WHERE phone = $1", [phone]);
+  if (existing.rows.length > 0) return res.status(409).json({ error: "Phone number already registered" });
+  res.json({ available: true });
 });
 
 app.post("/auth/register-phone", async (req, res) => {
