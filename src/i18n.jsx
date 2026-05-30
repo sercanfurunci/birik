@@ -223,6 +223,8 @@ const translations = {
     biggestExpense: "Biggest Expense",
     last30Days: "Last 30 Days",
     byCategory: "By Category",
+    byCategoryIncome: "Income by Category",
+    incomeTrend: "Income Trend",
     spendingTrends: "Spending Trends",
     thisMonth: "This Month",
     lastMonth: "Last Month",
@@ -267,6 +269,12 @@ const translations = {
     toastGoalDeleted: "Goal deleted",
     toastBudgetSaved: "Budget saved",
     toastBudgetDeleted: "Budget removed",
+
+    // Bulk select
+    selectModeBtn: "Select",
+    exitSelectMode: "Done",
+    bulkDeleteBtn: (n) => `Delete (${n})`,
+    bulkDeleteConfirm: (n) => `Delete ${n} transaction${n === 1 ? "" : "s"}? This cannot be undone.`,
 
     // Export
     exportCsv: "Export CSV",
@@ -644,6 +652,8 @@ const translations = {
     biggestExpense: "En Büyük Gider",
     last30Days: "Son 30 Gün",
     byCategory: "Kategoriye Göre",
+    byCategoryIncome: "Gelir Kategorisi",
+    incomeTrend: "Gelir Trendi",
     spendingTrends: "Harcama Trendi",
     thisMonth: "Bu Ay",
     lastMonth: "Geçen Ay",
@@ -688,6 +698,12 @@ const translations = {
     toastGoalDeleted: "Hedef silindi",
     toastBudgetSaved: "Bütçe kaydedildi",
     toastBudgetDeleted: "Bütçe kaldırıldı",
+
+    // Bulk select
+    selectModeBtn: "Seç",
+    exitSelectMode: "Tamam",
+    bulkDeleteBtn: (n) => `Sil (${n})`,
+    bulkDeleteConfirm: (n) => `${n} işlem silinsin mi? Bu işlem geri alınamaz.`,
 
     // Export
     exportCsv: "CSV İndir",

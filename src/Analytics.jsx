@@ -151,6 +151,7 @@ function Analytics({ transactions }) {
   const { symbol } = useCurrency();
   const { getCatColor } = useCategories();
   const [range, setRange] = useState("30d");
+  const [catView, setCatView] = useState("expense");
 
   const filtered = useMemo(() => filterByRange(transactions, range), [transactions, range]);
 
@@ -188,19 +189,24 @@ function Analytics({ transactions }) {
   };
   const thisYM = ymKey(0);
   const lastYM = ymKey(-1);
-  const sumByCatForMonth = (ym) => {
+  const sumByCatForMonth = (ym, type) => {
     const acc = {};
-    for (const tx of transactions.filter(tx => tx.type === "expense")) {
+    for (const tx of transactions.filter(tx => tx.type === type)) {
       if (txDate(tx.date).slice(0, 7) !== ym) continue;
       acc[tx.category] = (acc[tx.category] || 0) + parseFloat(tx.amount);
     }
     return acc;
   };
-  const thisCat = sumByCatForMonth(thisYM);
-  const lastCat = sumByCatForMonth(lastYM);
-  const thisTotal = Object.values(thisCat).reduce((s, v) => s + v, 0);
-  const lastTotal = Object.values(lastCat).reduce((s, v) => s + v, 0);
+  const thisCat  = sumByCatForMonth(thisYM, "expense");
+  const lastCat  = sumByCatForMonth(lastYM, "expense");
+  const thisIncomeCat = sumByCatForMonth(thisYM, "income");
+  const lastIncomeCat = sumByCatForMonth(lastYM, "income");
+  const thisTotal   = Object.values(thisCat).reduce((s, v) => s + v, 0);
+  const lastTotal   = Object.values(lastCat).reduce((s, v) => s + v, 0);
+  const thisIncomeTotal = Object.values(thisIncomeCat).reduce((s, v) => s + v, 0);
+  const lastIncomeTotal = Object.values(lastIncomeCat).reduce((s, v) => s + v, 0);
   const totalChange = lastTotal > 0 ? ((thisTotal - lastTotal) / lastTotal) * 100 : null;
+  const incomeChange = lastIncomeTotal > 0 ? ((thisIncomeTotal - lastIncomeTotal) / lastIncomeTotal) * 100 : null;
 
   const allMoverCats = new Set([...Object.keys(thisCat), ...Object.keys(lastCat)]);
   const movers = [...allMoverCats]
@@ -215,7 +221,7 @@ function Analytics({ transactions }) {
     .sort((a, b) => Math.abs(b.diff) - Math.abs(a.diff))
     .slice(0, 3);
 
-  const hasTrendData = lastTotal > 0 || thisTotal > 0;
+  const hasTrendData = lastTotal > 0 || thisTotal > 0 || thisIncomeTotal > 0 || lastIncomeTotal > 0;
 
   // Chart data
   const chartResult = buildChartData(filtered, range);
@@ -223,6 +229,7 @@ function Analytics({ transactions }) {
   const chartInterval = Array.isArray(chartResult) ? 3 : chartResult.interval;
 
   // Category breakdown (based on filtered)
+  const totalIncome = income.reduce((s, tx) => s + (parseFloat(tx.amount) || 0), 0);
   const catData = Object.entries(
     expenses.reduce((acc, tx) => {
       acc[tx.category] = (acc[tx.category] || 0) + parseFloat(tx.amount);
@@ -230,6 +237,15 @@ function Analytics({ transactions }) {
     }, {})
   )
     .map(([cat, value]) => ({ cat, value, pct: totalExpenses > 0 ? (value / totalExpenses) * 100 : 0 }))
+    .sort((a, b) => b.value - a.value);
+
+  const incomeCatData = Object.entries(
+    income.reduce((acc, tx) => {
+      acc[tx.category] = (acc[tx.category] || 0) + parseFloat(tx.amount);
+      return acc;
+    }, {})
+  )
+    .map(([cat, value]) => ({ cat, value, pct: totalIncome > 0 ? (value / totalIncome) * 100 : 0 }))
     .sort((a, b) => b.value - a.value);
 
   const rangeLabel = RANGE_LABELS[range]?.[lang] ?? range;
@@ -285,27 +301,28 @@ function Analytics({ transactions }) {
       {hasTrendData && (
         <div className="fin-card rounded-2xl p-5">
           <p className="fin-label mb-4">{t("spendingTrends")}</p>
-          <div className="grid grid-cols-2 gap-4 mb-4">
+
+          {/* Expense row */}
+          <div className="grid grid-cols-2 gap-4 mb-2">
             <div>
-              <p className="text-xs mb-1" style={{ color: "var(--text-3)" }}>{t("thisMonth")}</p>
-              <p className="fin-mono text-xl font-bold" style={{ color: "var(--text-1)", letterSpacing: "-0.02em" }}>
+              <p className="text-xs mb-1" style={{ color: "var(--text-3)" }}>{t("thisMonth")} · {t("expenses")}</p>
+              <p className="fin-mono text-lg font-bold" style={{ color: "var(--red)", letterSpacing: "-0.02em" }}>
                 {symbol}{fmt(thisTotal)}
               </p>
             </div>
             <div>
-              <p className="text-xs mb-1" style={{ color: "var(--text-3)" }}>{t("lastMonth")}</p>
-              <p className="fin-mono text-xl font-bold" style={{ color: "var(--text-3)", letterSpacing: "-0.02em" }}>
+              <p className="text-xs mb-1" style={{ color: "var(--text-3)" }}>{t("lastMonth")} · {t("expenses")}</p>
+              <p className="fin-mono text-lg font-bold" style={{ color: "var(--text-3)", letterSpacing: "-0.02em" }}>
                 {symbol}{fmt(lastTotal)}
               </p>
             </div>
           </div>
-
           {totalChange !== null && (
-            <div className="flex items-center gap-2 mb-4 pb-4" style={{ borderBottom: movers.length > 0 ? "1px solid var(--border)" : "none" }}>
+            <div className="flex items-center gap-2 mb-4">
               <div
                 className="px-2.5 py-1 rounded-md flex items-center gap-1 text-xs font-semibold"
                 style={{
-                  backgroundColor: totalChange > 0 ? "color-mix(in srgb, var(--red) 14%, transparent)" : "color-mix(in srgb, var(--brand) 14%, transparent)",
+                  backgroundColor: totalChange > 0 ? "color-mix(in srgb, var(--red) 14%, transparent)" : "color-mix(in srgb, var(--green) 14%, transparent)",
                   color: totalChange > 0 ? "var(--red)" : "var(--green)",
                 }}
               >
@@ -316,6 +333,43 @@ function Analytics({ transactions }) {
               </div>
               <span className="text-xs" style={{ color: "var(--text-3)" }}>{t("vsLastMonth")}</span>
             </div>
+          )}
+
+          {/* Income row */}
+          {(thisIncomeTotal > 0 || lastIncomeTotal > 0) && (
+            <>
+              <div className="grid grid-cols-2 gap-4 mb-2 pt-3" style={{ borderTop: "1px solid var(--border)" }}>
+                <div>
+                  <p className="text-xs mb-1" style={{ color: "var(--text-3)" }}>{t("thisMonth")} · {t("income")}</p>
+                  <p className="fin-mono text-lg font-bold" style={{ color: "var(--green)", letterSpacing: "-0.02em" }}>
+                    {symbol}{fmt(thisIncomeTotal)}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs mb-1" style={{ color: "var(--text-3)" }}>{t("lastMonth")} · {t("income")}</p>
+                  <p className="fin-mono text-lg font-bold" style={{ color: "var(--text-3)", letterSpacing: "-0.02em" }}>
+                    {symbol}{fmt(lastIncomeTotal)}
+                  </p>
+                </div>
+              </div>
+              {incomeChange !== null && (
+                <div className="flex items-center gap-2 mb-4">
+                  <div
+                    className="px-2.5 py-1 rounded-md flex items-center gap-1 text-xs font-semibold"
+                    style={{
+                      backgroundColor: incomeChange < 0 ? "color-mix(in srgb, var(--red) 14%, transparent)" : "color-mix(in srgb, var(--green) 14%, transparent)",
+                      color: incomeChange < 0 ? "var(--red)" : "var(--green)",
+                    }}
+                  >
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      {incomeChange < 0 ? <polyline points="6 15 12 9 18 15" /> : <polyline points="6 9 12 15 18 9" />}
+                    </svg>
+                    {Math.abs(incomeChange).toFixed(1)}%
+                  </div>
+                  <span className="text-xs" style={{ color: "var(--text-3)" }}>{t("vsLastMonth")}</span>
+                </div>
+              )}
+            </>
           )}
 
           {movers.length > 0 && (
@@ -390,15 +444,47 @@ function Analytics({ transactions }) {
       </div>
 
       {/* Category breakdown */}
-      {catData.length > 0 && (
+      {(catData.length > 0 || incomeCatData.length > 0) && (
         <div className="fin-card rounded-2xl p-5">
-          <p className="fin-label mb-4">{t("byCategory")}</p>
+          <div className="flex items-center justify-between mb-4">
+            <p className="fin-label">{catView === "expense" ? t("byCategory") : t("byCategoryIncome")}</p>
+            <div className="type-toggle shrink-0">
+              <button
+                type="button"
+                onClick={() => setCatView("expense")}
+                className="type-btn"
+                style={{
+                  background:   catView === "expense" ? "var(--surface)" : "transparent",
+                  color:        catView === "expense" ? "var(--red)"     : "var(--text-2)",
+                  borderColor:  catView === "expense" ? "var(--border)"  : "transparent",
+                  boxShadow:    catView === "expense" ? "0 1px 3px rgba(0,0,0,0.08)" : "none",
+                  fontSize: 11,
+                }}
+              >
+                {t("expenses")}
+              </button>
+              <button
+                type="button"
+                onClick={() => setCatView("income")}
+                className="type-btn"
+                style={{
+                  background:   catView === "income" ? "var(--surface)" : "transparent",
+                  color:        catView === "income" ? "var(--green)"   : "var(--text-2)",
+                  borderColor:  catView === "income" ? "var(--border)"  : "transparent",
+                  boxShadow:    catView === "income" ? "0 1px 3px rgba(0,0,0,0.08)" : "none",
+                  fontSize: 11,
+                }}
+              >
+                {t("income")}
+              </button>
+            </div>
+          </div>
           <div className="space-y-4">
-            {catData.map(({ cat, value, pct }) => (
+            {(catView === "expense" ? catData : incomeCatData).map(({ cat, value, pct }) => (
               <div key={cat}>
                 <div className="flex items-center justify-between mb-1.5">
                   <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: getCatColor(cat, "expense") }} />
+                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: getCatColor(cat, catView) }} />
                     <span className="text-sm capitalize truncate max-w-[120px]" style={{ color: "var(--text-2)" }}>{t(cat)}</span>
                   </div>
                   <div className="flex items-center gap-3">
@@ -413,13 +499,16 @@ function Analytics({ transactions }) {
                     className="h-full rounded-full"
                     style={{
                       width: `${pct}%`,
-                      backgroundColor: getCatColor(cat, "expense"),
+                      backgroundColor: getCatColor(cat, catView),
                       transition: "width 0.6s cubic-bezier(0.16,1,0.3,1)",
                     }}
                   />
                 </div>
               </div>
             ))}
+            {(catView === "expense" ? catData : incomeCatData).length === 0 && (
+              <p className="text-sm text-center py-4" style={{ color: "var(--text-3)" }}>—</p>
+            )}
           </div>
         </div>
       )}

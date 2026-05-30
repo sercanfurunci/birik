@@ -253,6 +253,19 @@ function App() {
     }
   };
 
+  const handleBulkDelete = async (ids) => {
+    try {
+      const res = await authFetch(`${API}/transactions/bulk`, {
+        method: "DELETE",
+        body: JSON.stringify({ ids }),
+      });
+      if (!res.ok) return;
+      setTransactions((prev) => prev.filter((tx) => !ids.includes(tx.id)));
+    } catch (err) {
+      console.log("BULK DELETE error:", err);
+    }
+  };
+
   const handleEdit = async (id, updated) => {
     try {
       const res = await authFetch(`${API}/transactions/${id}`, {
@@ -438,7 +451,7 @@ function App() {
             <div className="lg:sticky lg:top-6">
               <TransactionForm onAdd={handleAdd} onRefresh={refreshTransactions} />
             </div>
-            <TransactionList transactions={transactions} onDelete={handleDelete} onEdit={handleEdit} />
+            <TransactionList transactions={transactions} onDelete={handleDelete} onEdit={handleEdit} onBulkDelete={handleBulkDelete} />
           </div>
         )}
 

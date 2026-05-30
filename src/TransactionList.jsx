@@ -160,7 +160,7 @@ function downloadCsv(transactions, t, symbol) {
 
 const PAGE_SIZE = 15;
 
-function TransactionList({ transactions, onDelete, onEdit }) {
+function TransactionList({ transactions, onDelete, onEdit, onBulkDelete }) {
   const { t, formatDate } = useLang();
   const { symbol } = useCurrency();
   const { allCats, getCatColor } = useCategories();
@@ -174,6 +174,37 @@ function TransactionList({ transactions, onDelete, onEdit }) {
   const [editingId, setEditingId] = useState(null);
   const [editValues, setEditValues] = useState({});
   const [deleteTarget, setDeleteTarget] = useState(null);
+  const [selectMode, setSelectMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState(new Set());
+  const [bulkDeleting, setBulkDeleting] = useState(false);
+
+  const toggleSelect = (id) => setSelectedIds(prev => {
+    const next = new Set(prev);
+    next.has(id) ? next.delete(id) : next.add(id);
+    return next;
+  });
+  const isAllPageSelected = paginated => paginated.length > 0 && paginated.every(tx => selectedIds.has(tx.id));
+  const toggleSelectAll = (paginated) => {
+    if (isAllPageSelected(paginated)) {
+      setSelectedIds(prev => { const next = new Set(prev); paginated.forEach(tx => next.delete(tx.id)); return next; });
+    } else {
+      setSelectedIds(prev => { const next = new Set(prev); paginated.forEach(tx => next.add(tx.id)); return next; });
+    }
+  };
+  const exitSelectMode = () => { setSelectMode(false); setSelectedIds(new Set()); };
+
+  const handleBulkDelete = async () => {
+    const ids = [...selectedIds];
+    if (!ids.length) return;
+    if (!confirm(t("bulkDeleteConfirm")(ids.length))) return;
+    setBulkDeleting(true);
+    try {
+      await onBulkDelete(ids);
+      exitSelectMode();
+    } finally {
+      setBulkDeleting(false);
+    }
+  };
 
   const sorted = [...transactions].sort((a, b) => {
     if (sortKey === "amount_desc" || sortKey === "amount_asc") {
@@ -251,26 +282,43 @@ function TransactionList({ transactions, onDelete, onEdit }) {
       <div className="fin-card rounded-2xl overflow-hidden anim-4">
         {/* Header */}
         <div className="px-5 py-4 border-b" style={{ borderColor: "var(--border)" }}>
-          <div className="flex items-center gap-3 mb-3">
+          <div className="flex items-center gap-2 mb-3">
             <h2 className="fin-label">{t("transactions")}</h2>
-            <button
-              onClick={() => downloadCsv(filtered, t, symbol)}
-              disabled={filtered.length === 0}
-              title={filtered.length === 0 ? t("exportEmpty") : t("exportCsv")}
-              className="ml-auto text-xs py-1.5 px-3 rounded-lg flex items-center gap-1.5 cursor-pointer transition-opacity hover:opacity-80 disabled:opacity-40 disabled:cursor-not-allowed"
-              style={{
-                backgroundColor: "var(--surface-2)",
-                border: "1px solid var(--border)",
-                color: "var(--text-2)",
-              }}
-            >
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                <polyline points="7 10 12 15 17 10" />
-                <line x1="12" y1="15" x2="12" y2="3" />
-              </svg>
-              {t("exportCsv")}
-            </button>
+            <div className="ml-auto flex items-center gap-1.5">
+              {!selectMode ? (
+                <>
+                  <button
+                    onClick={() => setSelectMode(true)}
+                    className="text-xs py-1.5 px-3 rounded-lg flex items-center gap-1.5 cursor-pointer transition-opacity hover:opacity-80"
+                    style={{ backgroundColor: "var(--surface-2)", border: "1px solid var(--border)", color: "var(--text-2)" }}
+                  >
+                    {t("selectModeBtn")}
+                  </button>
+                  <button
+                    onClick={() => downloadCsv(filtered, t, symbol)}
+                    disabled={filtered.length === 0}
+                    title={filtered.length === 0 ? t("exportEmpty") : t("exportCsv")}
+                    className="text-xs py-1.5 px-3 rounded-lg flex items-center gap-1.5 cursor-pointer transition-opacity hover:opacity-80 disabled:opacity-40 disabled:cursor-not-allowed"
+                    style={{ backgroundColor: "var(--surface-2)", border: "1px solid var(--border)", color: "var(--text-2)" }}
+                  >
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                      <polyline points="7 10 12 15 17 10" />
+                      <line x1="12" y1="15" x2="12" y2="3" />
+                    </svg>
+                    {t("exportCsv")}
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={exitSelectMode}
+                  className="text-xs py-1.5 px-3 rounded-lg cursor-pointer transition-opacity hover:opacity-80"
+                  style={{ backgroundColor: "var(--surface-2)", border: "1px solid var(--border)", color: "var(--text-2)" }}
+                >
+                  {t("exitSelectMode")}
+                </button>
+              )}
+            </div>
           </div>
 
           {/* Search */}
@@ -444,8 +492,18 @@ function TransactionList({ transactions, onDelete, onEdit }) {
                   <div
                     key={tx.id}
                     className={`tx-card-row flex items-center gap-3 px-5 py-3.5 ${tx.type === "income" ? "tx-income" : "tx-expense"}`}
-                    style={{ borderBottom: "1px solid var(--border)" }}
+                    style={{ borderBottom: "1px solid var(--border)", backgroundColor: selectMode && selectedIds.has(tx.id) ? "var(--surface-2)" : undefined }}
+                    onClick={selectMode ? () => toggleSelect(tx.id) : undefined}
                   >
+                    {selectMode && (
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.has(tx.id)}
+                        onChange={() => toggleSelect(tx.id)}
+                        onClick={e => e.stopPropagation()}
+                        className="w-4 h-4 shrink-0 cursor-pointer accent-[var(--brand)]"
+                      />
+                    )}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
                         <p className="text-sm font-medium truncate" style={{ color: "var(--text-1)" }}>
@@ -472,24 +530,28 @@ function TransactionList({ transactions, onDelete, onEdit }) {
                           </span>
                         )}
                       </div>
-                      <button
-                        onClick={() => startEdit(tx)}
-                        className="w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer transition-colors"
-                        style={{ color: "var(--text-3)" }}
-                        onMouseEnter={(e) => e.currentTarget.style.color = "var(--brand)"}
-                        onMouseLeave={(e) => e.currentTarget.style.color = "var(--text-3)"}
-                      >
-                        <EditIcon />
-                      </button>
-                      <button
-                        onClick={() => setDeleteTarget(tx)}
-                        className="w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer transition-colors"
-                        style={{ color: "var(--text-3)" }}
-                        onMouseEnter={(e) => e.currentTarget.style.color = "var(--red)"}
-                        onMouseLeave={(e) => e.currentTarget.style.color = "var(--text-3)"}
-                      >
-                        <TrashIcon />
-                      </button>
+                      {!selectMode && (
+                        <>
+                          <button
+                            onClick={() => startEdit(tx)}
+                            className="w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer transition-colors"
+                            style={{ color: "var(--text-3)" }}
+                            onMouseEnter={(e) => e.currentTarget.style.color = "var(--brand)"}
+                            onMouseLeave={(e) => e.currentTarget.style.color = "var(--text-3)"}
+                          >
+                            <EditIcon />
+                          </button>
+                          <button
+                            onClick={() => setDeleteTarget(tx)}
+                            className="w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer transition-colors"
+                            style={{ color: "var(--text-3)" }}
+                            onMouseEnter={(e) => e.currentTarget.style.color = "var(--red)"}
+                            onMouseLeave={(e) => e.currentTarget.style.color = "var(--text-3)"}
+                          >
+                            <TrashIcon />
+                          </button>
+                        </>
+                      )}
                     </div>
                   </div>
                 );
@@ -500,6 +562,7 @@ function TransactionList({ transactions, onDelete, onEdit }) {
             <div className="hidden sm:block overflow-x-auto">
               <table className="w-full" style={{ tableLayout: "fixed" }}>
                 <colgroup>
+                  {selectMode && <col style={{ width: "40px" }} />}
                   <col style={{ width: "110px" }} />  {/* date */}
                   <col />                              {/* description — takes remaining */}
                   <col style={{ width: "140px" }} />  {/* category */}
@@ -508,6 +571,16 @@ function TransactionList({ transactions, onDelete, onEdit }) {
                 </colgroup>
                 <thead>
                   <tr style={{ borderBottom: "1px solid var(--border)" }}>
+                    {selectMode && (
+                      <th className="px-3 py-3 text-left">
+                        <input
+                          type="checkbox"
+                          checked={isAllPageSelected(paginated)}
+                          onChange={() => toggleSelectAll(paginated)}
+                          className="w-4 h-4 cursor-pointer accent-[var(--brand)]"
+                        />
+                      </th>
+                    )}
                     {[t("date"), t("description"), t("category"), t("amount"), ""].map((h, i) => (
                       <th
                         key={i}
@@ -599,8 +672,20 @@ function TransactionList({ transactions, onDelete, onEdit }) {
                       <tr
                         key={tx.id}
                         className={`tx-row group ${tx.type === "income" ? "tx-income" : "tx-expense"}`}
-                        style={borderStyle}
+                        style={{ ...borderStyle, backgroundColor: selectMode && selectedIds.has(tx.id) ? "var(--surface-2)" : undefined, cursor: selectMode ? "pointer" : undefined }}
+                        onClick={selectMode ? () => toggleSelect(tx.id) : undefined}
                       >
+                        {selectMode && (
+                          <td className="px-3 py-2.5">
+                            <input
+                              type="checkbox"
+                              checked={selectedIds.has(tx.id)}
+                              onChange={() => toggleSelect(tx.id)}
+                              onClick={e => e.stopPropagation()}
+                              className="w-4 h-4 cursor-pointer accent-[var(--brand)]"
+                            />
+                          </td>
+                        )}
                         <td className="px-5 py-2.5 fin-mono text-xs whitespace-nowrap" style={{ color: "var(--text-3)" }}>
                           {formatDate(tx.date)}
                         </td>
@@ -624,26 +709,28 @@ function TransactionList({ transactions, onDelete, onEdit }) {
                           )}
                         </td>
                         <td className="px-4 py-2.5" style={{ whiteSpace: "nowrap" }}>
-                          <div className="flex items-center gap-1 justify-end">
-                            <button
-                              onClick={() => startEdit(tx)}
-                              className="w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer transition-colors"
-                              style={{ color: "var(--text-3)" }}
-                              onMouseEnter={(e) => e.currentTarget.style.color = "var(--brand)"}
-                              onMouseLeave={(e) => e.currentTarget.style.color = "var(--text-3)"}
-                            >
-                              <EditIcon />
-                            </button>
-                            <button
-                              onClick={() => setDeleteTarget(tx)}
-                              className="w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer transition-colors"
-                              style={{ color: "var(--text-3)" }}
-                              onMouseEnter={(e) => e.currentTarget.style.color = "var(--red)"}
-                              onMouseLeave={(e) => e.currentTarget.style.color = "var(--text-3)"}
-                            >
-                              <TrashIcon />
-                            </button>
-                          </div>
+                          {!selectMode && (
+                            <div className="flex items-center gap-1 justify-end">
+                              <button
+                                onClick={() => startEdit(tx)}
+                                className="w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer transition-colors"
+                                style={{ color: "var(--text-3)" }}
+                                onMouseEnter={(e) => e.currentTarget.style.color = "var(--brand)"}
+                                onMouseLeave={(e) => e.currentTarget.style.color = "var(--text-3)"}
+                              >
+                                <EditIcon />
+                              </button>
+                              <button
+                                onClick={() => setDeleteTarget(tx)}
+                                className="w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer transition-colors"
+                                style={{ color: "var(--text-3)" }}
+                                onMouseEnter={(e) => e.currentTarget.style.color = "var(--red)"}
+                                onMouseLeave={(e) => e.currentTarget.style.color = "var(--text-3)"}
+                              >
+                                <TrashIcon />
+                              </button>
+                            </div>
+                          )}
                         </td>
                       </tr>
                     );
@@ -711,6 +798,26 @@ function TransactionList({ transactions, onDelete, onEdit }) {
           </>
         )}
       </div>
+
+      {/* Floating bulk delete bar */}
+      {selectMode && selectedIds.size > 0 && (
+        <div
+          className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-4 py-3 rounded-2xl shadow-lg"
+          style={{ backgroundColor: "var(--surface)", border: "1px solid var(--border)", boxShadow: "var(--shadow-lg)" }}
+        >
+          <span className="text-sm font-medium" style={{ color: "var(--text-2)" }}>
+            {selectedIds.size} selected
+          </span>
+          <button
+            onClick={handleBulkDelete}
+            disabled={bulkDeleting}
+            className="py-2 px-4 rounded-xl text-sm font-semibold cursor-pointer disabled:opacity-50"
+            style={{ backgroundColor: "var(--red)", color: "#fff" }}
+          >
+            {bulkDeleting ? "…" : t("bulkDeleteBtn")(selectedIds.size)}
+          </button>
+        </div>
+      )}
     </>
   );
 }

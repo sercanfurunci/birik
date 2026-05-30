@@ -1084,6 +1084,23 @@ app.delete("/transactions/:id", authMiddleware, async (req, res) => {
   }
 });
 
+app.delete("/transactions/bulk", authMiddleware, async (req, res) => {
+  const ids = req.body.ids;
+  if (!Array.isArray(ids) || ids.length === 0) return res.status(400).json({ error: "IDs required" });
+  const validIds = ids.map(Number).filter(n => Number.isInteger(n) && n > 0);
+  if (validIds.length === 0) return res.status(400).json({ error: "No valid IDs" });
+  try {
+    await pool.query(
+      "DELETE FROM transactions WHERE id = ANY($1::int[]) AND user_id = $2",
+      [validIds, req.user.id]
+    );
+    res.json({ deleted: validIds.length });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Bulk delete error" });
+  }
+});
+
 // ─── Subscriptions ────────────────────────────────────────────────────────────
 
 app.get("/subscriptions", authMiddleware, async (req, res) => {
@@ -1987,11 +2004,60 @@ async function sendSubscriptionReminders() {
 
 // Run reminder check once at startup, then every 24 hours
 let _lastReminderDate = "";
+async function sendRecurringReminders() {
+  try {
+    const today = new Date().toISOString().split("T")[0];
+    const result = await pool.query(
+      `SELECT r.id, r.description, r.amount, r.frequency, r.next_run_date, r.reminder_days,
+              u.email, u.username, u.currency
+       FROM recurring_transactions r
+       JOIN users u ON u.id = r.user_id
+       WHERE r.is_active = TRUE
+         AND r.reminder_days IS NOT NULL
+         AND (r.next_run_date - r.reminder_days * INTERVAL '1 day')::date = $1`,
+      [today]
+    );
+    for (const row of result.rows) {
+      const dueDate = new Date(row.next_run_date).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+      const rawDesc = String(row.description || row.frequency).replace(/[\r\n]+/g, " ");
+      const name = escapeHtml(row.username || row.email.split("@")[0]);
+      const desc = escapeHtml(rawDesc);
+      const cur  = escapeHtml(row.currency || "");
+      const days = Number(row.reminder_days) || 0;
+      const dayLabel = days === 1 ? "" : "s";
+      await sendEmail({
+        to: row.email,
+        subject: `Reminder: ${rawDesc} due in ${days} day${dayLabel}`,
+        html: `
+          <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:24px">
+            <h2 style="margin:0 0 8px;font-size:20px">Hi ${name},</h2>
+            <p style="color:#555;margin:0 0 20px">
+              Just a heads-up — <strong>${desc}</strong> is due in
+              <strong>${days} day${dayLabel}</strong>.
+            </p>
+            <div style="background:#f5f5f5;border-radius:8px;padding:16px;margin-bottom:20px">
+              <p style="margin:0 0 4px;font-size:13px;color:#888">NEXT DATE</p>
+              <p style="margin:0;font-size:18px;font-weight:600">${dueDate}</p>
+              <p style="margin:6px 0 0;font-size:16px;color:#333">${cur} ${parseFloat(row.amount).toFixed(2)}</p>
+            </div>
+            <p style="font-size:12px;color:#aaa;margin:0">Sent by Birik · Manage reminders in your Recurring settings</p>
+          </div>`,
+      });
+    }
+    if (result.rows.length > 0) {
+      console.log(`[reminders] Sent ${result.rows.length} recurring reminder(s) for ${today}`);
+    }
+  } catch (err) {
+    console.error("[reminders] Error sending recurring reminders:", err);
+  }
+}
+
 async function maybeRunReminders() {
   const today = new Date().toISOString().split("T")[0];
   if (today !== _lastReminderDate) {
     _lastReminderDate = today;
     await sendSubscriptionReminders();
+    await sendRecurringReminders();
   }
 }
 maybeRunReminders();
