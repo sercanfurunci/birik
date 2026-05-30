@@ -279,8 +279,13 @@ const translations = {
     bulkDeleteBtn: (n) => `Delete (${n})`,
     bulkDeleteConfirm: (n) => `Delete ${n} transaction${n === 1 ? "" : "s"}? This cannot be undone.`,
 
+    // Budget toast
+    budgetWarning: ({ cat, pct }) => `⚠ ${cat} budget ${pct}% used`,
+    budgetExceeded: ({ cat, pct }) => `⚠ ${cat} budget exceeded (${pct}%)`,
+
     // Export
     exportCsv: "Export CSV",
+    exportPdf: "Export PDF",
     exportEmpty: "Nothing to export",
 
     // Statement import
@@ -713,8 +718,13 @@ const translations = {
     bulkDeleteBtn: (n) => `Sil (${n})`,
     bulkDeleteConfirm: (n) => `${n} işlem silinsin mi? Bu işlem geri alınamaz.`,
 
+    // Budget toast
+    budgetWarning: ({ cat, pct }) => `⚠ ${cat} bütçesinin %${pct}'i kullanıldı`,
+    budgetExceeded: ({ cat, pct }) => `⚠ ${cat} bütçesi aşıldı! (%${pct})`,
+
     // Export
     exportCsv: "CSV İndir",
+    exportPdf: "PDF İndir",
     exportEmpty: "Dışa aktarılacak işlem yok",
 
     // Statement import

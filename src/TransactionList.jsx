@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import { useLang } from "./i18n.jsx";
 import { useCurrency } from "./currency.jsx";
 import { useCategories, CAT_EMOJI } from "./categories.jsx";
+import { exportPDF } from "./pdfReport.js";
 import { todayLocalISO } from "./dateUtils.js";
 
 const fmt = (n) =>
@@ -165,7 +166,7 @@ function downloadCsv(transactions, t, symbol) {
 const PAGE_SIZE = 15;
 
 function TransactionList({ transactions, onDelete, onEdit, onBulkDelete }) {
-  const { t, formatDate } = useLang();
+  const { t, formatDate, lang } = useLang();
   const { symbol } = useCurrency();
   const { allCats, getCatColor } = useCategories();
   const [filterType, setFilterType] = useState("all");
@@ -311,6 +312,19 @@ function TransactionList({ transactions, onDelete, onEdit, onBulkDelete }) {
                       <line x1="12" y1="15" x2="12" y2="3" />
                     </svg>
                     {t("exportCsv")}
+                  </button>
+                  <button
+                    onClick={() => exportPDF({ transactions: filtered, symbol, t, lang })}
+                    disabled={filtered.length === 0}
+                    title={filtered.length === 0 ? t("exportEmpty") : t("exportPdf")}
+                    className="text-xs py-1.5 px-3 rounded-lg flex items-center gap-1.5 cursor-pointer transition-opacity hover:opacity-80 disabled:opacity-40 disabled:cursor-not-allowed"
+                    style={{ backgroundColor: "var(--surface-2)", border: "1px solid var(--border)", color: "var(--text-2)" }}
+                  >
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                      <polyline points="14 2 14 8 20 8" />
+                    </svg>
+                    PDF
                   </button>
                 </>
               ) : (

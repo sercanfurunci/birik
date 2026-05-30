@@ -109,6 +109,7 @@ function authFetch(url, opts = {}) {
 function App() {
   const { t, lang, toggleLang } = useLang();
   const [transactions, setTransactions] = useState([]);
+  const [budgets, setBudgets] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
   const [toasts, setToasts] = useState([]);
 
@@ -173,10 +174,18 @@ function App() {
       .catch((err) => console.log(err));
   };
 
+  const refreshBudgets = () => {
+    authFetch(`${API}/budgets`)
+      .then((res) => res.json())
+      .then((data) => Array.isArray(data) && setBudgets(data))
+      .catch(() => {});
+  };
+
   // Fetch transactions whenever the user logs in
   useEffect(() => {
     if (!currentUser) return;
     refreshTransactions();
+    refreshBudgets();
   }, [currentUser?.id]);  // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleAuthSuccess = (user, token) => {
@@ -235,7 +244,24 @@ function App() {
       if (!res.ok) return;
       const data = await res.json();
       if (!data?.id) return;
-      setTransactions((prev) => [data, ...prev]);
+      setTransactions((prev) => {
+        const next = [data, ...prev];
+        // Budget check for expense transactions
+        if (data.type === "expense" && budgets.length > 0) {
+          const budget = budgets.find(b => b.category === data.category);
+          if (budget) {
+            const ym = new Date().toISOString().slice(0, 7);
+            const spent = next
+              .filter(tx => tx.type === "expense" && tx.category === data.category && (tx.date || "").slice(0, 7) === ym)
+              .reduce((s, tx) => s + (parseFloat(tx.amount) || 0), 0);
+            const pct = Math.round((spent / parseFloat(budget.amount)) * 100);
+            const cat = t(data.category);
+            if (pct >= 100) showToast(t("budgetExceeded")({ cat, pct }), "warning");
+            else if (pct >= 80) showToast(t("budgetWarning")({ cat, pct }), "warning");
+          }
+        }
+        return next;
+      });
       showToast(t("toastTxAdded"));
     } catch (err) {
       console.log("POST error:", err);
@@ -457,7 +483,7 @@ function App() {
 
         {activeTab === "analytics" && <Analytics transactions={transactions} />}
 
-        {activeTab === "budgets" && <Budgets transactions={transactions} showToast={showToast} />}
+        {activeTab === "budgets" && <Budgets transactions={transactions} showToast={showToast} onBudgetChange={refreshBudgets} />}
 
         {activeTab === "goals" && <Goals showToast={showToast} />}
 
@@ -531,8 +557,8 @@ function App() {
                 boxShadow: "var(--shadow-lg)",
               }}
             >
-              <span style={{ color: toast.type === "error" ? "var(--red)" : "var(--green)" }}>
-                {toast.type === "error" ? "✕" : "✓"}
+              <span style={{ color: toast.type === "error" ? "var(--red)" : toast.type === "warning" ? "#F59E0B" : "var(--green)" }}>
+                {toast.type === "error" ? "✕" : toast.type === "warning" ? "⚠" : "✓"}
               </span>
               {toast.msg}
             </div>

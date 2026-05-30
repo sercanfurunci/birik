@@ -4,7 +4,7 @@ import {
 } from "recharts";
 import { useLang } from "./i18n.jsx";
 import { useCurrency } from "./currency.jsx";
-import { useCategories } from "./categories.jsx";
+import { useCategories, CAT_EMOJI } from "./categories.jsx";
 import { parseLocalDate } from "./dateUtils.js";
 
 function isoFromLocalDate(d) {
@@ -158,8 +158,13 @@ function Analytics({ transactions }) {
   const [catView, setCatView] = useState("expense");
   const [customFrom, setCustomFrom] = useState("");
   const [customTo, setCustomTo] = useState("");
+  const [filterCat, setFilterCat] = useState("all");
 
-  const filtered = useMemo(() => filterByRange(transactions, range, customFrom, customTo), [transactions, range, customFrom, customTo]);
+  const rangeFiltered = useMemo(() => filterByRange(transactions, range, customFrom, customTo), [transactions, range, customFrom, customTo]);
+  const filtered = useMemo(() => filterCat === "all" ? rangeFiltered : rangeFiltered.filter(tx => tx.category === filterCat), [rangeFiltered, filterCat]);
+
+  // All categories present in range-filtered (for filter pills)
+  const availableCats = useMemo(() => [...new Set(rangeFiltered.map(tx => tx.category))].sort(), [rangeFiltered]);
 
   if (transactions.length === 0) {
     return (
@@ -278,6 +283,41 @@ function Analytics({ transactions }) {
           );
         })}
       </div>
+      {/* Category filter pills */}
+      {availableCats.length > 1 && (
+        <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide flex-wrap">
+          <button
+            onClick={() => setFilterCat("all")}
+            className="shrink-0 px-2.5 py-1 text-xs font-medium cursor-pointer transition-all rounded-lg"
+            style={{
+              backgroundColor: filterCat === "all" ? "var(--text-2)" : "var(--surface)",
+              color: filterCat === "all" ? "var(--bg)" : "var(--text-2)",
+              border: `1px solid ${filterCat === "all" ? "var(--text-2)" : "var(--border)"}`,
+            }}
+          >
+            All
+          </button>
+          {availableCats.map(cat => {
+            const active = filterCat === cat;
+            return (
+              <button
+                key={cat}
+                onClick={() => setFilterCat(active ? "all" : cat)}
+                className="shrink-0 px-2.5 py-1 text-xs font-medium cursor-pointer transition-all rounded-lg flex items-center gap-1"
+                style={{
+                  backgroundColor: active ? "var(--surface-2)" : "var(--surface)",
+                  color: active ? "var(--text-1)" : "var(--text-2)",
+                  border: `1px solid ${active ? "var(--brand)" : "var(--border)"}`,
+                }}
+              >
+                {CAT_EMOJI[cat] && <span>{CAT_EMOJI[cat]}</span>}
+                {t(cat)}
+              </button>
+            );
+          })}
+        </div>
+      )}
+
       {range === "custom" && (
         <div className="flex gap-2 items-center flex-wrap">
           <input
