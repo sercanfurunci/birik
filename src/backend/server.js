@@ -282,7 +282,7 @@ const PHONE_RE = /^\+[1-9]\d{6,14}$/;
 const HEX64_RE = /^[0-9a-f]{64}$/;
 
 const VALID_TYPES            = new Set(["income", "expense"]);
-const VALID_CATEGORIES       = new Set(["food", "housing", "utilities", "transport", "entertainment", "salary", "other"]);
+const VALID_CATEGORIES       = new Set(["food", "housing", "utilities", "transport", "entertainment", "salary", "freelance", "investment", "rental", "bonus", "other"]);
 const VALID_CURRENCIES       = new Set(["USD", "EUR", "GBP", "TRY", "JPY", "CAD", "AUD", "CHF"]);
 const VALID_BILLING_CYCLES   = new Set(["weekly", "monthly", "yearly"]);
 const VALID_SUB_CATEGORIES   = new Set(["ai", "entertainment", "music", "finance", "productivity", "health", "news", "telecom", "other"]);
