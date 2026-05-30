@@ -31,6 +31,44 @@ function ProfileModal({ user, onClose, onSave, onDeleted }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  // Change password flow
+  const [pwOpen, setPwOpen] = useState(false);
+  const [pwCurrent, setPwCurrent] = useState("");
+  const [pwNew, setPwNew] = useState("");
+  const [pwConfirm, setPwConfirm] = useState("");
+  const [pwLoading, setPwLoading] = useState(false);
+  const [pwError, setPwError] = useState("");
+  const [pwSuccess, setPwSuccess] = useState("");
+
+  const handleChangePassword = async (e) => {
+    e.preventDefault();
+    setPwError("");
+    setPwSuccess("");
+    if (pwNew !== pwConfirm) { setPwError(t("passwordMismatch")); return; }
+    setPwLoading(true);
+    try {
+      const res = await apiFetch(`${import.meta.env.VITE_API_URL}/auth/change-password`, {
+        method: "PUT",
+        body: JSON.stringify({ currentPassword: pwCurrent, newPassword: pwNew }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        const msg = data.error || "";
+        if (msg.includes("incorrect")) setPwError(t("changePwWrongCurrent"));
+        else if (msg.includes("same")) setPwError(t("changePwSameAsOld"));
+        else setPwError(msg || t("serverError"));
+        return;
+      }
+      setPwSuccess(t("changePwSuccess"));
+      setPwCurrent(""); setPwNew(""); setPwConfirm("");
+      setTimeout(() => { setPwOpen(false); setPwSuccess(""); }, 2000);
+    } catch {
+      setPwError(t("serverError"));
+    } finally {
+      setPwLoading(false);
+    }
+  };
+
   // Delete account flow
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deletePassword, setDeletePassword] = useState("");
@@ -384,6 +422,82 @@ function ProfileModal({ user, onClose, onSave, onDeleted }) {
           <button onClick={handleSave} disabled={loading} className="flex-1 fin-btn-primary disabled:opacity-50">
             {loading ? t("savingBtn") : t("saveBtn")}
           </button>
+        </div>
+
+        {/* ── Change password ── */}
+        <div className="mt-6 pt-5" style={{ borderTop: "1px solid var(--border)" }}>
+          {!pwOpen ? (
+            <button
+              onClick={() => { setPwOpen(true); setPwError(""); setPwSuccess(""); }}
+              className="w-full py-2.5 rounded-xl text-sm font-medium cursor-pointer transition-all"
+              style={{ backgroundColor: "var(--surface-2)", color: "var(--text-2)", border: "1px solid var(--border)" }}
+            >
+              {t("changePasswordBtn")}
+            </button>
+          ) : (
+            <form onSubmit={handleChangePassword} className="space-y-3">
+              <p className="fin-label">{t("changePasswordTitle")}</p>
+              <div>
+                <label className="fin-label block mb-1.5">{t("currentPassword")}</label>
+                <input
+                  type="password"
+                  value={pwCurrent}
+                  onChange={(e) => setPwCurrent(e.target.value)}
+                  className="fin-input"
+                  placeholder="••••••••"
+                  autoComplete="current-password"
+                  autoFocus
+                />
+              </div>
+              <div>
+                <label className="fin-label block mb-1.5">{t("newPassword")}</label>
+                <input
+                  type="password"
+                  value={pwNew}
+                  onChange={(e) => setPwNew(e.target.value)}
+                  className="fin-input"
+                  placeholder={t("passwordPlaceholder")}
+                  autoComplete="new-password"
+                />
+              </div>
+              <div>
+                <label className="fin-label block mb-1.5">{t("confirmPassword")}</label>
+                <input
+                  type="password"
+                  value={pwConfirm}
+                  onChange={(e) => setPwConfirm(e.target.value)}
+                  className="fin-input"
+                  placeholder={t("passwordPlaceholder")}
+                  autoComplete="new-password"
+                />
+              </div>
+              {pwError && (
+                <div className="text-xs rounded-xl px-3 py-2" style={{ color: "var(--red)", backgroundColor: "color-mix(in srgb, var(--red) 10%, transparent)", border: "1px solid color-mix(in srgb, var(--red) 22%, transparent)" }}>
+                  {pwError}
+                </div>
+              )}
+              {pwSuccess && (
+                <p className="text-xs text-center font-medium" style={{ color: "var(--green)" }}>{pwSuccess}</p>
+              )}
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => { setPwOpen(false); setPwCurrent(""); setPwNew(""); setPwConfirm(""); setPwError(""); setPwSuccess(""); }}
+                  className="flex-1 py-2 rounded-xl text-xs font-medium cursor-pointer"
+                  style={{ backgroundColor: "var(--surface-2)", color: "var(--text-2)", border: "1px solid var(--border)" }}
+                >
+                  {t("cancelBtn")}
+                </button>
+                <button
+                  type="submit"
+                  disabled={pwLoading || !pwCurrent || !pwNew || !pwConfirm}
+                  className="flex-1 fin-btn-primary disabled:opacity-40 text-xs py-2"
+                >
+                  {pwLoading ? t("changePwSaving") : t("changePasswordBtn")}
+                </button>
+              </div>
+            </form>
+          )}
         </div>
 
         {/* ── Danger zone ── */}

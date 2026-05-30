@@ -19,6 +19,15 @@ const translations = {
     // Profile
     usernameRequired: "Username cannot be empty",
 
+    // Change password
+    changePasswordBtn: "Change Password",
+    changePasswordTitle: "Change Password",
+    currentPassword: "Current Password",
+    changePwSuccess: "Password updated successfully",
+    changePwWrongCurrent: "Current password is incorrect",
+    changePwSameAsOld: "New password cannot be the same as current password",
+    changePwSaving: "Updating…",
+
     // Danger zone
     dangerZone: "Danger Zone",
     deleteAccountBtn: "Delete Account",
@@ -432,6 +441,15 @@ const translations = {
 
     // Profile
     usernameRequired: "Kullanıcı adı boş olamaz",
+
+    // Change password
+    changePasswordBtn: "Şifre Değiştir",
+    changePasswordTitle: "Şifre Değiştir",
+    currentPassword: "Mevcut Şifre",
+    changePwSuccess: "Şifre başarıyla güncellendi",
+    changePwWrongCurrent: "Mevcut şifre yanlış",
+    changePwSameAsOld: "Yeni şifre mevcut şifreyle aynı olamaz",
+    changePwSaving: "Güncelleniyor…",
 
     // Danger zone
     dangerZone: "Tehlikeli Bölge",

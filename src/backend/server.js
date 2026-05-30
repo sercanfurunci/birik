@@ -735,6 +735,36 @@ app.post("/auth/reset-password", async (req, res) => {
   }
 });
 
+app.put("/auth/change-password", authMiddleware, async (req, res) => {
+  const currentPassword = trimStr(req.body.currentPassword, 128);
+  const newPassword     = trimStr(req.body.newPassword, 128);
+
+  if (!currentPassword) return res.status(400).json({ error: "Current password required" });
+  if (!newPassword)     return res.status(400).json({ error: "New password required" });
+
+  const pwError = validatePassword(newPassword);
+  if (pwError) return res.status(400).json({ error: pwError });
+
+  try {
+    const { rows } = await pool.query("SELECT password FROM users WHERE id = $1", [req.user.id]);
+    if (rows.length === 0) return res.status(404).json({ error: "User not found" });
+
+    if (!await bcrypt.compare(currentPassword, rows[0].password))
+      return res.status(400).json({ error: "Current password is incorrect" });
+
+    if (await bcrypt.compare(newPassword, rows[0].password))
+      return res.status(400).json({ error: "New password cannot be the same as current password" });
+
+    const newHash = await bcrypt.hash(newPassword, 10);
+    await pool.query("UPDATE users SET password = $1 WHERE id = $2", [newHash, req.user.id]);
+
+    res.json({ message: "Password updated successfully" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to change password" });
+  }
+});
+
 // ─── Authenticated routes ─────────────────────────────────────────────────────
 
 app.get("/auth/me", authMiddleware, async (req, res) => {
