@@ -197,6 +197,8 @@ pool.query(`ALTER TABLE subscriptions ADD COLUMN IF NOT EXISTS reminder_days INT
   .catch(err => console.error("subscriptions.reminder_days migration:", err));
 pool.query(`ALTER TABLE recurring_transactions ADD COLUMN IF NOT EXISTS reminder_days INTEGER`)
   .catch(err => console.error("recurring_transactions.reminder_days migration:", err));
+pool.query(`ALTER TABLE transactions ADD COLUMN IF NOT EXISTS notes TEXT`)
+  .catch(err => console.error("transactions.notes migration:", err));
 
 pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS custom_categories JSONB DEFAULT '[]'`)
   .catch(err => console.error("users.custom_categories migration:", err));
@@ -1022,6 +1024,7 @@ app.post("/transactions", authMiddleware, async (req, res) => {
   const type        = trimStr(req.body.type, 20);
   const category    = trimStr(req.body.category, 50);
   const date        = isValidDate(req.body.date);
+  const notes       = trimStr(req.body.notes, 1000) ?? null;
 
   if (amount === null)                               return res.status(400).json({ error: "Amount must be a positive number under 1 billion" });
   if (!type || !VALID_TYPES.has(type))               return res.status(400).json({ error: "Type must be 'income' or 'expense'" });
@@ -1030,9 +1033,9 @@ app.post("/transactions", authMiddleware, async (req, res) => {
 
   try {
     const result = await pool.query(
-      `INSERT INTO transactions (description, amount, type, category, date, user_id)
-       VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
-      [description, amount, type, category, date, req.user.id]
+      `INSERT INTO transactions (description, amount, type, category, date, user_id, notes)
+       VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
+      [description, amount, type, category, date, req.user.id, notes]
     );
     res.json(result.rows[0]);
   } catch (err) {
@@ -1047,6 +1050,7 @@ app.put("/transactions/:id", authMiddleware, async (req, res) => {
   const amount      = isValidAmount(req.body.amount);
   const type        = trimStr(req.body.type, 20);
   const category    = trimStr(req.body.category, 50);
+  const notes       = req.body.notes !== undefined ? (trimStr(req.body.notes, 1000) ?? null) : undefined;
 
   if (!id)                                           return res.status(400).json({ error: "Invalid transaction ID" });
   if (amount === null)                               return res.status(400).json({ error: "Amount must be a positive number under 1 billion" });
@@ -1055,9 +1059,9 @@ app.put("/transactions/:id", authMiddleware, async (req, res) => {
 
   try {
     const result = await pool.query(
-      `UPDATE transactions SET description=$1, amount=$2, type=$3, category=$4
-       WHERE id=$5 AND user_id=$6 RETURNING *`,
-      [description, amount, type, category, id, req.user.id]
+      `UPDATE transactions SET description=$1, amount=$2, type=$3, category=$4, notes=$5
+       WHERE id=$6 AND user_id=$7 RETURNING *`,
+      [description, amount, type, category, notes !== undefined ? notes : null, id, req.user.id]
     );
     if (result.rows.length === 0) return res.status(404).json({ error: "Transaction not found" });
     res.json(result.rows[0]);

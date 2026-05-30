@@ -112,7 +112,7 @@ function buildChartData(transactions, range) {
 }
 
 // Filter transactions by selected range
-function filterByRange(transactions, range) {
+function filterByRange(transactions, range, customFrom, customTo) {
   const now = new Date();
   let from, to;
 
@@ -130,6 +130,9 @@ function filterByRange(transactions, range) {
   } else if (range === "lastMonth") {
     from = new Date(now.getFullYear(), now.getMonth() - 1, 1);
     to = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59);
+  } else if (range === "custom") {
+    if (customFrom) { from = parseLocalDate(customFrom); from?.setHours(0, 0, 0, 0); }
+    if (customTo)   { to   = parseLocalDate(customTo);   to?.setHours(23, 59, 59, 999); }
   }
 
   return transactions.filter(tx => {
@@ -144,6 +147,7 @@ const RANGE_LABELS = {
   "thisMonth": { en: "This Month", tr: "Bu Ay" },
   "lastMonth": { en: "Last Month", tr: "Geç. Ay" },
   "all":       { en: "All Time",   tr: "Tümü" },
+  "custom":    { en: "Custom",     tr: "Özel" },
 };
 
 function Analytics({ transactions }) {
@@ -152,8 +156,10 @@ function Analytics({ transactions }) {
   const { getCatColor } = useCategories();
   const [range, setRange] = useState("30d");
   const [catView, setCatView] = useState("expense");
+  const [customFrom, setCustomFrom] = useState("");
+  const [customTo, setCustomTo] = useState("");
 
-  const filtered = useMemo(() => filterByRange(transactions, range), [transactions, range]);
+  const filtered = useMemo(() => filterByRange(transactions, range, customFrom, customTo), [transactions, range, customFrom, customTo]);
 
   if (transactions.length === 0) {
     return (
@@ -272,6 +278,25 @@ function Analytics({ transactions }) {
           );
         })}
       </div>
+      {range === "custom" && (
+        <div className="flex gap-2 items-center flex-wrap">
+          <input
+            type="date"
+            value={customFrom}
+            onChange={e => setCustomFrom(e.target.value)}
+            className="fin-input fin-mono text-xs flex-1"
+            style={{ colorScheme: "light dark", minWidth: 130 }}
+          />
+          <span className="text-xs" style={{ color: "var(--text-3)" }}>→</span>
+          <input
+            type="date"
+            value={customTo}
+            onChange={e => setCustomTo(e.target.value)}
+            className="fin-input fin-mono text-xs flex-1"
+            style={{ colorScheme: "light dark", minWidth: 130 }}
+          />
+        </div>
+      )}
 
       {/* Stats grid — 2 cols on mobile, 4 on sm+ */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">

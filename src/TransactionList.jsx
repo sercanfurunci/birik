@@ -2,16 +2,20 @@ import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { useLang } from "./i18n.jsx";
 import { useCurrency } from "./currency.jsx";
-import { useCategories } from "./categories.jsx";
+import { useCategories, CAT_EMOJI } from "./categories.jsx";
 import { todayLocalISO } from "./dateUtils.js";
 
 const fmt = (n) =>
   parseFloat(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 function CategoryPill({ cat, label, getCatColor, kind }) {
+  const emoji = CAT_EMOJI[cat];
   return (
     <span className="cat-pill shrink-0">
-      <span className="cat-dot" style={{ backgroundColor: getCatColor(cat, kind) }} />
+      {emoji
+        ? <span style={{ fontSize: 10, lineHeight: 1 }}>{emoji}</span>
+        : <span className="cat-dot" style={{ backgroundColor: getCatColor(cat, kind) }} />
+      }
       {label}
     </span>
   );
@@ -258,7 +262,7 @@ function TransactionList({ transactions, onDelete, onEdit, onBulkDelete }) {
 
   const startEdit = (tx) => {
     setEditingId(tx.id);
-    setEditValues({ description: tx.description, amount: tx.amount, type: tx.type, category: tx.category });
+    setEditValues({ description: tx.description, amount: tx.amount, type: tx.type, category: tx.category, notes: tx.notes || "" });
   };
   const saveEdit = (id) => {
     if (!editValues.amount) return;
@@ -468,6 +472,14 @@ function TransactionList({ transactions, onDelete, onEdit, onBulkDelete }) {
                           <option key={cat} value={cat}>{t(cat)}</option>
                         ))}
                       </select>
+                      <input
+                        type="text"
+                        value={editValues.notes || ""}
+                        onChange={(e) => setEditValues({ ...editValues, notes: e.target.value })}
+                        placeholder={t("notesPlaceholder")}
+                        maxLength={1000}
+                        className="fin-input"
+                      />
                       <div className="flex gap-2 pt-1">
                         <button
                           onClick={() => saveEdit(tx.id)}
@@ -511,7 +523,11 @@ function TransactionList({ transactions, onDelete, onEdit, onBulkDelete }) {
                         </p>
                         <CategoryPill cat={tx.category} label={t(tx.category)} getCatColor={getCatColor} kind={tx.type} />
                       </div>
-
+                      {tx.notes && (
+                        <p className="text-[11px] mt-0.5 truncate" style={{ color: "var(--text-3)" }}>
+                          {tx.notes}
+                        </p>
+                      )}
                       <span className="fin-mono text-[10px] mt-0.5 block" style={{ color: "var(--text-3)" }}>
                         {formatDate(tx.date)}
                       </span>
@@ -691,6 +707,9 @@ function TransactionList({ transactions, onDelete, onEdit, onBulkDelete }) {
                         </td>
                         <td className="px-5 py-2.5 text-sm font-medium" style={{ color: "var(--text-1)", overflow: "hidden" }}>
                           <span className="block truncate" title={tx.description}>{tx.description}</span>
+                          {tx.notes && (
+                            <span className="block truncate text-[11px] mt-0.5" style={{ color: "var(--text-3)" }} title={tx.notes}>{tx.notes}</span>
+                          )}
                         </td>
                         <td className="px-5 py-2.5">
                           <CategoryPill cat={tx.category} label={t(tx.category)} getCatColor={getCatColor} kind={tx.type} />

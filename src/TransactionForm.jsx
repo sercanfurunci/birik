@@ -19,6 +19,8 @@ function TransactionForm({ onAdd, onRefresh }) {
   const [amount, setAmount] = useState("");
   const [type, setType] = useState("expense");
   const [category, setCategory] = useState("food");
+  const [notes, setNotes] = useState("");
+  const [showNotes, setShowNotes] = useState(false);
 
   const categoryOptions = type === "income" ? incomeCats : expenseCats;
 
@@ -32,11 +34,13 @@ function TransactionForm({ onAdd, onRefresh }) {
     e.preventDefault();
     const amt = Number(amount);
     if (!Number.isFinite(amt) || amt <= 0) return;
-    onAdd({ description, amount, type, category, date: todayLocalISO() });
+    onAdd({ description, amount, type, category, date: todayLocalISO(), notes: notes.trim() || null });
     setDescription("");
     setAmount("");
     setType("expense");
     setCategory("food");
+    setNotes("");
+    setShowNotes(false);
   };
 
   function handleAddCat() {
@@ -183,6 +187,31 @@ function TransactionForm({ onAdd, onRefresh }) {
               </div>
             )}
           </div>
+
+          {!showNotes ? (
+            <button
+              type="button"
+              onClick={() => setShowNotes(true)}
+              className="text-xs font-medium transition-opacity hover:opacity-70 text-left"
+              style={{ color: "var(--text-3)" }}
+            >
+              {t("addNote")}
+            </button>
+          ) : (
+            <div className="space-y-1.5">
+              <label className="fin-label">{t("notesLabel")}</label>
+              <textarea
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder={t("notesPlaceholder")}
+                maxLength={1000}
+                rows={2}
+                className="fin-input w-full resize-none"
+                style={{ lineHeight: 1.5 }}
+                autoFocus
+              />
+            </div>
+          )}
 
           <button type="submit" className="fin-btn-primary w-full h-11 rounded-xl mt-2">
             {t("addBtn")}

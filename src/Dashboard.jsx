@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, BarChart, Bar, XAxis, YAxis, ReferenceLine } from "recharts";
 import { useLang } from "./i18n.jsx";
 import { useCurrency } from "./currency.jsx";
-import { useCategories } from "./categories.jsx";
+import { useCategories, CAT_EMOJI } from "./categories.jsx";
 import Summary from "./Summary.jsx";
 
 const API = import.meta.env.VITE_API_URL;
@@ -74,6 +74,7 @@ function Dashboard({ transactions, onNavigate }) {
   const [goals, setGoals] = useState([]);
   const [recurring, setRecurring] = useState([]);
   const [subscriptions, setSubscriptions] = useState([]);
+  const [budgets, setBudgets] = useState([]);
 
   useEffect(() => {
     authFetch(`${API}/goals`)
@@ -87,6 +88,10 @@ function Dashboard({ transactions, onNavigate }) {
     authFetch(`${API}/subscriptions`)
       .then(r => r.json())
       .then(d => { if (Array.isArray(d)) setSubscriptions(d); })
+      .catch(() => {});
+    authFetch(`${API}/budgets`)
+      .then(r => r.json())
+      .then(d => { if (Array.isArray(d)) setBudgets(d); })
       .catch(() => {});
   }, []);
 
@@ -214,6 +219,20 @@ function Dashboard({ transactions, onNavigate }) {
   const largestExpense = expenses.length > 0
     ? expenses.reduce((max, tx) => parseFloat(tx.amount) > parseFloat(max.amount) ? tx : max, expenses[0])
     : null;
+
+  // Budget alerts: categories at 80%+ of monthly budget
+  const thisMonthSpendByCat = thisMonthExp.reduce((acc, tx) => {
+    acc[tx.category] = (acc[tx.category] || 0) + (parseFloat(tx.amount) || 0);
+    return acc;
+  }, {});
+  const budgetAlerts = budgets
+    .map(b => ({
+      ...b,
+      spent: thisMonthSpendByCat[b.category] || 0,
+      pct: (thisMonthSpendByCat[b.category] || 0) / parseFloat(b.amount) * 100,
+    }))
+    .filter(b => b.pct >= 80)
+    .sort((a, b) => b.pct - a.pct);
   const allTimeIncome = transactions.filter(tx => tx.type === "income").reduce((s, tx) => s + (parseFloat(tx.amount) || 0), 0);
   const savingsRate = allTimeIncome > 0 ? ((allTimeIncome - totalExpenses) / allTimeIncome) * 100 : null;
 
@@ -321,13 +340,13 @@ function Dashboard({ transactions, onNavigate }) {
                 style={{ borderBottom: i < recent.length - 1 ? "1px solid var(--border)" : "none" }}
               >
                 <div
-                  className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+                  className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 text-base"
                   style={{ backgroundColor: `${getCatColor(tx.category, tx.type)}18` }}
                 >
-                  <div
-                    className="w-2 h-2 rounded-full"
-                    style={{ backgroundColor: getCatColor(tx.category, tx.type) }}
-                  />
+                  {CAT_EMOJI[tx.category]
+                    ? CAT_EMOJI[tx.category]
+                    : <div className="w-2 h-2 rounded-full" style={{ backgroundColor: getCatColor(tx.category, tx.type) }} />
+                  }
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium truncate" style={{ color: "var(--text-1)" }}>
@@ -534,6 +553,61 @@ function Dashboard({ transactions, onNavigate }) {
                 </p>
               </>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* ── Budget alerts widget ── */}
+      {budgetAlerts.length > 0 && (
+        <div className="mt-4 fin-card rounded-2xl overflow-hidden anim-5">
+          <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: "1px solid var(--border)" }}>
+            <div className="flex items-center gap-2">
+              <span>⚠️</span>
+              <p className="fin-label">{t("dashBudgetAlerts")}</p>
+            </div>
+            {onNavigate && (
+              <button
+                onClick={() => onNavigate("budgets")}
+                className="text-xs font-medium transition-opacity hover:opacity-70"
+                style={{ color: "var(--brand)" }}
+              >
+                {t("dashBudgetSeeAll")}
+              </button>
+            )}
+          </div>
+          <div>
+            {budgetAlerts.map((b, i) => {
+              const over = b.pct >= 100;
+              const barColor = over ? "var(--red)" : "var(--yellow, #F59E0B)";
+              const emoji = CAT_EMOJI[b.category];
+              return (
+                <div key={b.id} className="px-5 py-3.5" style={i > 0 ? { borderTop: "1px solid var(--border)" } : {}}>
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      {emoji && <span className="text-base">{emoji}</span>}
+                      <span className="text-sm font-medium capitalize" style={{ color: "var(--text-1)" }}>{t(b.category)}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="fin-mono text-xs font-semibold" style={{ color: "var(--text-2)" }}>
+                        {symbol}{fmt(b.spent)} / {symbol}{fmt(parseFloat(b.amount))}
+                      </span>
+                      <span
+                        className="text-xs font-bold px-1.5 py-0.5 rounded-md"
+                        style={{ backgroundColor: over ? "color-mix(in srgb, var(--red) 14%, transparent)" : "color-mix(in srgb, #F59E0B 14%, transparent)", color: over ? "var(--red)" : "#B45309" }}
+                      >
+                        {b.pct.toFixed(0)}%
+                      </span>
+                    </div>
+                  </div>
+                  <div className="h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: "var(--surface-2)" }}>
+                    <div
+                      className="h-full rounded-full transition-all duration-500"
+                      style={{ width: `${Math.min(100, b.pct)}%`, backgroundColor: barColor }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}

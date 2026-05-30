@@ -2,6 +2,20 @@ import { createContext, useContext, useState, useCallback, useEffect, useRef } f
 
 export const BASE_CATS = ["food", "housing", "utilities", "transport", "entertainment", "salary", "freelance", "investment", "rental", "bonus", "other"];
 
+export const CAT_EMOJI = {
+  food:          "🍔",
+  housing:       "🏠",
+  utilities:     "💡",
+  transport:     "🚗",
+  entertainment: "🎬",
+  salary:        "💼",
+  freelance:     "💻",
+  investment:    "📈",
+  rental:        "🏘️",
+  bonus:         "🎁",
+  other:         "📦",
+};
+
 export const INCOME_ONLY_CATS = ["salary", "freelance", "investment", "rental", "bonus"];
 
 export const BASE_CAT_COLORS = {
