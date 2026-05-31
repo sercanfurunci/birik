@@ -240,10 +240,27 @@ function Dashboard({ transactions, onNavigate }) {
     return (
       <div className="anim-1">
         <Summary transactions={transactions} />
-        <div className="fin-card rounded-2xl py-16 text-center mt-4">
-          <p className="text-3xl mb-3">📊</p>
-          <p className="font-semibold text-sm mb-1" style={{ color: "var(--text-1)" }}>{t("noTransactionsDash")}</p>
-          <p className="text-xs" style={{ color: "var(--text-3)" }}>{t("addFirstTransaction")}</p>
+        <div className="fin-card rounded-2xl py-14 px-6 text-center mt-4 anim-2">
+          <div
+            className="mx-auto mb-4 flex items-center justify-center"
+            style={{
+              width: 56, height: 56, borderRadius: 14,
+              backgroundColor: "var(--brand-dim)",
+              color: "var(--brand)",
+            }}
+          >
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+          </div>
+          <p className="font-semibold text-base mb-1.5" style={{ color: "var(--text-1)" }}>{t("noTransactionsDash")}</p>
+          <p className="text-sm mb-5 max-w-xs mx-auto" style={{ color: "var(--text-3)" }}>{t("addFirstTransaction")}</p>
+          {onNavigate && (
+            <button onClick={() => onNavigate("transactions")} className="fin-btn-primary">
+              {t("navAdd")}
+            </button>
+          )}
         </div>
       </div>
     );

@@ -15,6 +15,7 @@ const translations = {
     navGoals: "Goals",
     navSubscriptions: "Subscriptions",
     navProfile: "Profile & Currency",
+    navAdd: "Add transaction",
 
     // Profile
     usernameRequired: "Username cannot be empty",
@@ -255,8 +256,8 @@ const translations = {
     budgetRemaining: "Remaining",
     budgetOverBy: "Over by",
     budgetOnTrack: "On track",
-    budgetWarning: "Close to limit",
-    budgetExceeded: "Over budget",
+    budgetCloseToLimit: "Close to limit",
+    budgetOverLimit: "Over budget",
     budgetTotal: "Total Budget",
     budgetTotalSpent: "Total Spent",
     budgetDeleteTitle: "Remove Budget",
@@ -456,6 +457,7 @@ const translations = {
     navGoals: "Hedefler",
     navSubscriptions: "Abonelikler",
     navProfile: "Profil & Para Birimi",
+    navAdd: "İşlem ekle",
 
     // Profile
     usernameRequired: "Kullanıcı adı boş olamaz",
@@ -694,8 +696,8 @@ const translations = {
     budgetRemaining: "Kalan",
     budgetOverBy: "Aşım",
     budgetOnTrack: "Yolunda",
-    budgetWarning: "Limite yakın",
-    budgetExceeded: "Bütçe aşıldı",
+    budgetCloseToLimit: "Limite yakın",
+    budgetOverLimit: "Bütçe aşıldı",
     budgetTotal: "Toplam Bütçe",
     budgetTotalSpent: "Toplam Harcama",
     budgetDeleteTitle: "Bütçeyi Kaldır",

@@ -333,7 +333,7 @@ function Budgets({ transactions, showToast, onBudgetChange }) {
         const over = spent > limit;
         const warning = pct >= 80 && !over;
         const barColor = over ? "var(--red)" : warning ? "var(--gold)" : "var(--green)";
-        const status = over ? t("budgetExceeded") : warning ? t("budgetWarning") : t("budgetOnTrack");
+        const status = over ? t("budgetOverLimit") : warning ? t("budgetCloseToLimit") : t("budgetOnTrack");
 
         return (
           <div key={b.id} className="fin-card rounded-2xl p-5">
