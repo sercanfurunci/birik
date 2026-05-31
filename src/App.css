@@ -613,3 +613,11 @@ nav.sm\:hidden span {
 @media (min-width: 640px) {
   .toast-container { bottom: 1.5rem; }
 }
+
+/* Floating bulk-action bar — clears mobile bottom nav, sits at bottom on desktop */
+.bulk-action-bar {
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 80px);
+}
+@media (min-width: 640px) {
+  .bulk-action-bar { bottom: 1.5rem; }
+}

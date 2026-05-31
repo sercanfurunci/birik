@@ -277,6 +277,7 @@ const translations = {
     // Bulk select
     selectModeBtn: "Select",
     exitSelectMode: "Done",
+    bulkSelectedCount: (n) => `${n} selected`,
     bulkDeleteBtn: (n) => `Delete (${n})`,
     bulkDeleteConfirm: (n) => `Delete ${n} transaction${n === 1 ? "" : "s"}? This cannot be undone.`,
 
@@ -717,6 +718,7 @@ const translations = {
     // Bulk select
     selectModeBtn: "Seç",
     exitSelectMode: "Tamam",
+    bulkSelectedCount: (n) => `${n} seçili`,
     bulkDeleteBtn: (n) => `Sil (${n})`,
     bulkDeleteConfirm: (n) => `${n} işlem silinsin mi? Bu işlem geri alınamaz.`,
 

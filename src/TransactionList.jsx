@@ -833,11 +833,11 @@ function TransactionList({ transactions, onDelete, onEdit, onBulkDelete }) {
       {/* Floating bulk delete bar */}
       {selectMode && selectedIds.size > 0 && (
         <div
-          className="fixed left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-4 py-3 rounded-2xl shadow-lg"
-          style={{ bottom: "calc(env(safe-area-inset-bottom, 0px) + 80px)", backgroundColor: "var(--surface)", border: "1px solid var(--border)", boxShadow: "var(--shadow-lg)" }}
+          className="bulk-action-bar fixed left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-4 py-3 rounded-2xl shadow-lg"
+          style={{ backgroundColor: "var(--surface)", border: "1px solid var(--border)", boxShadow: "var(--shadow-lg)" }}
         >
           <span className="text-sm font-medium" style={{ color: "var(--text-2)" }}>
-            {selectedIds.size} selected
+            {t("bulkSelectedCount", selectedIds.size)}
           </span>
           <button
             onClick={handleBulkDelete}
