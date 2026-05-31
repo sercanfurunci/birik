@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, CartesianGrid,
 } from "recharts";
@@ -159,6 +159,8 @@ function Analytics({ transactions }) {
   const [customFrom, setCustomFrom] = useState("");
   const [customTo, setCustomTo] = useState("");
   const [filterCat, setFilterCat] = useState("all");
+
+  useEffect(() => { setFilterCat("all"); }, [range]);
 
   const rangeFiltered = useMemo(() => filterByRange(transactions, range, customFrom, customTo), [transactions, range, customFrom, customTo]);
   const filtered = useMemo(() => filterCat === "all" ? rangeFiltered : rangeFiltered.filter(tx => tx.category === filterCat), [rangeFiltered, filterCat]);

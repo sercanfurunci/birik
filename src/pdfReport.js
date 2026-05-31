@@ -130,7 +130,7 @@ export function exportPDF({ transactions, symbol, t, lang }) {
   });
 
   // ── Footer ────────────────────────────────────────────────────────────────
-  const pageCount = doc.getNumberOfPages();
+  const pageCount = doc.internal.pages.length - 1;
   for (let i = 1; i <= pageCount; i++) {
     doc.setPage(i);
     doc.setFontSize(7.5);

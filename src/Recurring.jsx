@@ -161,9 +161,7 @@ function RecurringForm({ initial, onCancel, onSubmit, saving, t }) {
     initial?.day_of_period ?? new Date(startToday).getUTCDate()
   );
   const [reminderDays, setReminderDays] = useState(
-    initial?.reminder_days === null || initial?.reminder_days === undefined
-      ? 1
-      : Number(initial.reminder_days)
+    initial?.reminder_days == null ? null : Number(initial.reminder_days)
   );
 
   const categoryOptions = type === "income" ? incomeCats : expenseCats;

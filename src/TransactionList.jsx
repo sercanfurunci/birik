@@ -464,6 +464,7 @@ function TransactionList({ transactions, onDelete, onEdit, onBulkDelete }) {
                       <div className="grid grid-cols-2 gap-2">
                         <input
                           type="number"
+                          step="0.01"
                           value={editValues.amount}
                           onChange={(e) => setEditValues({ ...editValues, amount: e.target.value })}
                           className="fin-input fin-mono"
@@ -666,6 +667,7 @@ function TransactionList({ transactions, onDelete, onEdit, onBulkDelete }) {
                               </select>
                               <input
                                 type="number"
+                                step="0.01"
                                 value={editValues.amount}
                                 onChange={(e) => setEditValues({ ...editValues, amount: e.target.value })}
                                 className="fin-input fin-mono text-right flex-1"
@@ -835,8 +837,8 @@ function TransactionList({ transactions, onDelete, onEdit, onBulkDelete }) {
       {/* Floating bulk delete bar */}
       {selectMode && selectedIds.size > 0 && (
         <div
-          className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-4 py-3 rounded-2xl shadow-lg"
-          style={{ backgroundColor: "var(--surface)", border: "1px solid var(--border)", boxShadow: "var(--shadow-lg)" }}
+          className="fixed left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-4 py-3 rounded-2xl shadow-lg"
+          style={{ bottom: "calc(env(safe-area-inset-bottom, 0px) + 80px)", backgroundColor: "var(--surface)", border: "1px solid var(--border)", boxShadow: "var(--shadow-lg)" }}
         >
           <span className="text-sm font-medium" style={{ color: "var(--text-2)" }}>
             {selectedIds.size} selected

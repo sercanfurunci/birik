@@ -158,7 +158,7 @@ function DeleteConfirm({ budget, onConfirm, onCancel }) {
   );
 }
 
-function Budgets({ transactions, showToast }) {
+function Budgets({ transactions, showToast, onBudgetChange }) {
   const { t } = useLang();
   const { symbol } = useCurrency();
   const { expenseCats, customCats, getCatColor } = useCategories();
@@ -204,6 +204,7 @@ function Budgets({ transactions, showToast }) {
       });
       if (res.ok) {
         await refresh();
+        onBudgetChange?.();
         setShowForm(false);
         setEditing(null);
         showToast?.(t("toastBudgetSaved"));
@@ -216,6 +217,7 @@ function Budgets({ transactions, showToast }) {
     try {
       await authFetch(`${API}/budgets/${deleteTarget.id}`, { method: "DELETE" });
       setBudgets((prev) => prev.filter((b) => b.id !== deleteTarget.id));
+      onBudgetChange?.();
       setDeleteTarget(null);
       showToast?.(t("toastBudgetDeleted"));
     } catch (err) { console.log(err); }
