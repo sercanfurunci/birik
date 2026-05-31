@@ -1,23 +1,40 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, lazy, Suspense } from "react";
 import "./App.css";
-import Dashboard from "./Dashboard";
-import Analytics from "./Analytics";
-import TransactionForm from "./TransactionForm";
-import TransactionList from "./TransactionList";
-import LoginPage from "./LoginPage";
-import RegisterPage from "./RegisterPage";
-import ForgotPasswordPage from "./ForgotPasswordPage";
-import ResetPasswordPage from "./ResetPasswordPage";
-import ProfileModal from "./ProfileModal";
-import LandingPage from "./LandingPage";
-import PrivacyPage from "./PrivacyPage";
-import TermsPage from "./TermsPage";
 import { CurrencyProvider } from "./currency.jsx";
 import { CategoriesProvider } from "./categories.jsx";
 import { useLang } from "./i18n.jsx";
-import Subscriptions from "./Subscriptions";
-import Budgets from "./Budgets";
-import Goals from "./Goals";
+
+const Dashboard            = lazy(() => import("./Dashboard"));
+const TransactionForm      = lazy(() => import("./TransactionForm"));
+const TransactionList      = lazy(() => import("./TransactionList"));
+const Analytics            = lazy(() => import("./Analytics"));
+const Budgets              = lazy(() => import("./Budgets"));
+const Goals                = lazy(() => import("./Goals"));
+const Subscriptions        = lazy(() => import("./Subscriptions"));
+const LoginPage            = lazy(() => import("./LoginPage"));
+const RegisterPage         = lazy(() => import("./RegisterPage"));
+const ForgotPasswordPage   = lazy(() => import("./ForgotPasswordPage"));
+const ResetPasswordPage    = lazy(() => import("./ResetPasswordPage"));
+const ProfileModal         = lazy(() => import("./ProfileModal"));
+const LandingPage          = lazy(() => import("./LandingPage"));
+const PrivacyPage          = lazy(() => import("./PrivacyPage"));
+const TermsPage            = lazy(() => import("./TermsPage"));
+
+function PageSpinner() {
+  return (
+    <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: "var(--bg)" }}>
+      <div className="w-8 h-8 rounded-full border-2 border-t-transparent animate-spin" style={{ borderColor: "var(--brand)", borderTopColor: "transparent" }} />
+    </div>
+  );
+}
+
+function TabSpinner() {
+  return (
+    <div className="flex items-center justify-center py-20">
+      <div className="w-7 h-7 rounded-full border-2 border-t-transparent animate-spin" style={{ borderColor: "var(--brand)", borderTopColor: "transparent" }} />
+    </div>
+  );
+}
 
 const API = import.meta.env.VITE_API_URL;
 
@@ -321,27 +338,31 @@ function App() {
   // ── Privacy policy (public, no auth required) ──
   if (authPage === "privacy") {
     return (
-      <PrivacyPage
-        isDark={isDark}
-        toggleDark={() => setIsDark((d) => !d)}
-        onBack={() => {
-          window.history.replaceState(null, "", "/");
-          setAuthPage("landing");
-        }}
-      />
+      <Suspense fallback={<PageSpinner />}>
+        <PrivacyPage
+          isDark={isDark}
+          toggleDark={() => setIsDark((d) => !d)}
+          onBack={() => {
+            window.history.replaceState(null, "", "/");
+            setAuthPage("landing");
+          }}
+        />
+      </Suspense>
     );
   }
 
   if (authPage === "terms") {
     return (
-      <TermsPage
-        isDark={isDark}
-        toggleDark={() => setIsDark((d) => !d)}
-        onBack={() => {
-          window.history.replaceState(null, "", "/");
-          setAuthPage("landing");
-        }}
-      />
+      <Suspense fallback={<PageSpinner />}>
+        <TermsPage
+          isDark={isDark}
+          toggleDark={() => setIsDark((d) => !d)}
+          onBack={() => {
+            window.history.replaceState(null, "", "/");
+            setAuthPage("landing");
+          }}
+        />
+      </Suspense>
     );
   }
 
@@ -349,39 +370,43 @@ function App() {
   if (!currentUser) {
     if (authPage === "landing") {
       return (
-        <LandingPage
-          onGetStarted={() => setAuthPage("register")}
-          onSignIn={() => setAuthPage("login")}
-          isDark={isDark}
-          toggleDark={() => setIsDark((d) => !d)}
-        />
+        <Suspense fallback={<PageSpinner />}>
+          <LandingPage
+            onGetStarted={() => setAuthPage("register")}
+            onSignIn={() => setAuthPage("login")}
+            isDark={isDark}
+            toggleDark={() => setIsDark((d) => !d)}
+          />
+        </Suspense>
       );
     }
     return (
       <div className="min-h-screen login-bg transition-colors duration-300">
-        {authPage === "reset-password" ? (
-          <ResetPasswordPage resetToken={resetToken} onBack={() => setAuthPage("landing")} />
-        ) : authPage === "forgot-password" ? (
-          <ForgotPasswordPage onBack={() => setAuthPage("login")} />
-        ) : authPage === "login" ? (
-          <LoginPage
-            onSuccess={handleAuthSuccess}
-            onSwitch={() => setAuthPage("register")}
-            onForgotPassword={() => setAuthPage("forgot-password")}
-            onBack={() => setAuthPage("landing")}
-            isDark={isDark}
-            toggleDark={() => setIsDark((d) => !d)}
-          />
-        ) : (
-          <RegisterPage
-            onSwitch={() => setAuthPage("login")}
-            onBack={() => setAuthPage("landing")}
-            isDark={isDark}
-            toggleDark={() => setIsDark((d) => !d)}
-            onShowTerms={() => setAuthPage("terms")}
-            onShowPrivacy={() => setAuthPage("privacy")}
-          />
-        )}
+        <Suspense fallback={<PageSpinner />}>
+          {authPage === "reset-password" ? (
+            <ResetPasswordPage resetToken={resetToken} onBack={() => setAuthPage("landing")} />
+          ) : authPage === "forgot-password" ? (
+            <ForgotPasswordPage onBack={() => setAuthPage("login")} />
+          ) : authPage === "login" ? (
+            <LoginPage
+              onSuccess={handleAuthSuccess}
+              onSwitch={() => setAuthPage("register")}
+              onForgotPassword={() => setAuthPage("forgot-password")}
+              onBack={() => setAuthPage("landing")}
+              isDark={isDark}
+              toggleDark={() => setIsDark((d) => !d)}
+            />
+          ) : (
+            <RegisterPage
+              onSwitch={() => setAuthPage("login")}
+              onBack={() => setAuthPage("landing")}
+              isDark={isDark}
+              toggleDark={() => setIsDark((d) => !d)}
+              onShowTerms={() => setAuthPage("terms")}
+              onShowPrivacy={() => setAuthPage("privacy")}
+            />
+          )}
+        </Suspense>
       </div>
     );
   }
@@ -470,24 +495,46 @@ function App() {
         </div>
 
         {/* ── Page content ── */}
-        {activeTab === "dashboard" && <Dashboard transactions={transactions} onNavigate={setActiveTab} />}
-
-        {activeTab === "transactions" && (
-          <div className="anim-1 lg:grid lg:grid-cols-[340px_1fr] lg:gap-6 lg:items-start">
-            <div className="lg:sticky lg:top-6">
-              <TransactionForm onAdd={handleAdd} onRefresh={refreshTransactions} />
-            </div>
-            <TransactionList transactions={transactions} onDelete={handleDelete} onEdit={handleEdit} onBulkDelete={handleBulkDelete} />
-          </div>
+        {activeTab === "dashboard" && (
+          <Suspense fallback={<TabSpinner />}>
+            <Dashboard transactions={transactions} onNavigate={setActiveTab} />
+          </Suspense>
         )}
 
-        {activeTab === "analytics" && <Analytics transactions={transactions} />}
+        {activeTab === "transactions" && (
+          <Suspense fallback={<TabSpinner />}>
+            <div className="anim-1 lg:grid lg:grid-cols-[340px_1fr] lg:gap-6 lg:items-start">
+              <div className="lg:sticky lg:top-6">
+                <TransactionForm onAdd={handleAdd} onRefresh={refreshTransactions} />
+              </div>
+              <TransactionList transactions={transactions} onDelete={handleDelete} onEdit={handleEdit} onBulkDelete={handleBulkDelete} />
+            </div>
+          </Suspense>
+        )}
 
-        {activeTab === "budgets" && <Budgets transactions={transactions} showToast={showToast} onBudgetChange={refreshBudgets} />}
+        {activeTab === "analytics" && (
+          <Suspense fallback={<TabSpinner />}>
+            <Analytics transactions={transactions} />
+          </Suspense>
+        )}
 
-        {activeTab === "goals" && <Goals showToast={showToast} />}
+        {activeTab === "budgets" && (
+          <Suspense fallback={<TabSpinner />}>
+            <Budgets transactions={transactions} showToast={showToast} onBudgetChange={refreshBudgets} />
+          </Suspense>
+        )}
 
-        {activeTab === "subscriptions" && <Subscriptions onExpenseAdded={refreshTransactions} />}
+        {activeTab === "goals" && (
+          <Suspense fallback={<TabSpinner />}>
+            <Goals showToast={showToast} />
+          </Suspense>
+        )}
+
+        {activeTab === "subscriptions" && (
+          <Suspense fallback={<TabSpinner />}>
+            <Subscriptions onExpenseAdded={refreshTransactions} />
+          </Suspense>
+        )}
 
       </div>
 
@@ -504,12 +551,14 @@ function App() {
       </footer>
 
       {showProfile && (
-        <ProfileModal
-          user={currentUser}
-          onClose={() => setShowProfile(false)}
-          onSave={handleProfileSave}
-          onDeleted={() => { setShowProfile(false); handleLogout(); }}
-        />
+        <Suspense fallback={null}>
+          <ProfileModal
+            user={currentUser}
+            onClose={() => setShowProfile(false)}
+            onSave={handleProfileSave}
+            onDeleted={() => { setShowProfile(false); handleLogout(); }}
+          />
+        </Suspense>
       )}
 
       {/* ── Mobile bottom nav ── */}

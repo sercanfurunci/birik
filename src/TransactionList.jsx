@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import { useLang } from "./i18n.jsx";
 import { useCurrency } from "./currency.jsx";
 import { useCategories } from "./categories.jsx";
-import { exportPDF } from "./pdfReport.js";
+const loadExportPDF = () => import("./pdfReport.js").then((m) => m.exportPDF);
 import { todayLocalISO } from "./dateUtils.js";
 
 const fmt = (n) =>
@@ -310,7 +310,10 @@ function TransactionList({ transactions, onDelete, onEdit, onBulkDelete }) {
                     {t("exportCsv")}
                   </button>
                   <button
-                    onClick={() => exportPDF({ transactions: filtered, symbol, t, lang })}
+                    onClick={async () => {
+                      const exportPDF = await loadExportPDF();
+                      exportPDF({ transactions: filtered, symbol, t, lang });
+                    }}
                     disabled={filtered.length === 0}
                     title={filtered.length === 0 ? t("exportEmpty") : t("exportPdf")}
                     className="text-xs py-1.5 px-3 rounded-lg flex items-center gap-1.5 cursor-pointer transition-opacity hover:opacity-80 disabled:opacity-40 disabled:cursor-not-allowed"

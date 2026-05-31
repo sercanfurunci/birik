@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, lazy, Suspense } from "react";
 import { useLang } from "./i18n.jsx";
 import { useCategories } from "./categories.jsx";
-import StatementImportModal from "./StatementImportModal.jsx";
-import Recurring from "./Recurring.jsx";
 import { todayLocalISO } from "./dateUtils.js";
+
+const StatementImportModal = lazy(() => import("./StatementImportModal.jsx"));
+const Recurring            = lazy(() => import("./Recurring.jsx"));
 
 function TransactionForm({ onAdd, onRefresh }) {
   const { t } = useLang();
@@ -58,13 +59,17 @@ function TransactionForm({ onAdd, onRefresh }) {
   return (
     <>
       {showImport && (
-        <StatementImportModal
-          onClose={() => setShowImport(false)}
-          onImported={() => { setShowImport(false); onRefresh?.(); }}
-        />
+        <Suspense fallback={null}>
+          <StatementImportModal
+            onClose={() => setShowImport(false)}
+            onImported={() => { setShowImport(false); onRefresh?.(); }}
+          />
+        </Suspense>
       )}
       {showRecurring && (
-        <Recurring onClose={() => setShowRecurring(false)} onChanged={() => onRefresh?.()} />
+        <Suspense fallback={null}>
+          <Recurring onClose={() => setShowRecurring(false)} onChanged={() => onRefresh?.()} />
+        </Suspense>
       )}
 
       <div className="fin-card rounded-2xl p-5 mb-4 anim-2">
