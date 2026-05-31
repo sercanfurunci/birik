@@ -75,24 +75,24 @@ function Dashboard({ transactions, onNavigate }) {
   const [recurring, setRecurring] = useState([]);
   const [subscriptions, setSubscriptions] = useState([]);
   const [budgets, setBudgets] = useState([]);
+  const [loadingAux, setLoadingAux] = useState(true);
 
   useEffect(() => {
-    authFetch(`${API}/goals`)
-      .then(r => r.json())
-      .then(d => { if (Array.isArray(d)) setGoals(d); })
-      .catch(() => {});
-    authFetch(`${API}/recurring`)
-      .then(r => r.json())
-      .then(d => { if (Array.isArray(d)) setRecurring(d); })
-      .catch(() => {});
-    authFetch(`${API}/subscriptions`)
-      .then(r => r.json())
-      .then(d => { if (Array.isArray(d)) setSubscriptions(d); })
-      .catch(() => {});
-    authFetch(`${API}/budgets`)
-      .then(r => r.json())
-      .then(d => { if (Array.isArray(d)) setBudgets(d); })
-      .catch(() => {});
+    let cancelled = false;
+    Promise.all([
+      authFetch(`${API}/goals`).then(r => r.json()).catch(() => []),
+      authFetch(`${API}/recurring`).then(r => r.json()).catch(() => []),
+      authFetch(`${API}/subscriptions`).then(r => r.json()).catch(() => []),
+      authFetch(`${API}/budgets`).then(r => r.json()).catch(() => []),
+    ]).then(([g, r, s, b]) => {
+      if (cancelled) return;
+      if (Array.isArray(g)) setGoals(g);
+      if (Array.isArray(r)) setRecurring(r);
+      if (Array.isArray(s)) setSubscriptions(s);
+      if (Array.isArray(b)) setBudgets(b);
+      setLoadingAux(false);
+    });
+    return () => { cancelled = true; };
   }, []);
 
   const expenses = transactions.filter((tx) => tx.type === "expense");
@@ -571,8 +571,29 @@ function Dashboard({ transactions, onNavigate }) {
         </div>
       )}
 
+      {/* ── Auxiliary widgets loading skeleton ── */}
+      {loadingAux && (
+        <div className="mt-4 fin-card rounded-2xl p-5 anim-5">
+          <div className="flex items-center justify-between mb-4">
+            <div className="skeleton h-3 w-28 rounded" />
+            <div className="skeleton h-3 w-16 rounded" />
+          </div>
+          <div className="space-y-3">
+            {[0, 1, 2].map(i => (
+              <div key={i} className="flex items-center gap-3">
+                <div className="skeleton w-8 h-8 rounded-lg shrink-0" />
+                <div className="flex-1 space-y-1.5">
+                  <div className="skeleton h-3 rounded" style={{ width: `${60 + i * 10}%` }} />
+                  <div className="skeleton h-2 rounded" style={{ width: `${30 + i * 8}%` }} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* ── Budget alerts widget ── */}
-      {budgetAlerts.length > 0 && (
+      {!loadingAux && budgetAlerts.length > 0 && (
         <div className="mt-4 fin-card rounded-2xl overflow-hidden anim-5">
           <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: "1px solid var(--border)" }}>
             <div className="flex items-center gap-2">
@@ -625,7 +646,7 @@ function Dashboard({ transactions, onNavigate }) {
       )}
 
       {/* ── Savings goals widget ── */}
-      {goals.length > 0 && (
+      {!loadingAux && goals.length > 0 && (
         <div className="mt-4 fin-card rounded-2xl overflow-hidden anim-5">
           <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: "1px solid var(--border)" }}>
             <p className="fin-label">{t("dashGoals")}</p>

@@ -118,7 +118,7 @@ body {
   position: relative;
   background-color: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 14px;
+  border-radius: 16px;
   box-shadow: var(--shadow-sm);
   transition: box-shadow 0.22s ease, border-color 0.22s ease, transform 0.22s ease;
 }
@@ -197,14 +197,14 @@ body {
   background-color: var(--surface-2);
   border: 1px solid var(--border);
   border-radius: 10px;
-  padding: 3px;
-  gap: 2px;
+  padding: 4px;
+  gap: 4px;
 }
 .type-btn {
   flex: 1;
-  padding: 6px 10px;
+  padding: 8px 10px;
   border-radius: 7px;
-  font-size: 12.5px;
+  font-size: 13px;
   font-weight: 500;
   transition: all 0.15s;
   cursor: pointer;
@@ -212,6 +212,9 @@ body {
   border: 1px solid transparent;
   background: transparent;
   white-space: nowrap;
+}
+@media (max-width: 360px) {
+  .type-btn { padding: 7px 6px; font-size: 12px; }
 }
 .type-btn.active-income {
   background-color: var(--surface);
@@ -561,7 +564,14 @@ nav.sm\:hidden span {
   from { opacity: 0; transform: translateY(24px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-.modal-backdrop { animation: backdropIn 0.18s ease both; }
+.modal-backdrop {
+  animation: backdropIn 0.18s ease both;
+  /* Respect iOS safe areas so modal-panel never sits under the notch / home indicator */
+  padding-top:    env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-left:   env(safe-area-inset-left, 0px);
+  padding-right:  env(safe-area-inset-right, 0px);
+}
 .modal-panel    { animation: modalIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) both; }
 @media (max-width: 639px) {
   .modal-panel  { animation: modalInMobile 0.28s cubic-bezier(0.16, 1, 0.3, 1) both; }
