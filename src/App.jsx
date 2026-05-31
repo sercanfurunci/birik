@@ -256,8 +256,8 @@ function App() {
               .reduce((s, tx) => s + (parseFloat(tx.amount) || 0), 0);
             const pct = Math.round((spent / parseFloat(budget.amount)) * 100);
             const cat = t(data.category);
-            if (pct >= 100) showToast(t("budgetExceeded")({ cat, pct }), "warning");
-            else if (pct >= 80) showToast(t("budgetWarning")({ cat, pct }), "warning");
+            if (pct >= 100) showToast(t("budgetExceeded", { cat, pct }), "warning");
+            else if (pct >= 80) showToast(t("budgetWarning", { cat, pct }), "warning");
           }
         }
         return next;

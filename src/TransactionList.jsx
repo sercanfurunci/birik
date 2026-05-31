@@ -197,7 +197,7 @@ function TransactionList({ transactions, onDelete, onEdit, onBulkDelete }) {
   const handleBulkDelete = async () => {
     const ids = [...selectedIds];
     if (!ids.length) return;
-    if (!confirm(t("bulkDeleteConfirm")(ids.length))) return;
+    if (!confirm(t("bulkDeleteConfirm", ids.length))) return;
     setBulkDeleting(true);
     try {
       await onBulkDelete(ids);
@@ -845,7 +845,7 @@ function TransactionList({ transactions, onDelete, onEdit, onBulkDelete }) {
             className="py-2 px-4 rounded-xl text-sm font-semibold cursor-pointer disabled:opacity-50"
             style={{ backgroundColor: "var(--red)", color: "#fff" }}
           >
-            {bulkDeleting ? "…" : t("bulkDeleteBtn")(selectedIds.size)}
+            {bulkDeleting ? "…" : t("bulkDeleteBtn", selectedIds.size)}
           </button>
         </div>
       )}

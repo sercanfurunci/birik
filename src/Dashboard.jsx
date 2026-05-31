@@ -388,9 +388,9 @@ function Dashboard({ transactions, onNavigate }) {
 
       {/* ── Daily balance chart ── */}
       {hasAnyDailyData && (
-        <div className="mt-4 fin-card rounded-2xl p-5 anim-3">
+        <div className="mt-4 fin-card rounded-2xl p-5 anim-3" style={{ minWidth: 0 }}>
           <p className="fin-label mb-4">{t("dailyDist")}</p>
-          <ResponsiveContainer width="100%" height={160}>
+          <ResponsiveContainer width="100%" height={160} minWidth={0} minHeight={0}>
             <BarChart data={dailyData} barCategoryGap="20%" margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
               <XAxis
                 dataKey="day"

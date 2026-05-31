@@ -518,7 +518,7 @@ function Recurring({ onClose, onChanged }) {
       )}
       {dupPayload && (
         <ConfirmModal
-          message={t("recurringDuplicateWarn")({ name: dupPayload.name })}
+          message={t("recurringDuplicateWarn", { name: dupPayload.name })}
           confirmLabel={t("recurringAddAnyway")}
           cancelLabel={t("cancelBtn")}
           onConfirm={() => { const p = dupPayload.payload; setDupPayload(null); doSubmit(p); }}
