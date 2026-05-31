@@ -1,6 +1,5 @@
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
-import { CAT_EMOJI } from "./categories.jsx";
 
 const fmt = (n) =>
   parseFloat(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -69,7 +68,7 @@ export function exportPDF({ transactions, symbol, t, lang }) {
   const catRows = Object.entries(catMap)
     .sort((a, b) => b[1] - a[1])
     .map(([cat, val]) => [
-      `${CAT_EMOJI[cat] || ""}  ${t(cat)}`,
+      t(cat),
       `${symbol}${fmt(val)}`,
       `${totalExpense > 0 ? ((val / totalExpense) * 100).toFixed(1) : 0}%`,
     ]);
@@ -103,7 +102,7 @@ export function exportPDF({ transactions, symbol, t, lang }) {
     .map(tx => [
       (tx.date || "").slice(0, 10),
       tx.description || "",
-      `${CAT_EMOJI[tx.category] || ""}  ${t(tx.category)}`,
+      t(tx.category),
       { content: `${tx.type === "income" ? "+" : "−"}${symbol}${fmt(tx.amount)}`,
         styles: { textColor: tx.type === "income" ? [22, 163, 74] : [220, 38, 38] } },
     ]);

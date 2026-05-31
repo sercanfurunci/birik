@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { useLang } from "./i18n.jsx";
 import { useCurrency } from "./currency.jsx";
-import { useCategories, CAT_EMOJI } from "./categories.jsx";
+import { useCategories } from "./categories.jsx";
 import { exportPDF } from "./pdfReport.js";
 import { todayLocalISO } from "./dateUtils.js";
 
@@ -10,13 +10,9 @@ const fmt = (n) =>
   parseFloat(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 function CategoryPill({ cat, label, getCatColor, kind }) {
-  const emoji = CAT_EMOJI[cat];
   return (
     <span className="cat-pill shrink-0">
-      {emoji
-        ? <span style={{ fontSize: 10, lineHeight: 1 }}>{emoji}</span>
-        : <span className="cat-dot" style={{ backgroundColor: getCatColor(cat, kind) }} />
-      }
+      <span className="cat-dot" style={{ backgroundColor: getCatColor(cat, kind) }} />
       {label}
     </span>
   );

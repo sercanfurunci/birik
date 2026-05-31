@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, BarChart, Bar, XAxis, YAxis, ReferenceLine } from "recharts";
 import { useLang } from "./i18n.jsx";
 import { useCurrency } from "./currency.jsx";
-import { useCategories, CAT_EMOJI } from "./categories.jsx";
+import { useCategories } from "./categories.jsx";
 import Summary from "./Summary.jsx";
 
 const API = import.meta.env.VITE_API_URL;
@@ -343,10 +343,7 @@ function Dashboard({ transactions, onNavigate }) {
                   className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 text-base"
                   style={{ backgroundColor: `${getCatColor(tx.category, tx.type)}18` }}
                 >
-                  {CAT_EMOJI[tx.category]
-                    ? CAT_EMOJI[tx.category]
-                    : <div className="w-2 h-2 rounded-full" style={{ backgroundColor: getCatColor(tx.category, tx.type) }} />
-                  }
+                  <div className="w-2 h-2 rounded-full" style={{ backgroundColor: getCatColor(tx.category, tx.type) }} />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium truncate" style={{ color: "var(--text-1)" }}>
@@ -579,12 +576,10 @@ function Dashboard({ transactions, onNavigate }) {
             {budgetAlerts.map((b, i) => {
               const over = b.pct >= 100;
               const barColor = over ? "var(--red)" : "var(--yellow, #F59E0B)";
-              const emoji = CAT_EMOJI[b.category];
               return (
                 <div key={b.id} className="px-5 py-3.5" style={i > 0 ? { borderTop: "1px solid var(--border)" } : {}}>
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
-                      {emoji && <span className="text-base">{emoji}</span>}
                       <span className="text-sm font-medium capitalize" style={{ color: "var(--text-1)" }}>{t(b.category)}</span>
                     </div>
                     <div className="flex items-center gap-2">

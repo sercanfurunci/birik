@@ -4,7 +4,7 @@ import {
 } from "recharts";
 import { useLang } from "./i18n.jsx";
 import { useCurrency } from "./currency.jsx";
-import { useCategories, CAT_EMOJI } from "./categories.jsx";
+import { useCategories } from "./categories.jsx";
 import { parseLocalDate } from "./dateUtils.js";
 
 function isoFromLocalDate(d) {
@@ -312,7 +312,6 @@ function Analytics({ transactions }) {
                   border: `1px solid ${active ? "var(--brand)" : "var(--border)"}`,
                 }}
               >
-                {CAT_EMOJI[cat] && <span>{CAT_EMOJI[cat]}</span>}
                 {t(cat)}
               </button>
             );
